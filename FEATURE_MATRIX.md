@@ -1,0 +1,64 @@
+# Feature Matrix
+
+Statuses: **IMPLEMENTED** (code complete, verified where noted) · **TESTED** (automated tests executed and passing) ·
+**PARTIAL** (works with documented gaps) · **BLOCKED** (cannot proceed without an external input) · **NOT STARTED**.
+
+"Verified" always names *how*. Native code that has only been compiled in CI and never run on a device is at most
+PARTIAL.
+
+Last update: 2026-10-27 (end of Phase 1 start).
+
+## Native beauty engine (`packages/yuz_beauty_engine`)
+
+| Feature | Android | iOS | Evidence |
+|---|---|---|---|
+| Typed Flutter ⇄ native API (Pigeon 29) | IMPLEMENTED | IMPLEMENTED | generated code; Dart facade unit tests (6) |
+| Camera preview into Flutter texture (no PlatformView, no frame copies over channels) | PARTIAL | PARTIAL | CameraX→SurfaceTexture→EGL→SurfaceProducer / AVFoundation→Metal→FlutterTexture; **not yet run on a device** |
+| Front/back switch with resource release | PARTIAL | PARTIAL | new SurfaceTexture per binding / session reconfigure; device test pending |
+| Flash (off/auto/on/torch) | PARTIAL | PARTIAL | torch-assisted capture; front "screen flash" NOT STARTED |
+| Zoom, exposure compensation | PARTIAL | PARTIAL | clamped to device ranges |
+| Timer (3 s / 10 s, cancellable) | TESTED (Dart) | TESTED (Dart) | `beauty_camera_controller_test.dart` |
+| Photo capture (processed frame, JPEG) | PARTIAL | PARTIAL | captured at preview resolution (≤1080p); full-sensor capture is Phase 3 |
+| Video recording | NOT STARTED | NOT STARTED | Phase 4 |
+| Resolution / aspect control | PARTIAL | PARTIAL | API supports 720p/1080p, 4:3/16:9; UI fixed to 1080p 16:9 |
+| Permission-denied handling | TESTED (Dart) | TESTED (Dart) | native check + typed `PERMISSION_DENIED`; widget tests |
+| Camera lifecycle (pause/resume/dispose, interruption errors) | PARTIAL | PARTIAL | Dart side tested; native side device test pending |
+| MediaPipe Face Landmarker (live stream, 1-in-flight backpressure, GPU→CPU fallback) | PARTIAL | PARTIAL | tasks-vision 1.0.0 / MediaPipeTasksVision 1.0.0; model SHA-256 pinned |
+| Landmark stabilization (One Euro) | TESTED | IMPLEMENTED | Kotlin JUnit (5 tests); Swift port untested |
+| Multi-face policy (primary face with hysteresis / all faces ≤4) | TESTED | IMPLEMENTED | Kotlin JUnit (6 tests) |
+| No-face / model-missing graceful degradation | IMPLEMENTED | IMPLEMENTED | empty mask / colour-only mode |
+| Thermal degradation | IMPLEMENTED | IMPLEMENTED | detection halved at "severe", paused at "critical" |
+| Measured performance telemetry (FPS, frame ms, detector ms, drops) | IMPLEMENTED | IMPLEMENTED | Kotlin tracker tested; **no device FPS measured yet** |
+
+## Beauty effects
+
+| Effect | Status | Evidence |
+|---|---|---|
+| Skin smoothing (detail-preserving, landmark + YCbCr skin mask) | TESTED (GLSL) / PARTIAL (device) | 8 WebGL2 pixel tests incl. mutation checks; Metal port untested |
+| Natural texture preservation | TESTED (GLSL) | "texture preservation keeps fine pore-scale detail" |
+| Skin brightening | TESTED (GLSL) | "brightening lifts skin luma" |
+| Skin tone, blemish reduction (dedicated), eye brightening, teeth whitening, dark circles, shine reduction, glow | NOT STARTED | Phase 2–3 |
+| Face reshape (slim, jaw, chin, eyes, nose, lips, forehead) | NOT STARTED | Phase 3 |
+| Makeup (lipstick, blush, brows, eyeshadow, eyeliner) | NOT STARTED | Phase 3 |
+| Filters (Natural…B&W, custom LUT) | NOT STARTED | Phase 2 |
+| 0..100 slider per parameter | TESTED | widget + unit tests |
+| Undo / reset / save & delete presets | TESTED | unit + widget tests |
+
+## App screens (`apps/mobile`)
+
+| Screen | Status |
+|---|---|
+| Splash, Onboarding, Permissions, Home, Settings (language, perf overlay), Privacy | TESTED (widget tests) |
+| AI Camera / Beauty | PARTIAL (UI tested with fake engine; native device run pending) |
+| Capture result viewer | IMPLEMENTED |
+| Photo editor, Video editor, AI Photoshoot/Hairstyle/Makeup/Background, Templates, Projects, Export, Premium, Credits, Profile, Help, Account deletion | NOT STARTED — shown as "Planned" and routed to an honest "not available" screen |
+| Localization uz / ru / en | TESTED |
+
+## Platform / infrastructure
+
+| Item | Status |
+|---|---|
+| Backend (NestJS, Prisma, BullMQ), AI worker, admin panel | NOT STARTED (Phase 5–7) |
+| CI workflow (Flutter, shaders, Android unit/APK/AAB, iOS no-codesign, secrets) | IMPLEMENTED — see PROGRESS.md for run results |
+| Android release signing | BLOCKED — needs upload keystore (secrets) |
+| iOS signing / TestFlight | BLOCKED — needs Apple Developer team, certificates, profiles |

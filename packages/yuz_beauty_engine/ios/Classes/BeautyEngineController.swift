@@ -234,8 +234,11 @@ final class BeautyEngineController: NSObject, BeautyEngineHostApi,
 
     let snapshot = withState {
       () -> (MetalBeautyRenderer?, FaceLandmarkDetector?, BeautySettings, FaceTrackingSnapshot, Int, Int, Int64, FirstFrameWaiter?) in
-      frameCounter += 1
-      return (renderer, detector, settings, latestFaces, frameCounter, thermalLevel, textureId, firstFrameWaiter)
+      self.frameCounter += 1
+      return (
+        self.renderer, self.detector, self.settings, self.latestFaces, self.frameCounter, self.thermalLevel,
+        self.textureId, self.firstFrameWaiter
+      )
     }
     let (renderer, detector, settings, faces, counter, thermal, textureId, waiter) = snapshot
     waiter?.resolve(width: CVPixelBufferGetWidth(pixelBuffer), height: CVPixelBufferGetHeight(pixelBuffer))
@@ -264,7 +267,7 @@ final class BeautyEngineController: NSObject, BeautyEngineHostApi,
     guard let renderer else { return }
     let start = ProcessInfo.processInfo.systemUptime
     let submitted = renderer.render(input: pixelBuffer, settings: settings, faces: facesForRender) {
-      [weak self] processed in
+      [weak self] (processed: CVPixelBuffer) in
       guard let self else { return }
       self.previewTexture.update(processed)
       self.performance.onFrameRendered(gpuSeconds: ProcessInfo.processInfo.systemUptime - start)

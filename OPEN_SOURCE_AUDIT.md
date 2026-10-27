@@ -139,7 +139,7 @@ Legend for **Final decision**:
 | flutter_riverpod 3.x | MIT | app |
 | go_router 18.x | BSD-3-Clause | app |
 | shared_preferences, path_provider | BSD-3-Clause | app |
-| permission_handler 13.x | MIT | app |
+| permission_handler 12.x | MIT | app |
 | intl | BSD-3-Clause | app |
 | pigeon (dev only, generated code is ours) | BSD-3-Clause | build tool |
 | androidx.camera (CameraX) | Apache-2.0 | Android |

@@ -10,9 +10,9 @@ import 'package:flutter/services.dart';
 import 'package:meta/meta.dart' show immutable, protected, visibleForTesting;
 
 Object? _extractReplyValueOrThrow(
-  List<Object?>? replyList,
-  String channelName, {
-  required bool isNullValid,
+    List<Object?>? replyList,
+    String channelName, {
+    required bool isNullValid,
 }) {
   if (replyList == null) {
     throw PlatformException(
@@ -34,11 +34,8 @@ Object? _extractReplyValueOrThrow(
   return replyList.firstOrNull;
 }
 
-List<Object?> wrapResponse({
-  Object? result,
-  PlatformException? error,
-  bool empty = false,
-}) {
+
+List<Object?> wrapResponse({Object? result, PlatformException? error, bool empty = false}) {
   if (empty) {
     return <Object?>[];
   }
@@ -47,7 +44,6 @@ List<Object?> wrapResponse({
   }
   return <Object?>[error.code, error.message, error.details];
 }
-
 bool _deepEquals(Object? a, Object? b) {
   if (identical(a, b)) {
     return true;
@@ -60,9 +56,8 @@ bool _deepEquals(Object? a, Object? b) {
   }
   if (a is List && b is List) {
     return a.length == b.length &&
-        a.indexed.every(
-          ((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]),
-        );
+        a.indexed
+            .every(((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]));
   }
   if (a is Map && b is Map) {
     if (a.length != b.length) {
@@ -111,25 +106,39 @@ int _deepHash(Object? value) {
   return value.hashCode;
 }
 
-enum CameraLens { front, back }
 
-enum FlashMode { off, auto, on, torch }
+enum CameraLens {
+  front,
+  back;
+}
+
+enum FlashMode {
+  off,
+  auto,
+  on,
+  torch;
+}
 
 /// Capture aspect ratio. Preview and analysis streams always share it so
 /// landmark coordinates map 1:1 onto the rendered frame.
-enum CaptureAspectRatio { ratio4x3, ratio16x9 }
+enum CaptureAspectRatio {
+  ratio4x3,
+  ratio16x9;
+}
 
 /// Target preview resolution (long edge). The device may pick the nearest
 /// supported size; the actual size is reported in [PreviewDescriptor].
-enum PreviewQuality { low720, high1080 }
+enum PreviewQuality {
+  low720,
+  high1080;
+}
 
 /// Which faces receive beauty effects when several are visible.
 enum MultiFacePolicy {
   /// Only the most prominent face (largest area, with hysteresis).
   primaryFace,
-
   /// Every tracked face up to [EngineConfig.maxFaces].
-  allFaces,
+  allFaces;
 }
 
 enum EngineErrorCode {
@@ -141,7 +150,7 @@ enum EngineErrorCode {
   faceModelUnavailable,
   captureFailed,
   thermalThrottling,
-  unknown,
+  unknown;
 }
 
 class EngineConfig {
@@ -179,8 +188,7 @@ class EngineConfig {
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static EngineConfig decode(Object result) {
     result as List<Object?>;
@@ -203,12 +211,7 @@ class EngineConfig {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(lens, other.lens) &&
-        _deepEquals(aspectRatio, other.aspectRatio) &&
-        _deepEquals(quality, other.quality) &&
-        _deepEquals(enableFaceTracking, other.enableFaceTracking) &&
-        _deepEquals(maxFaces, other.maxFaces) &&
-        _deepEquals(multiFacePolicy, other.multiFacePolicy);
+    return _deepEquals(lens, other.lens) && _deepEquals(aspectRatio, other.aspectRatio) && _deepEquals(quality, other.quality) && _deepEquals(enableFaceTracking, other.enableFaceTracking) && _deepEquals(maxFaces, other.maxFaces) && _deepEquals(multiFacePolicy, other.multiFacePolicy);
   }
 
   @override
@@ -258,8 +261,7 @@ class PreviewDescriptor {
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static PreviewDescriptor decode(Object result) {
     result as List<Object?>;
@@ -282,12 +284,7 @@ class PreviewDescriptor {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(textureId, other.textureId) &&
-        _deepEquals(width, other.width) &&
-        _deepEquals(height, other.height) &&
-        _deepEquals(lens, other.lens) &&
-        _deepEquals(isMirrored, other.isMirrored) &&
-        _deepEquals(faceTrackingAvailable, other.faceTrackingAvailable);
+    return _deepEquals(textureId, other.textureId) && _deepEquals(width, other.width) && _deepEquals(height, other.height) && _deepEquals(lens, other.lens) && _deepEquals(isMirrored, other.isMirrored) && _deepEquals(faceTrackingAvailable, other.faceTrackingAvailable);
   }
 
   @override
@@ -315,12 +312,15 @@ class BeautyParameters {
   double skinBrightening;
 
   List<Object?> _toList() {
-    return <Object?>[skinSmoothing, texturePreservation, skinBrightening];
+    return <Object?>[
+      skinSmoothing,
+      texturePreservation,
+      skinBrightening,
+    ];
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static BeautyParameters decode(Object result) {
     result as List<Object?>;
@@ -340,9 +340,7 @@ class BeautyParameters {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(skinSmoothing, other.skinSmoothing) &&
-        _deepEquals(texturePreservation, other.texturePreservation) &&
-        _deepEquals(skinBrightening, other.skinBrightening);
+    return _deepEquals(skinSmoothing, other.skinSmoothing) && _deepEquals(texturePreservation, other.texturePreservation) && _deepEquals(skinBrightening, other.skinBrightening);
   }
 
   @override
@@ -394,8 +392,7 @@ class CameraCapabilities {
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static CameraCapabilities decode(Object result) {
     result as List<Object?>;
@@ -419,13 +416,7 @@ class CameraCapabilities {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(hasFrontCamera, other.hasFrontCamera) &&
-        _deepEquals(hasBackCamera, other.hasBackCamera) &&
-        _deepEquals(hasFlash, other.hasFlash) &&
-        _deepEquals(minZoomRatio, other.minZoomRatio) &&
-        _deepEquals(maxZoomRatio, other.maxZoomRatio) &&
-        _deepEquals(minExposureBias, other.minExposureBias) &&
-        _deepEquals(maxExposureBias, other.maxExposureBias);
+    return _deepEquals(hasFrontCamera, other.hasFrontCamera) && _deepEquals(hasBackCamera, other.hasBackCamera) && _deepEquals(hasFlash, other.hasFlash) && _deepEquals(minZoomRatio, other.minZoomRatio) && _deepEquals(maxZoomRatio, other.maxZoomRatio) && _deepEquals(minExposureBias, other.minExposureBias) && _deepEquals(maxExposureBias, other.maxExposureBias);
   }
 
   @override
@@ -452,12 +443,15 @@ class PhotoCaptureResult {
   int height;
 
   List<Object?> _toList() {
-    return <Object?>[filePath, width, height];
+    return <Object?>[
+      filePath,
+      width,
+      height,
+    ];
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static PhotoCaptureResult decode(Object result) {
     result as List<Object?>;
@@ -477,9 +471,7 @@ class PhotoCaptureResult {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(filePath, other.filePath) &&
-        _deepEquals(width, other.width) &&
-        _deepEquals(height, other.height);
+    return _deepEquals(filePath, other.filePath) && _deepEquals(width, other.width) && _deepEquals(height, other.height);
   }
 
   @override
@@ -506,12 +498,15 @@ class FaceTrackingStatus {
   int timestampMillis;
 
   List<Object?> _toList() {
-    return <Object?>[faceCount, beautifiedFaceCount, timestampMillis];
+    return <Object?>[
+      faceCount,
+      beautifiedFaceCount,
+      timestampMillis,
+    ];
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static FaceTrackingStatus decode(Object result) {
     result as List<Object?>;
@@ -531,9 +526,7 @@ class FaceTrackingStatus {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(faceCount, other.faceCount) &&
-        _deepEquals(beautifiedFaceCount, other.beautifiedFaceCount) &&
-        _deepEquals(timestampMillis, other.timestampMillis);
+    return _deepEquals(faceCount, other.faceCount) && _deepEquals(beautifiedFaceCount, other.beautifiedFaceCount) && _deepEquals(timestampMillis, other.timestampMillis);
   }
 
   @override
@@ -582,8 +575,7 @@ class PerformanceSample {
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static PerformanceSample decode(Object result) {
     result as List<Object?>;
@@ -606,12 +598,7 @@ class PerformanceSample {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(renderedFps, other.renderedFps) &&
-        _deepEquals(cameraFps, other.cameraFps) &&
-        _deepEquals(averageGpuFrameMillis, other.averageGpuFrameMillis) &&
-        _deepEquals(averageDetectorMillis, other.averageDetectorMillis) &&
-        _deepEquals(droppedFrames, other.droppedFrames) &&
-        _deepEquals(thermalLevel, other.thermalLevel);
+    return _deepEquals(renderedFps, other.renderedFps) && _deepEquals(cameraFps, other.cameraFps) && _deepEquals(averageGpuFrameMillis, other.averageGpuFrameMillis) && _deepEquals(averageDetectorMillis, other.averageDetectorMillis) && _deepEquals(droppedFrames, other.droppedFrames) && _deepEquals(thermalLevel, other.thermalLevel);
   }
 
   @override
@@ -625,19 +612,24 @@ class PerformanceSample {
 }
 
 class EngineError {
-  EngineError({required this.code, required this.message});
+  EngineError({
+    required this.code,
+    required this.message,
+  });
 
   EngineErrorCode code;
 
   String message;
 
   List<Object?> _toList() {
-    return <Object?>[code, message];
+    return <Object?>[
+      code,
+      message,
+    ];
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static EngineError decode(Object result) {
     result as List<Object?>;
@@ -669,6 +661,7 @@ class EngineError {
   }
 }
 
+
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
   @override
@@ -676,46 +669,46 @@ class _PigeonCodec extends StandardMessageCodec {
     if (value is int) {
       buffer.putUint8(4);
       buffer.putInt64(value);
-    } else if (value is CameraLens) {
+    }    else if (value is CameraLens) {
       buffer.putUint8(129);
       writeValue(buffer, value.index);
-    } else if (value is FlashMode) {
+    }    else if (value is FlashMode) {
       buffer.putUint8(130);
       writeValue(buffer, value.index);
-    } else if (value is CaptureAspectRatio) {
+    }    else if (value is CaptureAspectRatio) {
       buffer.putUint8(131);
       writeValue(buffer, value.index);
-    } else if (value is PreviewQuality) {
+    }    else if (value is PreviewQuality) {
       buffer.putUint8(132);
       writeValue(buffer, value.index);
-    } else if (value is MultiFacePolicy) {
+    }    else if (value is MultiFacePolicy) {
       buffer.putUint8(133);
       writeValue(buffer, value.index);
-    } else if (value is EngineErrorCode) {
+    }    else if (value is EngineErrorCode) {
       buffer.putUint8(134);
       writeValue(buffer, value.index);
-    } else if (value is EngineConfig) {
+    }    else if (value is EngineConfig) {
       buffer.putUint8(135);
       writeValue(buffer, value.encode());
-    } else if (value is PreviewDescriptor) {
+    }    else if (value is PreviewDescriptor) {
       buffer.putUint8(136);
       writeValue(buffer, value.encode());
-    } else if (value is BeautyParameters) {
+    }    else if (value is BeautyParameters) {
       buffer.putUint8(137);
       writeValue(buffer, value.encode());
-    } else if (value is CameraCapabilities) {
+    }    else if (value is CameraCapabilities) {
       buffer.putUint8(138);
       writeValue(buffer, value.encode());
-    } else if (value is PhotoCaptureResult) {
+    }    else if (value is PhotoCaptureResult) {
       buffer.putUint8(139);
       writeValue(buffer, value.encode());
-    } else if (value is FaceTrackingStatus) {
+    }    else if (value is FaceTrackingStatus) {
       buffer.putUint8(140);
       writeValue(buffer, value.encode());
-    } else if (value is PerformanceSample) {
+    }    else if (value is PerformanceSample) {
       buffer.putUint8(141);
       writeValue(buffer, value.encode());
-    } else if (value is EngineError) {
+    }    else if (value is EngineError) {
       buffer.putUint8(142);
       writeValue(buffer, value.encode());
     } else {
@@ -771,63 +764,58 @@ class BeautyEngineHostApi {
   /// available for dependency injection. If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
   BeautyEngineHostApi({
-    BinaryMessenger? binaryMessenger,
-    String messageChannelSuffix = '',
-  }) : pigeonVar_binaryMessenger = binaryMessenger,
-       pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty
-           ? '.$messageChannelSuffix'
-           : '';
+      BinaryMessenger? binaryMessenger, 
+      String messageChannelSuffix = '', 
+      })
+      : pigeonVar_binaryMessenger = binaryMessenger,
+        pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
 
   final BinaryMessenger? pigeonVar_binaryMessenger;
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
 
   final String pigeonVar_messageChannelSuffix;
 
+
   Future<PreviewDescriptor> initialize(EngineConfig config) async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.initialize$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.initialize$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
-      <Object?>[config],
-    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[config]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-      pigeonVar_replyList,
-      pigeonVar_channelName,
-      isNullValid: false,
-    );
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
     return pigeonVar_replyValue! as PreviewDescriptor;
   }
 
   Future<PreviewDescriptor> switchLens(CameraLens lens) async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.switchLens$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.switchLens$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
-      <Object?>[lens],
-    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[lens]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-      pigeonVar_replyList,
-      pigeonVar_channelName,
-      isNullValid: false,
-    );
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
     return pigeonVar_replyValue! as PreviewDescriptor;
   }
 
   Future<CameraCapabilities> getCapabilities() async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.getCapabilities$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.getCapabilities$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -837,117 +825,107 @@ class BeautyEngineHostApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-      pigeonVar_replyList,
-      pigeonVar_channelName,
-      isNullValid: false,
-    );
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
     return pigeonVar_replyValue! as CameraCapabilities;
   }
 
   Future<void> setBeautyParameters(BeautyParameters parameters) async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.setBeautyParameters$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.setBeautyParameters$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
-      <Object?>[parameters],
-    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[parameters]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-      pigeonVar_replyList,
-      pigeonVar_channelName,
-      isNullValid: true,
-    );
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
   }
 
   Future<void> setFlashMode(FlashMode mode) async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.setFlashMode$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.setFlashMode$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
-      <Object?>[mode],
-    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[mode]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-      pigeonVar_replyList,
-      pigeonVar_channelName,
-      isNullValid: true,
-    );
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
   }
 
   Future<void> setZoomRatio(double ratio) async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.setZoomRatio$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.setZoomRatio$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
-      <Object?>[ratio],
-    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[ratio]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-      pigeonVar_replyList,
-      pigeonVar_channelName,
-      isNullValid: true,
-    );
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
   }
 
   Future<void> setExposureBias(double ev) async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.setExposureBias$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.setExposureBias$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
-      <Object?>[ev],
-    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[ev]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-      pigeonVar_replyList,
-      pigeonVar_channelName,
-      isNullValid: true,
-    );
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
   }
 
   Future<PhotoCaptureResult> capturePhoto(String outputFilePath) async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.capturePhoto$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.capturePhoto$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
-      <Object?>[outputFilePath],
-    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[outputFilePath]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-      pigeonVar_replyList,
-      pigeonVar_channelName,
-      isNullValid: false,
-    );
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
     return pigeonVar_replyValue! as PhotoCaptureResult;
   }
 
   Future<void> pause() async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.pause$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.pause$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -957,15 +935,15 @@ class BeautyEngineHostApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-      pigeonVar_replyList,
-      pigeonVar_channelName,
-      isNullValid: true,
-    );
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
   }
 
   Future<void> resume() async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.resume$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.resume$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -975,15 +953,15 @@ class BeautyEngineHostApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-      pigeonVar_replyList,
-      pigeonVar_channelName,
-      isNullValid: true,
-    );
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
   }
 
   Future<void> dispose() async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.dispose$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.dispose$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -993,10 +971,11 @@ class BeautyEngineHostApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-      pigeonVar_replyList,
-      pigeonVar_channelName,
-      isNullValid: true,
-    );
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
   }
 }
 
@@ -1009,20 +988,16 @@ abstract class BeautyEngineEventsApi {
 
   void onEngineError(EngineError error);
 
-  static void setUp(
-    BeautyEngineEventsApi? api, {
-    BinaryMessenger? binaryMessenger,
+  static void setUp(BeautyEngineEventsApi? api, {
+    BinaryMessenger? binaryMessenger, 
     String messageChannelSuffix = '',
-  }) {
-    messageChannelSuffix = messageChannelSuffix.isNotEmpty
-        ? '.$messageChannelSuffix'
-        : '';
+  }) 
+{
+    messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
     {
       final pigeonVar_channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineEventsApi.onFaceTrackingStatus$messageChannelSuffix',
-        pigeonChannelCodec,
-        binaryMessenger: binaryMessenger,
-      );
+          'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineEventsApi.onFaceTrackingStatus$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
@@ -1034,20 +1009,16 @@ abstract class BeautyEngineEventsApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          } catch (e) {
-            return wrapResponse(
-              error: PlatformException(code: 'error', message: e.toString()),
-            );
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
       final pigeonVar_channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineEventsApi.onPerformanceSample$messageChannelSuffix',
-        pigeonChannelCodec,
-        binaryMessenger: binaryMessenger,
-      );
+          'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineEventsApi.onPerformanceSample$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
@@ -1059,20 +1030,16 @@ abstract class BeautyEngineEventsApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          } catch (e) {
-            return wrapResponse(
-              error: PlatformException(code: 'error', message: e.toString()),
-            );
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
       final pigeonVar_channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineEventsApi.onEngineError$messageChannelSuffix',
-        pigeonChannelCodec,
-        binaryMessenger: binaryMessenger,
-      );
+          'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineEventsApi.onEngineError$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
@@ -1084,10 +1051,8 @@ abstract class BeautyEngineEventsApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          } catch (e) {
-            return wrapResponse(
-              error: PlatformException(code: 'error', message: e.toString()),
-            );
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
