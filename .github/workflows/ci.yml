@@ -1,0 +1,163 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: '3.47.8'
+
+jobs:
+  flutter:
+    name: Flutter format · analyze · test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: Engine package
+        working-directory: packages/yuz_beauty_engine
+        run: |
+          flutter pub get
+          dart format --output=none --set-exit-if-changed lib test pigeons
+          flutter analyze
+          flutter test
+      - name: Pigeon output is up to date
+        working-directory: packages/yuz_beauty_engine
+        run: |
+          dart run pigeon --input pigeons/beauty_engine_api.dart
+          git diff --exit-code -- lib/src/generated android/src/main/kotlin/app/yuz/beauty_engine/generated ios/Classes/Generated
+      - name: Mobile app
+        working-directory: apps/mobile
+        run: |
+          flutter pub get
+          flutter gen-l10n
+          git diff --exit-code -- lib/l10n/generated
+          dart format --line-length 120 --output=none --set-exit-if-changed lib test integration_test
+          flutter analyze
+          flutter test
+
+  shader-tests:
+    name: GLSL shaders (headless WebGL2)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run shader tests
+        working-directory: tools/shader-tests
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          npm test
+
+  android:
+    name: Android unit tests · APK · AAB
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: Fetch and verify face model
+        run: ./tools/fetch_models.sh
+      - name: Configure Gradle project
+        working-directory: apps/mobile
+        run: |
+          flutter pub get
+          flutter build apk --debug --config-only
+      - name: Engine Kotlin unit tests
+        working-directory: apps/mobile/android
+        run: ./gradlew --no-daemon :yuz_beauty_engine:testDebugUnitTest
+      - name: Debug APK
+        working-directory: apps/mobile
+        run: flutter build apk --debug
+      - name: Release AAB (signed only when signing secrets exist)
+        working-directory: apps/mobile
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [[ -n "${ANDROID_KEYSTORE_BASE64}" ]]; then
+            echo "${ANDROID_KEYSTORE_BASE64}" | base64 --decode > android/app/upload.jks
+            {
+              echo "storeFile=upload.jks"
+              echo "storePassword=${ANDROID_KEYSTORE_PASSWORD}"
+              echo "keyAlias=${ANDROID_KEY_ALIAS}"
+              echo "keyPassword=${ANDROID_KEY_PASSWORD}"
+            } > android/key.properties
+            echo "Release AAB will be SIGNED with the upload key."
+          else
+            echo "::warning::No signing secrets configured — the release AAB is UNSIGNED and cannot be uploaded to Google Play."
+          fi
+          flutter build appbundle --release --dart-define=YUZ_VERSION=0.1.0+${{ github.run_number }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-builds
+          path: |
+            apps/mobile/build/app/outputs/flutter-apk/app-debug.apk
+            apps/mobile/build/app/outputs/bundle/release/app-release.aab
+          retention-days: 14
+
+  ios:
+    name: iOS build (no codesign)
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: Fetch and verify face model
+        run: ./tools/fetch_models.sh
+      - name: Build iOS (debug + release, unsigned)
+        working-directory: apps/mobile
+        run: |
+          flutter pub get
+          flutter build ios --debug --no-codesign
+          flutter build ios --release --no-codesign --dart-define=YUZ_VERSION=0.1.0+${{ github.run_number }}
+
+  security:
+    name: Secret scan · forbidden files
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Forbidden files are not tracked
+        run: |
+          set -euo pipefail
+          forbidden="$(git ls-files | grep -E '(^|/)\.env($|\.)|\.jks$|\.keystore$|\.p12$|key\.properties$|\.mobileprovision$' | grep -v '\.env\.example$' || true)"
+          if [[ -n "${forbidden}" ]]; then
+            echo "Forbidden files tracked:"; echo "${forbidden}"; exit 1
+          fi
+      - name: Gitleaks
+        run: |
+          docker run --rm -v "${PWD}:/repo" ghcr.io/gitleaks/gitleaks:v8.24.3 detect --source /repo --redact --no-banner

@@ -1,0 +1,34 @@
+name: yuz_mobile
+description: Yuz — AI beauty camera and editor.
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.7
+  flutter: '>=3.47.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_riverpod: ^3.4.3
+  go_router: ^18.1.1
+  intl: ^0.20.2
+  path_provider: ^2.1.6
+  permission_handler: ^13.0.2
+  shared_preferences: ^2.5.6
+  yuz_beauty_engine:
+    path: ../../packages/yuz_beauty_engine
+
+dev_dependencies:
+  fake_async: ^1.3.3
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  generate: true

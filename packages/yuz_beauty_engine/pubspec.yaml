@@ -1,0 +1,27 @@
+name: yuz_beauty_engine
+description: Native real-time beauty camera engine (CameraX/OpenGL ES on Android, AVFoundation/Metal on iOS) rendered into Flutter textures.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.13.7
+  flutter: '>=3.47.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+  pigeon: ^29.0.11
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: app.yuz.beauty_engine
+        pluginClass: YuzBeautyEnginePlugin
+      ios:
+        pluginClass: YuzBeautyEnginePlugin

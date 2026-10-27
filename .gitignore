@@ -1,0 +1,25 @@
+# Research clones (audited, never shipped)
+third_party/research/
+
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p12
+*.mobileprovision
+**/android/key.properties
+**/GoogleService-Info.plist
+**/google-services.json
+
+# Model weights are fetched and checksum-verified by tools/fetch_models.sh
+*.task
+
+# Node
+node_modules/
+
+# OS / IDE
+.DS_Store
+.idea/
+*.iml

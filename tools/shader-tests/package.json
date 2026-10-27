@@ -1,0 +1,15 @@
+{
+  "name": "yuz-shader-tests",
+  "private": true,
+  "type": "module",
+  "description": "Executes the production GLSL ES 3.00 beauty shaders in headless WebGL2 and asserts pixel-level behaviour.",
+  "scripts": {
+    "test": "node --test --test-reporter=spec"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}
