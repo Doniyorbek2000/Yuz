@@ -36,11 +36,13 @@ Delivered:
 | GLSL shaders, headless WebGL2 | local + CI | ✅ 8/8; mutation checks confirm the tests detect broken masks and broken edge preservation |
 | Pure Kotlin engine logic (JUnit 5) | local (kotlinc 2.4.0) | ✅ 24/24 (found and fixed: One Euro beta 0.02 → 5.0, lag 0.30 → <0.08) |
 | Secret scan + forbidden files | CI | ✅ |
-| Android Gradle unit tests, debug APK, release AAB | CI | see run results below |
-| iOS build (no codesign) | CI (macOS) | see run results below |
+| Android: Gradle compile of engine + `testDebugUnitTest`, debug APK, release AAB | CI run #2 | ✅ (AAB **unsigned** — no signing secrets configured) |
+| iOS: pod install (MediaPipeTasksVision 1.0.0), debug + release build, no codesign | CI run #2 (macOS) | ✅ |
 | On-device camera / FPS | — | ❌ not run (no device in this environment) |
 
-CI run log: https://github.com/Doniyorbek2000/Yuz/actions
+CI history: run #1 found 3 real issues (Pigeon output reformatted locally, Swift closure circular reference,
+permission_handler 13 requiring compileSdk 37) → fixed in `0d53076`; run #2
+(https://github.com/Doniyorbek2000/Yuz/actions/runs/40582573317) is fully green.
 
 ## Next — continue here
 
