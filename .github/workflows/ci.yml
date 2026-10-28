@@ -136,6 +136,8 @@ jobs:
           cache: true
       - name: Fetch and verify face model
         run: ./tools/fetch_models.sh
+      - name: Compile runtime Metal kernels
+        run: ./tools/check_metal_shaders.sh
       - name: Build iOS (debug + release, unsigned)
         working-directory: apps/mobile
         run: |

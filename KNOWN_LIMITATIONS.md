@@ -19,8 +19,12 @@
 - Photo capture saves the processed preview frame (≤1080p). Full-resolution still capture through the same shaders is
   planned for Phase 3 together with the photo editor.
 - Flash is torch-assisted; the front camera has no screen-flash yet.
-- Only skin smoothing, texture preservation and brightening exist. All other beauty, reshape, makeup and filter
-  features are NOT STARTED.
+- Masks are built from the un-warped landmarks; with strong reshape (e.g. eye enlarge 100) makeup and eye masks can
+  sit up to a few pixels off the warped feature.
+- Up to 16 reshape warps per frame in total: with "all faces" policy and several faces, warps beyond 16 are dropped.
+- Eyeshadow/eyeliner/under-eye regions are derived from the eye contour (scaled and shifted), not from dedicated
+  landmarks; they assume an upright, roughly frontal face.
+- Custom LUTs must use the standard 512×512 (8×8 tiles of 64³) layout; .cube files are not supported yet.
 - Face mask exclusions (eyes, brows, lips) use fixed dilation factors; very large head yaw can let the mask touch
   the hairline. Colour-based skin detection limits spill onto hair and background.
 - Captures are stored in app-private storage; saving to the system gallery is not implemented.

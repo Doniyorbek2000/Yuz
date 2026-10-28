@@ -44,11 +44,39 @@ CI history: run #1 found 3 real issues (Pigeon output reformatted locally, Swift
 permission_handler 13 requiring compileSdk 37) → fixed in `0d53076`; run #2
 (https://github.com/Doniyorbek2000/Yuz/actions/runs/40582573317) is fully green.
 
+## Phase 2–3 (effects) — code ✅ / device ⏳
+
+Delivered (Android GLSL and iOS Metal with identical maths):
+
+- **Filters:** Natural, Soft, Glow, Portrait, Cinematic, Warm, Cool, Vintage, B&W as colour grades turned into
+  512×512 LUTs on a background isolate (single Dart source of truth); custom LUT import (512×512 image),
+  persisted in app-private storage; intensity slider.
+- **Skin:** smoothing, texture, brightening, even tone, blemishes, shine (matte), glow.
+- **Face details:** eye brightening, teeth whitening, dark circles.
+- **Reshape:** face slim, jawline, chin, eye enlarge, nose, lips, forehead — landmark-driven local warps sized
+  relative to the face and capped for natural results.
+- **Makeup:** lipstick, blush, brows, eyeshadow, eyeliner with curated shades, global makeup intensity,
+  Everyday/Evening looks.
+- **UI:** beauty studio with Looks/Filters/Skin/Face/Reshape/Makeup tabs; face-dependent effects are disabled with
+  an explanation when face tracking is unavailable.
+
+Verification (2026-10-28):
+
+| Check | Where | Result |
+|---|---|---|
+| GLSL shaders (21 tests: skin, regions, makeup, LUT, warp) | local + CI | ✅ 21/21 — found and fixed: bilateral blur keeps strong blemishes → added wide base blur |
+| Kotlin pure logic (mask geometry, warp builder, tracker…) | local + CI Gradle | ✅ 33/33 |
+| Android sources vs Android 16 framework + Flutter embedding | local (kotlinc + android-all) | ✅ type-check OK |
+| Engine Dart (LUT generator, API facade) | local + CI | ✅ 15/15 |
+| App (unit, widget, golden) | local + CI | ✅ 60/60 |
+| Android debug APK + release AAB | CI | ✅ (AAB unsigned) |
+| iOS build | CI (macOS) | see CI run below |
+| On device | — | ❌ not run |
+
 ## Next — continue here
 
 1. Run `apps/mobile/integration_test/camera_flow_test.dart` on one Android and one iOS device; record measured FPS,
    fix orientation/mirroring if wrong; update FEATURE_MATRIX statuses from PARTIAL to TESTED.
-2. Phase 2: colour filters (LUT pipeline), skin tone, blemish, eye brightening, teeth whitening, dark circles,
-   shine; Metal pixel tests on the macOS runner.
-3. Phase 3: face reshape (landmark warps), makeup, full-resolution still capture, photo editor (pro_image_editor),
+2. Metal pixel tests on the macOS runner (same fixtures as tools/shader-tests).
+3. Phase 3 remainder: full-resolution still capture, photo editor (pro_image_editor),
    non-destructive projects.

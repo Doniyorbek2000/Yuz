@@ -6,7 +6,7 @@ Statuses: **IMPLEMENTED** (code complete, verified where noted) · **TESTED** (a
 "Verified" always names *how*. Native code that has only been compiled in CI and never run on a device is at most
 PARTIAL.
 
-Last update: 2026-10-27 (end of Phase 1 start).
+Last update: 2026-10-28 (Phase 2–3 effects).
 
 ## Native beauty engine (`packages/yuz_beauty_engine`)
 
@@ -32,17 +32,27 @@ Last update: 2026-10-27 (end of Phase 1 start).
 
 ## Beauty effects
 
+All effects run in the native GPU pipeline (GLSL ES 3.00 on Android, Metal on iOS, identical maths). "TESTED (GLSL)"
+means headless WebGL2 pixel tests of the shipped shader files; the Metal port is compiled in CI but not
+pixel-tested; nothing is device-tested yet.
+
 | Effect | Status | Evidence |
 |---|---|---|
-| Skin smoothing (detail-preserving, landmark + YCbCr skin mask) | TESTED (GLSL) / PARTIAL (device) | 8 WebGL2 pixel tests incl. mutation checks; Metal port untested |
-| Natural texture preservation | TESTED (GLSL) | "texture preservation keeps fine pore-scale detail" |
-| Skin brightening | TESTED (GLSL) | "brightening lifts skin luma" |
-| Skin tone, blemish reduction (dedicated), eye brightening, teeth whitening, dark circles, shine reduction, glow | NOT STARTED | Phase 2–3 |
-| Face reshape (slim, jaw, chin, eyes, nose, lips, forehead) | NOT STARTED | Phase 3 |
-| Makeup (lipstick, blush, brows, eyeshadow, eyeliner) | NOT STARTED | Phase 3 |
-| Filters (Natural…B&W, custom LUT) | NOT STARTED | Phase 2 |
-| 0..100 slider per parameter | TESTED | widget + unit tests |
-| Undo / reset / save & delete presets | TESTED | unit + widget tests |
+| Skin smoothing (detail-preserving, landmark + YCbCr skin mask) | TESTED (GLSL) | variance, edge, non-skin, identity tests + mutation checks |
+| Natural texture preservation | TESTED (GLSL) | fine-detail retention test |
+| Skin brightening | TESTED (GLSL) | bounded luma lift |
+| Skin tone (evening chroma from low-frequency base) | TESTED (GLSL) | chroma spread 7 → ~1.4 |
+| Blemish reduction | TESTED (GLSL) | dark-spot contrast halved |
+| Shine reduction | TESTED (GLSL) | highlights only, mid-tones unchanged |
+| Glow | TESTED (GLSL) | luma lift on skin |
+| Eye brightening, teeth whitening, dark circles | TESTED (GLSL) | "changes only its own region" test |
+| Face reshape: slim, jawline, chin, eye enlarge, nose, lips, forehead | TESTED (GLSL warp + Kotlin builder) | warp identity/bulge/translate/locality tests; 7 builder tests |
+| Makeup: lipstick, blush, brows, eyeshadow, eyeliner + shade palettes + intensity | TESTED (GLSL) | per-region tests, lipstick hue test, mask geometry tests |
+| Natural makeup presets (Everyday, Evening) | TESTED (Dart) | preset tests |
+| Filters: Natural, Soft, Glow, Portrait, Cinematic, Warm, Cool, Vintage, B&W | TESTED (Dart LUT + GLSL lookup) | LUT layout/grade tests; identity & monochrome LUT in shader |
+| Custom LUT import (512×512 PNG/JPEG) | TESTED (Dart) | valid/wrong-size/unreadable/persistence tests |
+| 0..100 slider per parameter, undo, reset, save/delete presets | TESTED | unit + widget tests |
+| Multiple faces | IMPLEMENTED | masks MAX-accumulated per face; warps for every beautified face (≤16 warps total) |
 
 ## App screens (`apps/mobile`)
 
