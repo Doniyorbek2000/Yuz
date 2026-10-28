@@ -27,6 +27,13 @@
 - Custom LUTs must use the standard 512×512 (8×8 tiles of 64³) layout; .cube files are not supported yet.
 - Face mask exclusions (eyes, brows, lips) use fixed dilation factors; very large head yaw can let the mask touch
   the hairline. Colour-based skin detection limits spill onto hair and background.
+- Video: clips at a speed other than 1× lose their own sound (no time-stretching; music still plays). Sped-up clips
+  are capped at ~60 fps output; slowed clips repeat no frames (fewer fps).
+- Video export output is the first clip's aspect, long edge ≤ 1920; other aspects are letterboxed (no crop/fill yet).
+- Video beauty uses face detection on every exported frame (VIDEO mode), so exports with face effects are slower
+  than real time on mid-range phones (not measured yet). The editor's look preview is one beautified frame, not a
+  live preview.
+- Recording is capped at 3 minutes per take; the front camera recording is saved mirrored, as previewed.
 - Camera captures are stored in app-private storage; only photo-editor exports are saved to the system gallery.
 - Photo editor: the beauty look is baked into a full-resolution render first; changing the look after editing keeps
   the editor layers (re-imported from history) but crop/tune are re-applied by pro_image_editor, which recalculates

@@ -11,6 +11,7 @@ import 'package:pro_image_editor/pro_image_editor.dart';
 
 import '../../../core/theme/app_tokens.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../editing/stickers.dart';
 import '../application/photo_project_controller.dart';
 import '../domain/photo_project.dart';
 
@@ -283,43 +284,10 @@ I18n editorI18n(AppLocalizations l10n) => I18n(
   ),
 );
 
-/// Yuz's own sticker set (vector icons, no third-party artwork). Each sticker
-/// is exported by id so saved projects can rebuild the layer.
-const _stickers = <String, (IconData, Color)>{
-  'heart': (Icons.favorite_rounded, Color(0xFFF07B7B)),
-  'sparkle': (Icons.auto_awesome_rounded, Color(0xFFF2C46D)),
-  'star': (Icons.star_rounded, Color(0xFFF2C46D)),
-  'crown': (Icons.workspace_premium_rounded, Color(0xFFE8A598)),
-  'flower': (Icons.local_florist_rounded, Color(0xFFE8A598)),
-  'sun': (Icons.wb_sunny_rounded, Color(0xFFF2C46D)),
-  'moon': (Icons.nightlight_round, Color(0xFFA9A6B5)),
-  'cloud': (Icons.cloud_rounded, Color(0xFFF5F3F7)),
-  'bolt': (Icons.bolt_rounded, Color(0xFFF2C46D)),
-  'bird': (Icons.flutter_dash_rounded, Color(0xFF7FB8F0)),
-  'music': (Icons.music_note_rounded, Color(0xFFF5F3F7)),
-  'camera': (Icons.photo_camera_rounded, Color(0xFFF5F3F7)),
-  'smile': (Icons.sentiment_very_satisfied_rounded, Color(0xFFF2C46D)),
-  'glam': (Icons.face_retouching_natural_rounded, Color(0xFFF07B7B)),
-  'diamond': (Icons.diamond_rounded, Color(0xFF7FD1A8)),
-  'fire': (Icons.local_fire_department_rounded, Color(0xFFD9826F)),
-};
-
-const _stickerIdPrefix = 'yuz-sticker:';
-
-Widget _stickerWidget(String name) {
-  final (icon, color) = _stickers[name] ?? (Icons.help_outline_rounded, AppColors.textMuted);
-  return Icon(
-    icon,
-    size: 120,
-    color: color,
-    shadows: const [Shadow(blurRadius: 8, color: Color(0x66000000))],
-  );
-}
-
 /// Rebuilds sticker layers when a saved editor history is imported.
 @visibleForTesting
 Widget loadSticker(String id, {Map<String, dynamic>? meta}) =>
-    _stickerWidget(id.startsWith(_stickerIdPrefix) ? id.substring(_stickerIdPrefix.length) : id);
+    stickerWidget(id.startsWith(stickerIdPrefix) ? id.substring(stickerIdPrefix.length) : id);
 
 class _StickerGrid extends StatelessWidget {
   const _StickerGrid({required this.scrollController, required this.onSelected});
@@ -329,7 +297,7 @@ class _StickerGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final names = _stickers.keys.toList(growable: false);
+    final names = yuzStickers.keys.toList(growable: false);
     return ColoredBox(
       color: AppColors.surface,
       child: GridView.builder(
@@ -348,11 +316,11 @@ class _StickerGrid extends StatelessWidget {
             behavior: HitTestBehavior.opaque,
             onTap: () => onSelected(
               WidgetLayer(
-                widget: _stickerWidget(name),
-                exportConfigs: WidgetLayerExportConfigs(id: '$_stickerIdPrefix$name'),
+                widget: stickerWidget(name),
+                exportConfigs: WidgetLayerExportConfigs(id: '$stickerIdPrefix$name'),
               ),
             ),
-            child: FittedBox(child: _stickerWidget(name)),
+            child: FittedBox(child: stickerWidget(name)),
           );
         },
       ),

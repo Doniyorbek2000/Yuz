@@ -703,4 +703,106 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get errorExportCancelled => 'Eksport bekor qilindi.';
+
+  @override
+  String get videoEditorTitle => 'Videoni tahrirlash';
+
+  @override
+  String get videoExport => 'Eksport';
+
+  @override
+  String videoExporting(int percent) {
+    return 'Eksport qilinmoqda… $percent%';
+  }
+
+  @override
+  String get videoExportFailed => 'Videoni eksport qilib boʻlmadi.';
+
+  @override
+  String get videoToolTrim => 'Kesish';
+
+  @override
+  String get videoToolSpeed => 'Tezlik';
+
+  @override
+  String get videoToolLook => 'Koʻrinish';
+
+  @override
+  String get videoToolText => 'Matn';
+
+  @override
+  String get videoToolStickers => 'Stikerlar';
+
+  @override
+  String get videoToolMusic => 'Musiqa';
+
+  @override
+  String get videoAddClip => 'Klip qoʻshish';
+
+  @override
+  String get videoRemoveClip => 'Klipni oʻchirish';
+
+  @override
+  String get videoSpeedMutes => 'Tezligi oʻzgargan klip oʻz ovozisiz ijro etiladi; musiqa eshitiladi.';
+
+  @override
+  String get videoApplyBeauty => 'Yuzlarga beauty';
+
+  @override
+  String get videoApplyBeautyHint => 'Oʻchirilsa, faqat filtr va aniqlik qoladi.';
+
+  @override
+  String get videoLookPreview => 'Koʻrinish namunasi (bitta kadr)';
+
+  @override
+  String get videoAddText => 'Matn qoʻshish';
+
+  @override
+  String get videoTextDialogTitle => 'Matn';
+
+  @override
+  String get videoTextHint => 'Matningiz';
+
+  @override
+  String get videoOverlayTime => 'Koʻrinadi';
+
+  @override
+  String get videoOverlayDelete => 'Oʻchirish';
+
+  @override
+  String get videoOverlayHint =>
+      'Tanlash uchun bosing, surish uchun torting, oʻlcham va burish uchun ikki barmoq bilan ishlating.';
+
+  @override
+  String get videoMusicPick => 'Tanlash';
+
+  @override
+  String get videoMusicNone => 'Musiqa yoʻq';
+
+  @override
+  String get videoMusicSelected => 'Musiqa qoʻshildi (takrorlanadi, oxirida pasayadi)';
+
+  @override
+  String get videoMusicRemove => 'Musiqani olib tashlash';
+
+  @override
+  String get videoMusicVolume => 'Musiqa';
+
+  @override
+  String get videoOriginalVolume => 'Klip ovozi';
+
+  @override
+  String get videoImportFailed => 'Bu videoni import qilib boʻlmadi.';
+
+  @override
+  String get projectsPhotosTab => 'Fotolar';
+
+  @override
+  String get projectsVideosTab => 'Videolar';
+
+  @override
+  String get projectsNewVideo => 'Yangi video';
+
+  @override
+  String get projectsVideoEmptyBody => 'Video import qiling yoki kamerada yozing. Asl fayl hech qachon oʻzgarmaydi.';
 }

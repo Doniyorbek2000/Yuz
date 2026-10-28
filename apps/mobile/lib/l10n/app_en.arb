@@ -275,5 +275,45 @@
   "videoPause": "Pause",
   "videoEdit": "Edit video",
   "videoSilent": "Recorded without sound",
-  "errorExportCancelled": "Export cancelled."
+  "errorExportCancelled": "Export cancelled.",
+  "videoEditorTitle": "Edit video",
+  "videoExport": "Export",
+  "videoExporting": "Exporting… {percent}%",
+  "@videoExporting": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "videoExportFailed": "The video could not be exported.",
+  "videoToolTrim": "Trim",
+  "videoToolSpeed": "Speed",
+  "videoToolLook": "Look",
+  "videoToolText": "Text",
+  "videoToolStickers": "Stickers",
+  "videoToolMusic": "Music",
+  "videoAddClip": "Add clip",
+  "videoRemoveClip": "Remove clip",
+  "videoSpeedMutes": "Clips at another speed play without their own sound; music still plays.",
+  "videoApplyBeauty": "Beauty on faces",
+  "videoApplyBeautyHint": "Off keeps only the filter and sharpness.",
+  "videoLookPreview": "Look preview (one frame)",
+  "videoAddText": "Add text",
+  "videoTextDialogTitle": "Text",
+  "videoTextHint": "Your text",
+  "videoOverlayTime": "Visible",
+  "videoOverlayDelete": "Delete",
+  "videoOverlayHint": "Tap an item to select it, drag to move, pinch to resize and rotate.",
+  "videoMusicPick": "Choose",
+  "videoMusicNone": "No music",
+  "videoMusicSelected": "Music added (loops, fades out)",
+  "videoMusicRemove": "Remove music",
+  "videoMusicVolume": "Music",
+  "videoOriginalVolume": "Clip sound",
+  "videoImportFailed": "This video could not be imported.",
+  "projectsPhotosTab": "Photos",
+  "projectsVideosTab": "Videos",
+  "projectsNewVideo": "New video",
+  "projectsVideoEmptyBody": "Import a video or record one with the camera. Your original is never changed."
 }

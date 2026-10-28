@@ -15,6 +15,7 @@ import '../features/projects/presentation/photo_retouch_screen.dart';
 import '../features/projects/presentation/projects_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/splash/splash_screen.dart';
+import '../features/video/presentation/video_editor_screen.dart';
 import '../features/video/presentation/video_result_screen.dart';
 
 /// Allowed continuation targets for the permission flow (prevents arbitrary
@@ -39,7 +40,10 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
       path: '/capture',
       builder: (_, state) => CaptureResultScreen(filePath: state.uri.queryParameters['path'] ?? ''),
     ),
-    GoRoute(path: '/projects', builder: (_, _) => const ProjectsScreen()),
+    GoRoute(
+      path: '/projects',
+      builder: (_, state) => ProjectsScreen(initialTab: state.uri.queryParameters['tab'] == 'videos' ? 1 : 0),
+    ),
     GoRoute(
       path: '/photo/:id',
       builder: (_, state) => PhotoRetouchScreen(projectId: state.pathParameters['id']!),
@@ -56,6 +60,14 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
         filePath: state.uri.queryParameters['path'] ?? '',
         hasAudio: state.uri.queryParameters['audio'] != '0',
       ),
+    ),
+    GoRoute(
+      path: '/video-editor/new',
+      builder: (_, state) => NewVideoProjectScreen(sourcePath: state.uri.queryParameters['source'] ?? ''),
+    ),
+    GoRoute(
+      path: '/video-editor/:id',
+      builder: (_, state) => VideoEditorScreen(projectId: state.pathParameters['id']!),
     ),
     GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
     GoRoute(path: '/privacy', builder: (_, _) => const PrivacyScreen()),

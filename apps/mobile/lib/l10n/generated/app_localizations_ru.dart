@@ -707,4 +707,105 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get errorExportCancelled => 'Экспорт отменён.';
+
+  @override
+  String get videoEditorTitle => 'Редактор видео';
+
+  @override
+  String get videoExport => 'Экспорт';
+
+  @override
+  String videoExporting(int percent) {
+    return 'Экспорт… $percent%';
+  }
+
+  @override
+  String get videoExportFailed => 'Не удалось экспортировать видео.';
+
+  @override
+  String get videoToolTrim => 'Обрезка';
+
+  @override
+  String get videoToolSpeed => 'Скорость';
+
+  @override
+  String get videoToolLook => 'Образ';
+
+  @override
+  String get videoToolText => 'Текст';
+
+  @override
+  String get videoToolStickers => 'Стикеры';
+
+  @override
+  String get videoToolMusic => 'Музыка';
+
+  @override
+  String get videoAddClip => 'Добавить клип';
+
+  @override
+  String get videoRemoveClip => 'Удалить клип';
+
+  @override
+  String get videoSpeedMutes => 'Клипы с другой скоростью звучат без собственного звука; музыка остаётся.';
+
+  @override
+  String get videoApplyBeauty => 'Бьюти для лиц';
+
+  @override
+  String get videoApplyBeautyHint => 'Если выключить, останутся только фильтр и резкость.';
+
+  @override
+  String get videoLookPreview => 'Предпросмотр образа (один кадр)';
+
+  @override
+  String get videoAddText => 'Добавить текст';
+
+  @override
+  String get videoTextDialogTitle => 'Текст';
+
+  @override
+  String get videoTextHint => 'Ваш текст';
+
+  @override
+  String get videoOverlayTime => 'Показывать';
+
+  @override
+  String get videoOverlayDelete => 'Удалить';
+
+  @override
+  String get videoOverlayHint => 'Нажмите, чтобы выбрать; перетаскивайте; щипок меняет размер и поворот.';
+
+  @override
+  String get videoMusicPick => 'Выбрать';
+
+  @override
+  String get videoMusicNone => 'Без музыки';
+
+  @override
+  String get videoMusicSelected => 'Музыка добавлена (повтор, затухание)';
+
+  @override
+  String get videoMusicRemove => 'Убрать музыку';
+
+  @override
+  String get videoMusicVolume => 'Музыка';
+
+  @override
+  String get videoOriginalVolume => 'Звук клипа';
+
+  @override
+  String get videoImportFailed => 'Не удалось импортировать это видео.';
+
+  @override
+  String get projectsPhotosTab => 'Фото';
+
+  @override
+  String get projectsVideosTab => 'Видео';
+
+  @override
+  String get projectsNewVideo => 'Новое видео';
+
+  @override
+  String get projectsVideoEmptyBody => 'Импортируйте видео или снимите его камерой. Оригинал не изменяется.';
 }

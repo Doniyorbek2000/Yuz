@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../core/theme/app_tokens.dart';
@@ -143,6 +144,18 @@ class _VideoResultScreenState extends ConsumerState<VideoResultScreen> {
                     padding: const EdgeInsets.all(AppSpacing.md),
                     child: Row(
                       children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            key: const ValueKey('video-edit'),
+                            onPressed: player == null
+                                ? null
+                                : () =>
+                                      context.push('/video-editor/new?source=${Uri.encodeComponent(widget.filePath)}'),
+                            icon: const Icon(Icons.movie_edit),
+                            label: Text(l10n.videoEdit),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
                         Expanded(
                           child: FilledButton.icon(
                             key: const ValueKey('video-save'),

@@ -13,15 +13,6 @@ import 'package:yuz_mobile/features/projects/domain/photo_project.dart';
 
 import '../helpers/test_app.dart';
 
-/// Polls (real time) until [condition] holds; file I/O makes fake time unusable.
-Future<void> eventually(bool Function() condition, {Duration timeout = const Duration(seconds: 5)}) async {
-  final deadline = DateTime.now().add(timeout);
-  while (!condition()) {
-    if (DateTime.now().isAfter(deadline)) fail('condition not met within $timeout');
-    await Future<void>.delayed(const Duration(milliseconds: 5));
-  }
-}
-
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 

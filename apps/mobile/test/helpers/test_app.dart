@@ -17,6 +17,7 @@ import 'package:yuz_mobile/features/camera/data/filter_lut_repository.dart';
 import 'package:yuz_mobile/features/permissions/camera_permission_service.dart';
 import 'package:yuz_mobile/features/projects/application/photo_project_controller.dart';
 import 'package:yuz_mobile/features/projects/data/project_repository.dart';
+import 'package:yuz_mobile/features/video/data/video_project_repository.dart';
 import 'package:yuz_mobile/l10n/generated/app_localizations.dart';
 
 /// In-memory stand-in for the native engine host API.
@@ -111,6 +112,55 @@ class FakeEngineHost implements BeautyEngineHostApi {
     );
   }
 
+  /// Probe results by path; unknown paths get a 10 s 1080x1920 clip with sound.
+  final Map<String, VideoMetadata> videoMetadata = {};
+  EngineErrorCode? probeFailure;
+  final List<VideoExportRequest> exports = [];
+  final List<String> cancelledExports = [];
+
+  /// When set, exportVideo waits for it (to test progress and cancel).
+  Completer<void>? exportGate;
+  EngineErrorCode? exportFailure;
+
+  /// Lets a test feed progress events into the engine facade.
+  void Function(String jobId, double progress)? onExportProgress;
+
+  @override
+  Future<VideoMetadata> probeVideo(String path) async {
+    if (probeFailure != null) throw _platformError(probeFailure!);
+    return videoMetadata[path] ??
+        VideoMetadata(durationMillis: 10000, width: 1080, height: 1920, rotationDegrees: 0, hasAudio: true);
+  }
+
+  @override
+  Future<List<String>> videoThumbnails(String path, int count, int maxEdge, String outputDirectory) async {
+    await Directory(outputDirectory).create(recursive: true);
+    return [for (var i = 0; i < count; i++) (await File('$outputDirectory/thumb_$i.jpg').writeAsBytes(kTinyPng)).path];
+  }
+
+  @override
+  Future<VideoExportResult> exportVideo(VideoExportRequest request) async {
+    exports.add(request);
+    onExportProgress?.call(request.jobId, 0.5);
+    final gate = exportGate;
+    if (gate != null) await gate.future;
+    if (cancelledExports.contains(request.jobId)) {
+      throw PlatformException(code: 'EXPORT_CANCELLED', message: 'cancelled');
+    }
+    if (exportFailure != null) throw _platformError(exportFailure!);
+    await File(request.outputPath).writeAsBytes(List<int>.filled(16, 1));
+    return VideoExportResult(
+      outputPath: request.outputPath,
+      durationMillis: 4000,
+      width: 1080,
+      height: 1920,
+      hasAudio: request.originalVolume > 0 || request.musicPath != null,
+    );
+  }
+
+  @override
+  Future<void> cancelVideoExport(String jobId) async => cancelledExports.add(jobId);
+
   /// Every still-image request, in order.
   final List<ImageProcessingRequest> imageRequests = [];
   EngineErrorCode? processImageFailure;
@@ -193,6 +243,15 @@ class FakeGallerySaver implements GallerySaver {
   }
 }
 
+/// Polls (real time) until [condition] holds; file I/O makes fake time unusable.
+Future<void> eventually(bool Function() condition, {Duration timeout = const Duration(seconds: 5)}) async {
+  final deadline = DateTime.now().add(timeout);
+  while (!condition()) {
+    if (DateTime.now().isAfter(deadline)) fail('condition not met within $timeout');
+    await Future<void>.delayed(const Duration(milliseconds: 5));
+  }
+}
+
 /// A valid 1×1 PNG, enough for Image.file and file-copy tests.
 final Uint8List kTinyPng = base64Decode(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
@@ -248,17 +307,20 @@ Future<ProviderContainer> createContainer({
   Map<String, Object> preferences = const {},
   CameraPermissionState permission = CameraPermissionState.granted,
   Directory? projectsRoot,
+  Directory? videoProjectsRoot,
   GallerySaver? gallerySaver,
   List<Override> extraOverrides = const [],
   FakeMicrophonePermission? microphone,
 }) async {
   final prefs = await mockPreferences(preferences);
   final engineHost = host ?? FakeEngineHost();
+  final engine = BeautyEngine(hostApi: engineHost, registerEventHandlers: false);
+  engineHost.onExportProgress ??= engine.onVideoExportProgress;
   final container = ProviderContainer(
     overrides: [
       ...extraOverrides,
       sharedPreferencesProvider.overrideWithValue(prefs),
-      beautyEngineProvider.overrideWithValue(BeautyEngine(hostApi: engineHost, registerEventHandlers: false)),
+      beautyEngineProvider.overrideWithValue(engine),
       capturePathBuilderProvider.overrideWithValue(() async => '/tmp/yuz_test_capture.jpg'),
       videoPathBuilderProvider.overrideWithValue(() async => '/tmp/yuz_test_video.mp4'),
       microphonePermissionServiceProvider.overrideWithValue(microphone ?? FakeMicrophonePermission()),
@@ -267,6 +329,11 @@ Future<ProviderContainer> createContainer({
         ProjectRepository(root: () async => projectsRoot ?? Directory('${Directory.systemTemp.path}/yuz_no_projects')),
       ),
       gallerySaverProvider.overrideWithValue(gallerySaver ?? FakeGallerySaver()),
+      videoProjectRepositoryProvider.overrideWithValue(
+        VideoProjectRepository(
+          root: () async => videoProjectsRoot ?? Directory('${Directory.systemTemp.path}/yuz_no_video_projects'),
+        ),
+      ),
       filterLutRepositoryProvider.overrideWithValue(
         FilterLutRepository(
           storageDirectory: () async => Directory.systemTemp.createTemp('yuz_lut_test'),

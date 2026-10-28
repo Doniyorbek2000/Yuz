@@ -132,6 +132,15 @@ void main() {
       expect(leftovers.where((p) => p.endsWith('.tmp')), isEmpty);
     });
 
+    test('concurrent saves never collide on the temp file', () async {
+      final project = await repository.create(await source('a.jpg'));
+      await Future.wait([for (var i = 0; i < 8; i++) repository.save(project.copyWith(editorHistory: '{"v":$i}'))]);
+      final loaded = (await repository.load(project.id))!;
+      expect(loaded.editorHistory, startsWith('{"v":'));
+      final leftovers = (await repository.directoryFor(project.id)).listSync().map((e) => e.path);
+      expect(leftovers.where((p) => p.endsWith('.tmp')), isEmpty);
+    });
+
     test('delete removes the whole project directory', () async {
       final project = await repository.create(await source('a.jpg'));
       await repository.delete(project.id);

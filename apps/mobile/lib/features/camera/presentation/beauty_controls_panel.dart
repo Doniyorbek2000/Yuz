@@ -203,25 +203,28 @@ class _BeautyStudioPanelState extends ConsumerState<BeautyStudioPanel> {
             ),
           },
         ),
-        Row(
+        // Wraps instead of overflowing on narrow phones and long translations.
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
           children: [
-            TextButton.icon(
-              onPressed: editor.canUndo ? notifier.undo : null,
-              icon: const Icon(Icons.undo_rounded, size: 18),
-              label: Text(l10n.beautyUndo),
+            Wrap(
+              children: [
+                TextButton.icon(
+                  onPressed: editor.canUndo ? notifier.undo : null,
+                  icon: const Icon(Icons.undo_rounded, size: 18),
+                  label: Text(l10n.beautyUndo),
+                ),
+                TextButton.icon(
+                  onPressed: editor.isDefault ? null : notifier.reset,
+                  icon: const Icon(Icons.restart_alt_rounded, size: 18),
+                  label: Text(l10n.beautyReset),
+                ),
+              ],
             ),
             TextButton.icon(
-              onPressed: editor.isDefault ? null : notifier.reset,
-              icon: const Icon(Icons.restart_alt_rounded, size: 18),
-              label: Text(l10n.beautyReset),
-            ),
-            const Spacer(),
-            Flexible(
-              child: TextButton.icon(
-                onPressed: () => _savePreset(context, editor.current),
-                icon: const Icon(Icons.bookmark_add_outlined, size: 18),
-                label: Text(l10n.beautySavePreset, overflow: TextOverflow.ellipsis),
-              ),
+              onPressed: () => _savePreset(context, editor.current),
+              icon: const Icon(Icons.bookmark_add_outlined, size: 18),
+              label: Text(l10n.beautySavePreset),
             ),
           ],
         ),

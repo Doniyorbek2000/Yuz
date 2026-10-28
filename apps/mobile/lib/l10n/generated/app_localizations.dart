@@ -1442,6 +1442,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Export cancelled.'**
   String get errorExportCancelled;
+
+  /// No description provided for @videoEditorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit video'**
+  String get videoEditorTitle;
+
+  /// No description provided for @videoExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get videoExport;
+
+  /// No description provided for @videoExporting.
+  ///
+  /// In en, this message translates to:
+  /// **'Exporting… {percent}%'**
+  String videoExporting(int percent);
+
+  /// No description provided for @videoExportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The video could not be exported.'**
+  String get videoExportFailed;
+
+  /// No description provided for @videoToolTrim.
+  ///
+  /// In en, this message translates to:
+  /// **'Trim'**
+  String get videoToolTrim;
+
+  /// No description provided for @videoToolSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed'**
+  String get videoToolSpeed;
+
+  /// No description provided for @videoToolLook.
+  ///
+  /// In en, this message translates to:
+  /// **'Look'**
+  String get videoToolLook;
+
+  /// No description provided for @videoToolText.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get videoToolText;
+
+  /// No description provided for @videoToolStickers.
+  ///
+  /// In en, this message translates to:
+  /// **'Stickers'**
+  String get videoToolStickers;
+
+  /// No description provided for @videoToolMusic.
+  ///
+  /// In en, this message translates to:
+  /// **'Music'**
+  String get videoToolMusic;
+
+  /// No description provided for @videoAddClip.
+  ///
+  /// In en, this message translates to:
+  /// **'Add clip'**
+  String get videoAddClip;
+
+  /// No description provided for @videoRemoveClip.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove clip'**
+  String get videoRemoveClip;
+
+  /// No description provided for @videoSpeedMutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Clips at another speed play without their own sound; music still plays.'**
+  String get videoSpeedMutes;
+
+  /// No description provided for @videoApplyBeauty.
+  ///
+  /// In en, this message translates to:
+  /// **'Beauty on faces'**
+  String get videoApplyBeauty;
+
+  /// No description provided for @videoApplyBeautyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Off keeps only the filter and sharpness.'**
+  String get videoApplyBeautyHint;
+
+  /// No description provided for @videoLookPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Look preview (one frame)'**
+  String get videoLookPreview;
+
+  /// No description provided for @videoAddText.
+  ///
+  /// In en, this message translates to:
+  /// **'Add text'**
+  String get videoAddText;
+
+  /// No description provided for @videoTextDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get videoTextDialogTitle;
+
+  /// No description provided for @videoTextHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your text'**
+  String get videoTextHint;
+
+  /// No description provided for @videoOverlayTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Visible'**
+  String get videoOverlayTime;
+
+  /// No description provided for @videoOverlayDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get videoOverlayDelete;
+
+  /// No description provided for @videoOverlayHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap an item to select it, drag to move, pinch to resize and rotate.'**
+  String get videoOverlayHint;
+
+  /// No description provided for @videoMusicPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get videoMusicPick;
+
+  /// No description provided for @videoMusicNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No music'**
+  String get videoMusicNone;
+
+  /// No description provided for @videoMusicSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Music added (loops, fades out)'**
+  String get videoMusicSelected;
+
+  /// No description provided for @videoMusicRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove music'**
+  String get videoMusicRemove;
+
+  /// No description provided for @videoMusicVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Music'**
+  String get videoMusicVolume;
+
+  /// No description provided for @videoOriginalVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Clip sound'**
+  String get videoOriginalVolume;
+
+  /// No description provided for @videoImportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'This video could not be imported.'**
+  String get videoImportFailed;
+
+  /// No description provided for @projectsPhotosTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos'**
+  String get projectsPhotosTab;
+
+  /// No description provided for @projectsVideosTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Videos'**
+  String get projectsVideosTab;
+
+  /// No description provided for @projectsNewVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'New video'**
+  String get projectsNewVideo;
+
+  /// No description provided for @projectsVideoEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Import a video or record one with the camera. Your original is never changed.'**
+  String get projectsVideoEmptyBody;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

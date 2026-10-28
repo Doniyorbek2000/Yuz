@@ -114,7 +114,8 @@ class ProjectRepository {
 
   Future<void> _write(Directory directory, PhotoProject project) async {
     final target = File('${directory.path}/project.json');
-    final temp = File('${directory.path}/.project.json.tmp');
+    // Unique temp name: concurrent saves must not rename each other's file.
+    final temp = File('${directory.path}/.project.json.${_random.nextInt(1 << 32).toRadixString(16)}.tmp');
     await temp.writeAsString(jsonEncode(project.toJson()), flush: true);
     await temp.rename(target.path);
   }

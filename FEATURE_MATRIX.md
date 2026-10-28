@@ -6,7 +6,7 @@ Statuses: **IMPLEMENTED** (code complete, verified where noted) · **TESTED** (a
 "Verified" always names *how*. Native code that has only been compiled in CI and never run on a device is at most
 PARTIAL.
 
-Last update: 2026-10-28 (Phase 3 photo editor).
+Last update: 2026-10-28 (Phase 4 video recording and editor).
 
 ## Native beauty engine (`packages/yuz_beauty_engine`)
 
@@ -20,7 +20,9 @@ Last update: 2026-10-28 (Phase 3 photo editor).
 | Timer (3 s / 10 s, cancellable) | TESTED (Dart) | TESTED (Dart) | `beauty_camera_controller_test.dart` |
 | Photo capture (processed frame, JPEG) | PARTIAL | PARTIAL | captured at preview resolution (≤1080p); full-sensor capture NOT STARTED |
 | Still-image beauty processing (`processImage`: EXIF-upright decode, IMAGE-mode face detection, same shaders, original or capped resolution, atomic JPEG) | PARTIAL | PARTIAL | Kotlin geometry/EXIF planner TESTED (7 JUnit); Android type-checked + CI build; iOS CI build; **not run on a device** |
-| Video recording | NOT STARTED | NOT STARTED | Phase 4 |
+| Video recording with live beauty (H.264 + AAC MP4, processed frames, mic optional) | PARTIAL | PARTIAL | Android MediaCodec/MediaMuxer, iOS AVAssetWriter; timeline/encoder JUnit (7); CI builds; **not run on a device** |
+| Video export engine (trim, speed 0.25–4×, multi-clip letterbox, beauty with VIDEO-mode face tracking, LUT, timed overlays, music loop + fade, volume mix) | PARTIAL | PARTIAL | edit plan, letterbox, resampler, mixer, FIFO JUnit (14); Android type-checked; iOS CI build; **not run on a device** |
+| Video probe and timeline thumbnails | PARTIAL | PARTIAL | MediaExtractor/MediaMetadataRetriever, AVAsset/AVAssetImageGenerator |
 | Resolution / aspect control | PARTIAL | PARTIAL | API supports 720p/1080p, 4:3/16:9; UI fixed to 1080p 16:9 |
 | Permission-denied handling | TESTED (Dart) | TESTED (Dart) | native check + typed `PERMISSION_DENIED`; widget tests |
 | Camera lifecycle (pause/resume/dispose, interruption errors) | PARTIAL | PARTIAL | Dart side tested; native side device test pending |
@@ -69,7 +71,10 @@ pixel-tested; nothing is device-tested yet.
 | Photo editor (pro_image_editor 14.21.1): crop, rotate, flip, ratio, tune (brightness, contrast, saturation, exposure, hue, temperature, fade, tint), blur, draw, text, emoji, own sticker set, undo/redo, zoom | PARTIAL — opens without framework errors in a widget test; tool interactions not device-tested |
 | Non-destructive save: beauty look + editor history (JSON) stored per project and restored on reopen; full-resolution render cached per look | TESTED (unit) for storage; history import relies on pro_image_editor |
 | Export: JPEG q95 at original resolution into the project and the system gallery ("Yuz" album, gal) with denied-access fallback | PARTIAL — TESTED (unit, fake gallery); gallery write not device-tested |
-| Video editor, AI Photoshoot/Hairstyle/Makeup/Background, Templates, Premium, Credits, Profile, Help, Account deletion | NOT STARTED — shown as "Planned" and routed to an honest "not available" screen |
+| Camera video mode (timer, elapsed time, no-sound hint, 3 min cap, lens/back locked while recording, finish on background) | TESTED (unit + widget, fake engine) |
+| Video result (looped playback, save to gallery, open in editor) | TESTED (widget, fake player) |
+| Video editor: clips (add, reorder, remove), trim, speed, look (studio + one-frame look preview, beauty on/off), text and stickers (drag, pinch, rotate, colour, time window), music (loop, fade, volumes), export with progress and cancel; non-destructive project storage | PARTIAL — TESTED with fake engine (domain, repository, controller, widget at 320 px); native export not run on a device |
+| AI Photoshoot/Hairstyle/Makeup/Background, Templates, Premium, Credits, Profile, Help, Account deletion | NOT STARTED — shown as "Planned" and routed to an honest "not available" screen |
 | Localization uz / ru / en | TESTED |
 
 ## Platform / infrastructure

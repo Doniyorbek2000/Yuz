@@ -125,7 +125,13 @@ class PhotoProjectController extends Notifier<PhotoProjectState> implements Look
     ref.onDispose(() {
       _saveTimer?.cancel();
       final unsaved = _unsaved;
-      if (unsaved != null) unawaited(repository.save(unsaved));
+      if (unsaved != null) {
+        unawaited(
+          repository
+              .save(unsaved)
+              .then<void>((_) {}, onError: (Object error) => debugPrint('Final save failed: $error')),
+        );
+      }
     });
     Future.microtask(_load);
     return PhotoProjectState(look: BeautyEditorState(current: BeautyAdjustments.defaults));
@@ -200,7 +206,9 @@ class PhotoProjectController extends Notifier<PhotoProjectState> implements Look
     _saveTimer?.cancel();
     _saveTimer = Timer(const Duration(milliseconds: 400), () {
       final unsaved = _unsaved;
-      if (unsaved != null && ref.mounted) unawaited(_persist(unsaved));
+      if (unsaved != null && ref.mounted) {
+        unawaited(_persist(unsaved).catchError((Object error) => debugPrint('Saving project failed: $error')));
+      }
     });
   }
 

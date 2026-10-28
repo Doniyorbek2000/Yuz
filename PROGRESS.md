@@ -105,6 +105,24 @@ Verification (2026-10-28):
 | CI: Android unit tests + APK + AAB, iOS build + Metal compile, Flutter, GLSL, secret scan | ✅ all 5 jobs green — https://github.com/Doniyorbek2000/Yuz/actions/runs/40736691438 |
 | On device | ❌ not run |
 
+## Phase 4 (video) — code ✅ / device ⏳
+
+- **Recording:** the processed (beautified) camera frames go into an H.264 encoder (Android: MediaCodec input
+  surface at the exact frame size when supported; iOS: AVAssetWriter) with AAC microphone sound when allowed
+  (silent fallback otherwise). Shared clock handling, atomic file write, background finishes the take.
+- **Editor:** multi-clip timeline with thumbnails, reorder, trim, speed (0.5–2× in the UI), look (same studio as
+  camera/photo, beauty on/off), text and stickers placed with drag/pinch/rotate and a time window, music (looping,
+  fade-out) with music/clip volume, export with progress and cancel, then save to gallery.
+- **Export engine:** Android decodes each trimmed clip into a SurfaceTexture, runs the camera GPU pipeline with
+  VIDEO-mode face tracking, letterboxes, draws the overlay PNGs (painted by the same Flutter code as the editor
+  preview) and encodes; the soundtrack is decoded, resampled to 44.1 kHz stereo, mixed and AAC-encoded. iOS builds an
+  AVComposition (trim, speed, orientation, letterbox, music) and runs Metal beauty + CoreImage overlays per frame.
+
+Verification (2026-10-28): app tests 124/124, engine Dart 18/18, Kotlin JUnit 58/58, GLSL 24/24, Android
+type-check (with MediaPipe API stubs) OK. CI after the native export commit: all 5 jobs green (Android APK/AAB, iOS
+build). Found and fixed on the way: iOS `await` inside `??` (CI), studio button row overflow at ≤360 px, concurrent
+project saves sharing one temp file. Not run on a device.
+
 ## Next — continue here
 
 1. Run `apps/mobile/integration_test/camera_flow_test.dart` on one Android and one iOS device; record measured FPS,
@@ -112,4 +130,5 @@ Verification (2026-10-28):
 2. Metal pixel tests on the macOS runner (same fixtures as tools/shader-tests).
 3. Device pass of the photo flow: EXIF orientations 1–8, a 48 MP photo (downscale path), HEIC, export time, gallery
    permission prompts on Android 9/10/14 and iOS.
-4. Camera full-sensor still capture; then Phase 4 (video recording + video editor).
+4. Device pass of recording and export (A/V sync, rotation of portrait/landscape sources, HEVC sources, export
+   speed with face effects); then full-sensor still capture, templates, backend (Phase 5).

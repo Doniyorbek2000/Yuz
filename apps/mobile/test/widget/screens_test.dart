@@ -49,11 +49,11 @@ void main() {
 
   testWidgets('a planned feature opens the honest unavailable screen', (tester) async {
     await pumpRoute(tester, '/home');
-    await tester.scrollUntilVisible(find.text('Video editor'), 200);
-    await tester.tap(find.text('Video editor'));
+    await tester.scrollUntilVisible(find.text('Templates'), 200);
+    await tester.tap(find.text('Templates'));
     await tester.pumpAndSettle();
     expect(find.text('Not available yet'), findsOneWidget);
-    expect(find.textContaining('phase 4'), findsOneWidget);
+    expect(find.textContaining('phase 6'), findsOneWidget);
   });
 
   testWidgets('home does not overflow on a small phone', (tester) async {

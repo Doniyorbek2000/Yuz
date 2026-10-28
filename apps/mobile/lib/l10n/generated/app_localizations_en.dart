@@ -702,4 +702,105 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorExportCancelled => 'Export cancelled.';
+
+  @override
+  String get videoEditorTitle => 'Edit video';
+
+  @override
+  String get videoExport => 'Export';
+
+  @override
+  String videoExporting(int percent) {
+    return 'Exporting… $percent%';
+  }
+
+  @override
+  String get videoExportFailed => 'The video could not be exported.';
+
+  @override
+  String get videoToolTrim => 'Trim';
+
+  @override
+  String get videoToolSpeed => 'Speed';
+
+  @override
+  String get videoToolLook => 'Look';
+
+  @override
+  String get videoToolText => 'Text';
+
+  @override
+  String get videoToolStickers => 'Stickers';
+
+  @override
+  String get videoToolMusic => 'Music';
+
+  @override
+  String get videoAddClip => 'Add clip';
+
+  @override
+  String get videoRemoveClip => 'Remove clip';
+
+  @override
+  String get videoSpeedMutes => 'Clips at another speed play without their own sound; music still plays.';
+
+  @override
+  String get videoApplyBeauty => 'Beauty on faces';
+
+  @override
+  String get videoApplyBeautyHint => 'Off keeps only the filter and sharpness.';
+
+  @override
+  String get videoLookPreview => 'Look preview (one frame)';
+
+  @override
+  String get videoAddText => 'Add text';
+
+  @override
+  String get videoTextDialogTitle => 'Text';
+
+  @override
+  String get videoTextHint => 'Your text';
+
+  @override
+  String get videoOverlayTime => 'Visible';
+
+  @override
+  String get videoOverlayDelete => 'Delete';
+
+  @override
+  String get videoOverlayHint => 'Tap an item to select it, drag to move, pinch to resize and rotate.';
+
+  @override
+  String get videoMusicPick => 'Choose';
+
+  @override
+  String get videoMusicNone => 'No music';
+
+  @override
+  String get videoMusicSelected => 'Music added (loops, fades out)';
+
+  @override
+  String get videoMusicRemove => 'Remove music';
+
+  @override
+  String get videoMusicVolume => 'Music';
+
+  @override
+  String get videoOriginalVolume => 'Clip sound';
+
+  @override
+  String get videoImportFailed => 'This video could not be imported.';
+
+  @override
+  String get projectsPhotosTab => 'Photos';
+
+  @override
+  String get projectsVideosTab => 'Videos';
+
+  @override
+  String get projectsNewVideo => 'New video';
+
+  @override
+  String get projectsVideoEmptyBody => 'Import a video or record one with the camera. Your original is never changed.';
 }
