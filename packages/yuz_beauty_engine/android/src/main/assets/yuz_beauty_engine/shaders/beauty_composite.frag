@@ -21,6 +21,8 @@ const float kMaxBrighteningGamma = 0.30;
 uniform sampler2D uOriginal;
 uniform sampler2D uSmoothed;
 uniform sampler2D uBaseBlur;
+// Small-radius plain Gaussian (half resolution) for unsharp masking.
+uniform sampler2D uDetailBlur;
 uniform sampler2D uMaskA; // skin, eyes, teeth, under-eye
 uniform sampler2D uMaskB; // lips, blush, brows, eyeshadow
 uniform sampler2D uMaskC; // eyeliner
@@ -52,6 +54,8 @@ uniform vec3 uBlushColor;
 uniform vec3 uBrowColor;
 uniform vec3 uShadowColor;
 uniform vec3 uLinerColor;
+// Global detail
+uniform float uSharpen;
 // Colour filter
 uniform float uLutIntensity;
 
@@ -169,6 +173,13 @@ void main() {
     result = mix(result, result * uBrowColor * 1.15, uEyebrows * 0.6 * maskB.b);
     result = mix(result, result * mix(vec3(1.0), uShadowColor, 0.8), uEyeshadow * 0.7 * maskB.a);
     result = mix(result, uLinerColor, uEyeliner * 0.85 * maskC);
+
+    // --- Sharpen (unsharp mask); skin that is being smoothed is protected ---
+    if (uSharpen > 0.0) {
+        vec3 detailBlur = texture(uDetailBlur, vTexCoord).rgb;
+        float protection = 1.0 - skin * min(1.0, uSkinSmoothing * 2.0);
+        result = clamp(result + (original.rgb - detailBlur) * uSharpen * 1.5 * protection, 0.0, 1.0);
+    }
 
     // --- Colour filter ---
     if (uLutIntensity > 0.0) {

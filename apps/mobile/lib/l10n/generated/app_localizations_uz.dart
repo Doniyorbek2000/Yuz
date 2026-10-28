@@ -489,4 +489,167 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get makeupShade => 'Rang';
+
+  @override
+  String get effectSharpen => 'Aniqlik';
+
+  @override
+  String get projectsTitle => 'Loyihalar';
+
+  @override
+  String get projectsNew => 'Yangi surat';
+
+  @override
+  String get projectsEmptyTitle => 'Hali loyihalar yoʼq';
+
+  @override
+  String get projectsEmptyBody => 'Retush qilish uchun surat tanlang. Asl surat hech qachon oʼzgarmaydi.';
+
+  @override
+  String get projectsDeleteTitle => 'Loyihani oʼchirasizmi?';
+
+  @override
+  String get projectsDeleteBody =>
+      'Ilovadagi nusxa, tahrirlar va eksportlar oʼchiriladi. Galereyaga saqlangan suratlar qoladi.';
+
+  @override
+  String get projectsImportFailed => 'Bu faylni import qilib boʼlmadi.';
+
+  @override
+  String get photoRetouchTitle => 'Retush';
+
+  @override
+  String get photoNext => 'Tahrirlash';
+
+  @override
+  String get photoCompare => 'Solishtirish uchun bosib turing';
+
+  @override
+  String get photoPreparing => 'Toʼliq oʼlchamdagi rasm tayyorlanmoqda…';
+
+  @override
+  String get photoNotFound => 'Bu loyiha endi mavjud emas.';
+
+  @override
+  String get photoRenderFailed => 'Suratni qayta ishlab boʼlmadi.';
+
+  @override
+  String get photoSavedToGallery => 'Galereyaga saqlandi';
+
+  @override
+  String get photoSavedInApp => 'Yuz ichida saqlandi (galereyaga ruxsat yoʼq)';
+
+  @override
+  String get photoSaveFailed => 'Tahrirni saqlab boʼlmadi.';
+
+  @override
+  String get editorPaint => 'Chizish';
+
+  @override
+  String get editorText => 'Matn';
+
+  @override
+  String get editorCrop => 'Kesish';
+
+  @override
+  String get editorTune => 'Sozlash';
+
+  @override
+  String get editorBlur => 'Xiralash';
+
+  @override
+  String get editorEmoji => 'Emoji';
+
+  @override
+  String get editorStickers => 'Stikerlar';
+
+  @override
+  String get editorBrightness => 'Yorqinlik';
+
+  @override
+  String get editorContrast => 'Kontrast';
+
+  @override
+  String get editorSaturation => 'Toʼyinganlik';
+
+  @override
+  String get editorExposure => 'Ekspozitsiya';
+
+  @override
+  String get editorHue => 'Tus';
+
+  @override
+  String get editorTemperature => 'Harorat';
+
+  @override
+  String get editorFade => 'Soʼndirish';
+
+  @override
+  String get editorTint => 'Tonlash';
+
+  @override
+  String get editorRotate => 'Burish';
+
+  @override
+  String get editorFlip => 'Aylantirish';
+
+  @override
+  String get editorRatio => 'Nisbat';
+
+  @override
+  String get editorReset => 'Tiklash';
+
+  @override
+  String get editorTextHint => 'Matn kiriting';
+
+  @override
+  String get editorDone => 'Tayyor';
+
+  @override
+  String get editorBack => 'Orqaga';
+
+  @override
+  String get editorUndo => 'Bekor qilish';
+
+  @override
+  String get editorRedo => 'Qaytarish';
+
+  @override
+  String get editorRemove => 'Oʼchirish';
+
+  @override
+  String get editorEdit => 'Tahrirlash';
+
+  @override
+  String get editorApplying => 'Oʼzgarishlar qoʼllanmoqda…';
+
+  @override
+  String get editorLoading => 'Kuting…';
+
+  @override
+  String get editorCloseTitle => 'Muharrirni yopasizmi?';
+
+  @override
+  String get editorCloseBody => 'Tahrirlaringiz loyihada saqlanadi.';
+
+  @override
+  String get editorEraser => 'Oʼchirgʼich';
+
+  @override
+  String get editorLineWidth => 'Chiziq qalinligi';
+
+  @override
+  String get editorOpacity => 'Shaffoflik';
+
+  @override
+  String get editorColor => 'Rang';
+
+  @override
+  String get editorSearch => 'Qidirish';
+
+  @override
+  String get editorAlign => 'Matnni tekislash';
+
+  @override
+  String get editorRotateScale => 'Burish va oʼlcham';
 }

@@ -494,4 +494,166 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get makeupShade => 'Оттенок';
+
+  @override
+  String get effectSharpen => 'Резкость';
+
+  @override
+  String get projectsTitle => 'Проекты';
+
+  @override
+  String get projectsNew => 'Новое фото';
+
+  @override
+  String get projectsEmptyTitle => 'Пока нет проектов';
+
+  @override
+  String get projectsEmptyBody => 'Выберите фото для ретуши. Оригинал никогда не изменяется.';
+
+  @override
+  String get projectsDeleteTitle => 'Удалить проект?';
+
+  @override
+  String get projectsDeleteBody => 'Копия, правки и экспорты в приложении будут удалены. Фото в галерее останутся.';
+
+  @override
+  String get projectsImportFailed => 'Не удалось импортировать файл.';
+
+  @override
+  String get photoRetouchTitle => 'Ретушь';
+
+  @override
+  String get photoNext => 'Редактировать';
+
+  @override
+  String get photoCompare => 'Удерживайте для сравнения';
+
+  @override
+  String get photoPreparing => 'Подготовка изображения в полном размере…';
+
+  @override
+  String get photoNotFound => 'Этот проект больше не существует.';
+
+  @override
+  String get photoRenderFailed => 'Не удалось обработать фото.';
+
+  @override
+  String get photoSavedToGallery => 'Сохранено в галерею';
+
+  @override
+  String get photoSavedInApp => 'Сохранено в Yuz (нет доступа к галерее)';
+
+  @override
+  String get photoSaveFailed => 'Не удалось сохранить правку.';
+
+  @override
+  String get editorPaint => 'Рисование';
+
+  @override
+  String get editorText => 'Текст';
+
+  @override
+  String get editorCrop => 'Обрезка';
+
+  @override
+  String get editorTune => 'Настройка';
+
+  @override
+  String get editorBlur => 'Размытие';
+
+  @override
+  String get editorEmoji => 'Эмодзи';
+
+  @override
+  String get editorStickers => 'Стикеры';
+
+  @override
+  String get editorBrightness => 'Яркость';
+
+  @override
+  String get editorContrast => 'Контраст';
+
+  @override
+  String get editorSaturation => 'Насыщенность';
+
+  @override
+  String get editorExposure => 'Экспозиция';
+
+  @override
+  String get editorHue => 'Оттенок';
+
+  @override
+  String get editorTemperature => 'Температура';
+
+  @override
+  String get editorFade => 'Выцветание';
+
+  @override
+  String get editorTint => 'Тонирование';
+
+  @override
+  String get editorRotate => 'Повернуть';
+
+  @override
+  String get editorFlip => 'Отразить';
+
+  @override
+  String get editorRatio => 'Пропорции';
+
+  @override
+  String get editorReset => 'Сброс';
+
+  @override
+  String get editorTextHint => 'Введите текст';
+
+  @override
+  String get editorDone => 'Готово';
+
+  @override
+  String get editorBack => 'Назад';
+
+  @override
+  String get editorUndo => 'Отменить';
+
+  @override
+  String get editorRedo => 'Повторить';
+
+  @override
+  String get editorRemove => 'Удалить';
+
+  @override
+  String get editorEdit => 'Изменить';
+
+  @override
+  String get editorApplying => 'Применение изменений…';
+
+  @override
+  String get editorLoading => 'Подождите…';
+
+  @override
+  String get editorCloseTitle => 'Закрыть редактор?';
+
+  @override
+  String get editorCloseBody => 'Правки сохранятся в проекте.';
+
+  @override
+  String get editorEraser => 'Ластик';
+
+  @override
+  String get editorLineWidth => 'Толщина линии';
+
+  @override
+  String get editorOpacity => 'Непрозрачность';
+
+  @override
+  String get editorColor => 'Цвет';
+
+  @override
+  String get editorSearch => 'Поиск';
+
+  @override
+  String get editorAlign => 'Выравнивание';
+
+  @override
+  String get editorRotateScale => 'Поворот и масштаб';
 }

@@ -41,4 +41,5 @@ BeautyParameters neutralBeautyParameters() => BeautyParameters(
   eyeshadowColor: DefaultMakeupColors.eyeshadow,
   eyelinerColor: DefaultMakeupColors.eyeliner,
   filterIntensity: 0,
+  sharpen: 0,
 );

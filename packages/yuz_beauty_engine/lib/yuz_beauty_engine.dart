@@ -20,6 +20,8 @@ export 'src/generated/beauty_engine_api.g.dart'
         EngineErrorCode,
         FaceTrackingStatus,
         FlashMode,
+        ImageProcessingRequest,
+        ImageProcessingResult,
         MultiFacePolicy,
         PerformanceSample,
         PhotoCaptureResult,

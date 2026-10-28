@@ -42,6 +42,7 @@ final class BeautyEngineController: NSObject, BeautyEngineHostApi,
   private var performanceTimer: DispatchSourceTimer?
   private var notificationTokens: [NSObjectProtocol] = []
   private var thermalLevel = 0
+  private var stillProcessor: StillImageProcessor?
 
   init(registry: FlutterTextureRegistry, events: BeautyEngineEventsApi) {
     self.registry = registry
@@ -205,6 +206,34 @@ final class BeautyEngineController: NSObject, BeautyEngineHostApi,
     return PhotoCaptureResult(
       filePath: outputFilePath, width: Int64(CVPixelBufferGetWidth(frame)),
       height: Int64(CVPixelBufferGetHeight(frame)))
+  }
+
+  func processImage(request: ImageProcessingRequest) async throws -> ImageProcessingResult {
+    if let lut = request.lutRgba, lut.data.count != MetalBeautyRenderer.lutBytes {
+      throw Self.error(.unknown, "LUT must be \(MetalBeautyRenderer.lutBytes) bytes, got \(lut.data.count)")
+    }
+    let processor = withState { () -> StillImageProcessor in
+      if let existing = stillProcessor { return existing }
+      let created = StillImageProcessor()
+      stillProcessor = created
+      return created
+    }
+    do {
+      let output = try await processor.process(
+        inputPath: request.inputPath, outputPath: request.outputPath, maxLongEdge: Int(max(request.maxLongEdge, 0)),
+        settings: BeautySettings(request.parameters), lut: request.lutRgba?.data,
+        jpegQuality: Int(request.jpegQuality), maxFaces: Int(request.maxFaces))
+      return ImageProcessingResult(
+        outputPath: request.outputPath, width: Int64(output.width), height: Int64(output.height),
+        sourceWidth: Int64(output.sourceWidth), sourceHeight: Int64(output.sourceHeight),
+        faceCount: Int64(output.faceCount), faceTrackingAvailable: output.faceTrackingAvailable)
+    } catch let error as BeautyEngineFlutterError {
+      throw error
+    } catch StillImageError.unreadable(let path) {
+      throw Self.error(.captureFailed, "Image could not be read: \(path)")
+    } catch {
+      throw Self.error(.captureFailed, "Image processing failed: \(error)")
+    }
   }
 
   func pause() async throws {
@@ -592,6 +621,6 @@ extension BeautySettings {
       colors: MakeupColors(
         lipstick: color(p.lipstickColor), blush: color(p.blushColor), eyebrow: color(p.eyebrowColor),
         eyeshadow: color(p.eyeshadowColor), eyeliner: color(p.eyelinerColor)),
-      filterIntensity: unit(p.filterIntensity))
+      filterIntensity: unit(p.filterIntensity), sharpen: unit(p.sharpen))
   }
 }

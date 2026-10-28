@@ -48,7 +48,7 @@ final class FaceLandmarkDetector: NSObject, FaceLandmarkerLiveStreamDelegate {
     return nil
   }
 
-  private static func modelPath() -> String? {
+  static func modelPath() -> String? {
     let classBundle = Bundle(for: FaceLandmarkDetector.self)
     if let url = classBundle.url(forResource: "YuzBeautyEngineResources", withExtension: "bundle"),
       let resources = Bundle(url: url),

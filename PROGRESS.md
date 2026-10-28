@@ -76,10 +76,40 @@ Verification (2026-10-28):
 All 5 CI jobs green: https://github.com/Doniyorbek2000/Yuz/actions/runs/40730273854
 | On device | — | ❌ not run |
 
+## Phase 3 (photo editor) — code ✅ / device ⏳
+
+Flow: **Projects** → import a photo (original copied into app storage, never modified) → **Retouch** (the same
+beauty studio as the camera: looks, filters + intensity, sharpen, skin, face, reshape, makeup; 1600 px live preview
+rendered natively, hold-to-compare, pinch-zoom) → **Edit** (full-resolution beauty render opened in
+pro_image_editor: crop/rotate/flip/ratio, tune, blur, draw, text, emoji, own stickers, undo/redo, zoom) →
+**Done** (JPEG q95 at original resolution into the project and the gallery album "Yuz").
+
+- Engine: new `processImage` Pigeon call. EXIF orientation applied while decoding (Android ExifInterface + matrix,
+  iOS CGImageSource transform), IMAGE-mode MediaPipe detection (all faces ≤4), same shader graph as the camera,
+  output at original size (≤ GPU max texture, ≤24 MP) or capped long edge, atomic JPEG write.
+- New effect: sharpen (both platforms); smoothing radius scales with resolution so preview and export match.
+- Non-destructive projects: `project.json` stores the look and the editor history; reopening restores both.
+  Full-resolution render is cached per look. Writes are atomic; corrupt projects are skipped.
+- Gallery: `gal` (Android MediaStore, legacy write permission only ≤ API 29; iOS add-only photo permission).
+
+Verification (2026-10-28, local):
+
+| Check | Result |
+|---|---|
+| App unit + widget + golden tests (incl. 11 project JSON/repository, 9 controller, 7 photo-flow widget tests) | ✅ 87/87 |
+| Engine Dart tests | ✅ 16/16 |
+| GLSL shader tests (incl. 3 sharpen tests) | ✅ 24/24 |
+| Kotlin JUnit (incl. 7 still-image geometry/EXIF tests) | ✅ 40/40 |
+| Android sources type-check vs Android 16 framework | ✅ |
+| `flutter analyze` (app + engine) | ✅ no issues |
+| CI (Android APK/AAB, iOS build, Metal compile) | see commit CI run |
+| On device | ❌ not run |
+
 ## Next — continue here
 
 1. Run `apps/mobile/integration_test/camera_flow_test.dart` on one Android and one iOS device; record measured FPS,
    fix orientation/mirroring if wrong; update FEATURE_MATRIX statuses from PARTIAL to TESTED.
 2. Metal pixel tests on the macOS runner (same fixtures as tools/shader-tests).
-3. Phase 3 remainder: full-resolution still capture, photo editor (pro_image_editor),
-   non-destructive projects.
+3. Device pass of the photo flow: EXIF orientations 1–8, a 48 MP photo (downscale path), HEIC, export time, gallery
+   permission prompts on Android 9/10/14 and iOS.
+4. Camera full-sensor still capture; then Phase 4 (video recording + video editor).

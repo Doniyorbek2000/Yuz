@@ -41,13 +41,14 @@ data class BeautySettings(
     val makeupIntensity: Float = 1f,
     val colors: MakeupColors = MakeupColors(),
     val filterIntensity: Float = 0f,
+    val sharpen: Float = 0f,
 ) {
     /** True when the composite pass changes anything (warps are separate). */
     val compositeActive: Boolean
         get() = listOf(
             skinSmoothing, skinBrightening, skinTone, blemishReduction, shineReduction, glow,
             eyeBrightening, teethWhitening, darkCircles,
-        ).any { it > 0f } || makeupActive || filterIntensity > 0f
+        ).any { it > 0f } || makeupActive || filterIntensity > 0f || sharpen > 0f
 
     val makeupActive: Boolean
         get() = makeupIntensity > 0f && listOf(lipstick, blush, eyebrows, eyeshadow, eyeliner).any { it > 0f }

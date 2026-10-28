@@ -74,7 +74,7 @@ packages:
     source: hosted
     version: "3.0.8"
   cupertino_ui:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: cupertino_ui
       sha256: a47c4e7c66fd7444a063a602597fceb238f705c3f6b1322bc0053d0a2638ee6e
@@ -199,6 +199,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  gal:
+    dependency: "direct main"
+    description:
+      name: gal
+      sha256: f71e79840fe023a21f2f949771375444b6efcd34b9e625d5f4f5504971380a77
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.3"
   go_router:
     dependency: "direct main"
     description:
@@ -397,7 +405,7 @@ packages:
     source: hosted
     version: "0.13.0"
   material_ui:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: material_ui
       sha256: e4031746f96c8316864d9b92bce375f1320a36ed56e166307e1e1bda9d90b4ab
@@ -556,6 +564,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
+  pro_image_editor:
+    dependency: "direct main"
+    description:
+      name: pro_image_editor
+      sha256: dcf88aef2f36f1e7f5d51f36ef9d07b48cc77df9eb6821725f6d0454dc838dda
+      url: "https://pub.dev"
+    source: hosted
+    version: "14.21.1"
   process:
     dependency: transitive
     description:

@@ -4,8 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.Matrix
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -38,6 +36,8 @@ import app.yuz.beauty_engine.generated.EngineError
 import app.yuz.beauty_engine.generated.EngineErrorCode
 import app.yuz.beauty_engine.generated.FaceTrackingStatus
 import app.yuz.beauty_engine.generated.FlashMode
+import app.yuz.beauty_engine.generated.ImageProcessingRequest
+import app.yuz.beauty_engine.generated.ImageProcessingResult
 import app.yuz.beauty_engine.generated.MultiFacePolicy
 import app.yuz.beauty_engine.generated.PerformanceSample
 import app.yuz.beauty_engine.generated.PhotoCaptureResult
@@ -50,9 +50,10 @@ import app.yuz.beauty_engine.perf.ThermalMonitor
 import app.yuz.beauty_engine.render.GlThread
 import app.yuz.beauty_engine.render.PreviewPipeline
 import app.yuz.beauty_engine.render.toSettings
+import app.yuz.beauty_engine.still.JpegWriter
+import app.yuz.beauty_engine.still.StillImageProcessor
 import io.flutter.view.TextureRegistry
 import java.io.File
-import java.io.FileOutputStream
 import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -83,6 +84,7 @@ class BeautyEngineController(
     private val mainExecutor = Executor { command -> mainHandler.post(command) }
 
     private var session: Session? = null
+    private var stillProcessor: StillImageProcessor? = null
 
     /** Everything that lives between initialize() and dispose(). */
     private inner class Session(val config: EngineConfig) {
@@ -269,7 +271,9 @@ class BeautyEngineController(
                 delay(TORCH_SETTLE_MILLIS)
             }
             val frame = active.pipeline.capture()
-            withContext(Dispatchers.IO) { writeJpeg(frame.rgbaBottomUp, frame.width, frame.height, File(outputFilePath)) }
+            withContext(Dispatchers.IO) {
+                JpegWriter.write(frame.rgbaBottomUp, frame.width, frame.height, File(outputFilePath), JPEG_QUALITY)
+            }
             return PhotoCaptureResult(outputFilePath, frame.width.toLong(), frame.height.toLong())
         } catch (error: BeautyEngineFlutterError) {
             throw error
@@ -277,6 +281,40 @@ class BeautyEngineController(
             throw engineError(EngineErrorCode.CAPTURE_FAILED, error.message ?: "Capture failed")
         } finally {
             if (useTorch) camera.cameraControl.enableTorch(false)
+        }
+    }
+
+    override suspend fun processImage(request: ImageProcessingRequest): ImageProcessingResult {
+        val lut = request.lutRgba
+        if (lut != null && lut.size != GlLutTexture.BYTES) {
+            throw engineError(EngineErrorCode.UNKNOWN, "LUT must be ${GlLutTexture.BYTES} bytes, got ${lut.size}")
+        }
+        val processor = stillProcessor ?: StillImageProcessor(context).also { stillProcessor = it }
+        try {
+            val output = processor.process(
+                inputPath = request.inputPath,
+                outputPath = request.outputPath,
+                maxLongEdge = request.maxLongEdge.toInt().coerceAtLeast(0),
+                settings = request.parameters.toSettings(),
+                lut = lut,
+                jpegQuality = request.jpegQuality.toInt(),
+                maxFaces = request.maxFaces.toInt(),
+            )
+            return ImageProcessingResult(
+                outputPath = request.outputPath,
+                width = output.width.toLong(),
+                height = output.height.toLong(),
+                sourceWidth = output.sourceWidth.toLong(),
+                sourceHeight = output.sourceHeight.toLong(),
+                faceCount = output.faceCount.toLong(),
+                faceTrackingAvailable = output.faceTrackingAvailable,
+            )
+        } catch (error: java.io.IOException) {
+            throw engineError(EngineErrorCode.CAPTURE_FAILED, error.message ?: "Image could not be read or written")
+        } catch (error: OutOfMemoryError) {
+            throw engineError(EngineErrorCode.CAPTURE_FAILED, "Not enough memory for this image size")
+        } catch (error: app.yuz.beauty_engine.gl.GlException) {
+            throw engineError(EngineErrorCode.GPU_INITIALIZATION_FAILED, error.message ?: "GPU error")
         }
     }
 
@@ -308,6 +346,9 @@ class BeautyEngineController(
             // Detach is synchronous; run the suspend teardown without awaiting.
             CoroutineScope(Dispatchers.Main.immediate).launch { teardown(active) }
         }
+        val processor = stillProcessor
+        stillProcessor = null
+        if (processor != null) CoroutineScope(Dispatchers.Default).launch { processor.close() }
         mainScope.cancel()
     }
 
@@ -508,26 +549,6 @@ class BeautyEngineController(
         is app.yuz.beauty_engine.gl.GlException ->
             engineError(EngineErrorCode.GPU_INITIALIZATION_FAILED, error.message ?: "GPU init failed")
         else -> engineError(EngineErrorCode.UNKNOWN, error.message ?: error.javaClass.simpleName)
-    }
-
-    private fun writeJpeg(rgba: java.nio.ByteBuffer, width: Int, height: Int, file: File) {
-        val bottomUp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        try {
-            rgba.rewind()
-            bottomUp.copyPixelsFromBuffer(rgba)
-            val flip = Matrix().apply { preScale(1f, -1f) }
-            val upright = Bitmap.createBitmap(bottomUp, 0, 0, width, height, flip, false)
-            try {
-                file.parentFile?.mkdirs()
-                FileOutputStream(file).use { stream ->
-                    check(upright.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, stream)) { "JPEG encoding failed" }
-                }
-            } finally {
-                upright.recycle()
-            }
-        } finally {
-            bottomUp.recycle()
-        }
     }
 
     private fun estimateLuma(buffer: java.nio.ByteBuffer, rowStride: Int, width: Int, height: Int): Float {

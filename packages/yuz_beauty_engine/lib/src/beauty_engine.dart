@@ -97,6 +97,42 @@ class BeautyEngine implements BeautyEngineEventsApi {
     return _guard(() => _host.setColorLut(rgba512));
   }
 
+  /// Runs the beauty pipeline on a photo file (independent of the camera).
+  /// [maxLongEdge] 0 renders at the original size (GPU-capped).
+  Future<ImageProcessingResult> processImage({
+    required String inputPath,
+    required String outputPath,
+    required BeautyParameters parameters,
+    int maxLongEdge = 0,
+    Uint8List? lutRgba,
+    int jpegQuality = 95,
+    int maxFaces = 4,
+  }) {
+    if (lutRgba != null && lutRgba.length != ColorLut.byteLength) {
+      throw ArgumentError.value(
+        lutRgba.length,
+        'lutRgba',
+        'must be ${ColorLut.byteLength} bytes',
+      );
+    }
+    if (maxLongEdge < 0) {
+      throw ArgumentError.value(maxLongEdge, 'maxLongEdge', 'must be >= 0');
+    }
+    return _guard(
+      () => _host.processImage(
+        ImageProcessingRequest(
+          inputPath: inputPath,
+          outputPath: outputPath,
+          maxLongEdge: maxLongEdge,
+          parameters: parameters,
+          lutRgba: lutRgba,
+          jpegQuality: jpegQuality.clamp(1, 100),
+          maxFaces: maxFaces.clamp(1, 4),
+        ),
+      ),
+    );
+  }
+
   Future<void> setFlashMode(FlashMode mode) =>
       _guard(() => _host.setFlashMode(mode));
 

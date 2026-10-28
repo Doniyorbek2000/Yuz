@@ -37,6 +37,7 @@ struct BeautySettings: Equatable {
   var makeupIntensity: Float = 1
   var colors = MakeupColors()
   var filterIntensity: Float = 0
+  var sharpen: Float = 0
 
   var makeupActive: Bool {
     makeupIntensity > 0 && [lipstick, blush, eyebrows, eyeshadow, eyeliner].contains { $0 > 0 }
@@ -46,7 +47,7 @@ struct BeautySettings: Equatable {
     [
       skinSmoothing, skinBrightening, skinTone, blemishReduction, shineReduction, glow, eyeBrightening,
       teethWhitening, darkCircles,
-    ].contains { $0 > 0 } || makeupActive || filterIntensity > 0
+    ].contains { $0 > 0 } || makeupActive || filterIntensity > 0 || sharpen > 0
   }
 
   var isIdentity: Bool { !compositeActive && reshape.isIdentity }
@@ -76,6 +77,13 @@ final class MetalBeautyRenderer {
   static let lutSize = 512
   static let lutBytes = 512 * 512 * 4
   private static let framesInFlight = 2
+  /// Long edge at which the bilateral blur uses 1-texel steps (BeautyRenderer.kt).
+  static let referenceLongEdge: Float = 1280
+
+  /// Keeps the smoothing radius a constant fraction of the image (preview == export).
+  static func smoothingStepScale(width: Int, height: Int) -> Float {
+    max(1, Float(max(width, height)) / referenceLongEdge)
+  }
 
   private let device: MTLDevice
   private let commandQueue: MTLCommandQueue
@@ -96,6 +104,8 @@ final class MetalBeautyRenderer {
   private var warped: MTLTexture?
   private var smoothHorizontal: MTLTexture?
   private var smoothed: MTLTexture?
+  private var detailTemp: MTLTexture?
+  private var detailBlur: MTLTexture?
   private var baseTemp: MTLTexture?
   private var baseBlur: MTLTexture?
   private var masks: [MTLTexture] = []
@@ -216,7 +226,13 @@ final class MetalBeautyRenderer {
 
     encodeSeparable(
       commandBuffer, pipeline: blurPipeline, source: source, intermediate: smoothHorizontal!,
-      destination: smoothed!, rangeSigma: Self.rangeSigma)
+      destination: smoothed!, rangeSigma: Self.rangeSigma,
+      stepScale: Self.smoothingStepScale(width: frameWidth, height: frameHeight))
+    if settings.sharpen > 0 {
+      encodeSeparable(
+        commandBuffer, pipeline: gaussianPipeline, source: source, intermediate: detailTemp!,
+        destination: detailBlur!, rangeSigma: 0)
+    }
     var baseSource = source
     for _ in 0..<Self.baseBlurIterations {
       encodeSeparable(
@@ -248,6 +264,7 @@ final class MetalBeautyRenderer {
       values[BeautyShaders.Value.eyeshadow.rawValue] = gate(settings.eyeshadow * makeup)
       values[BeautyShaders.Value.eyeliner.rawValue] = gate(settings.eyeliner * makeup)
       values[BeautyShaders.Value.lutIntensity.rawValue] = lutLoaded ? gate(settings.filterIntensity) : 0
+      values[BeautyShaders.Value.sharpen.rawValue] = gate(settings.sharpen)
       var colors: [SIMD4<Float>] = [
         MakeupColors.rgb(settings.colors.lipstick), MakeupColors.rgb(settings.colors.blush),
         MakeupColors.rgb(settings.colors.eyebrow), MakeupColors.rgb(settings.colors.eyeshadow),
@@ -262,6 +279,7 @@ final class MetalBeautyRenderer {
       encoder.setTexture(masks[2], index: 5)
       encoder.setTexture(lut, index: 6)
       encoder.setTexture(destination.texture, index: 7)
+      encoder.setTexture(detailBlur, index: 8)
       encoder.setBytes(&values, length: MemoryLayout<Float>.stride * values.count, index: 0)
       encoder.setBytes(&colors, length: MemoryLayout<SIMD4<Float>>.stride * colors.count, index: 1)
       dispatch(encoder, pipeline: compositePipeline, width: frameWidth, height: frameHeight)
@@ -342,11 +360,11 @@ final class MetalBeautyRenderer {
 
   private func encodeSeparable(
     _ commandBuffer: MTLCommandBuffer, pipeline: MTLComputePipelineState, source: MTLTexture,
-    intermediate: MTLTexture, destination: MTLTexture, rangeSigma: Float
+    intermediate: MTLTexture, destination: MTLTexture, rangeSigma: Float, stepScale: Float = 1
   ) {
     let passes: [(MTLTexture, MTLTexture, SIMD2<Float>)] = [
-      (source, intermediate, SIMD2(1 / Float(intermediate.width), 0)),
-      (intermediate, destination, SIMD2(0, 1 / Float(destination.height))),
+      (source, intermediate, SIMD2(stepScale / Float(intermediate.width), 0)),
+      (intermediate, destination, SIMD2(0, stepScale / Float(destination.height))),
     ]
     for (input, output, step) in passes {
       guard let encoder = commandBuffer.makeComputeCommandEncoder() else { return }
@@ -387,6 +405,8 @@ final class MetalBeautyRenderer {
     warped = try texture(newWidth, newHeight)
     smoothHorizontal = try texture(newWidth / 2, newHeight / 2)
     smoothed = try texture(newWidth / 2, newHeight / 2)
+    detailTemp = try texture(newWidth / 2, newHeight / 2)
+    detailBlur = try texture(newWidth / 2, newHeight / 2)
     baseTemp = try texture(newWidth / 4, newHeight / 4)
     baseBlur = try texture(newWidth / 4, newHeight / 4)
     masks = try (0..<3).map { _ in try texture(newWidth / 4, newHeight / 4) }

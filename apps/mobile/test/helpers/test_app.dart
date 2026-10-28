@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yuz_beauty_engine/yuz_beauty_engine.dart';
@@ -13,6 +15,8 @@ import 'package:yuz_mobile/core/theme/app_theme.dart';
 import 'package:yuz_mobile/features/camera/application/beauty_camera_controller.dart';
 import 'package:yuz_mobile/features/camera/data/filter_lut_repository.dart';
 import 'package:yuz_mobile/features/permissions/camera_permission_service.dart';
+import 'package:yuz_mobile/features/projects/application/photo_project_controller.dart';
+import 'package:yuz_mobile/features/projects/data/project_repository.dart';
 import 'package:yuz_mobile/l10n/generated/app_localizations.dart';
 
 /// In-memory stand-in for the native engine host API.
@@ -79,6 +83,35 @@ class FakeEngineHost implements BeautyEngineHostApi {
     return PhotoCaptureResult(filePath: outputFilePath, width: 1080, height: 1920);
   }
 
+  /// Every still-image request, in order.
+  final List<ImageProcessingRequest> imageRequests = [];
+  EngineErrorCode? processImageFailure;
+
+  /// When set, each processImage call waits for the gate before finishing.
+  Completer<void>? processImageGate;
+
+  /// Copies the input to the output (a real engine renders the look).
+  @override
+  Future<ImageProcessingResult> processImage(ImageProcessingRequest request) async {
+    imageRequests.add(request);
+    final gate = processImageGate;
+    if (gate != null) await gate.future;
+    if (processImageFailure != null) throw _platformError(processImageFailure!);
+    await File(request.inputPath).copy(request.outputPath);
+    const sourceWidth = 3000;
+    const sourceHeight = 4000;
+    final scale = request.maxLongEdge <= 0 ? 1.0 : (request.maxLongEdge / sourceHeight).clamp(0.0, 1.0);
+    return ImageProcessingResult(
+      outputPath: request.outputPath,
+      width: (sourceWidth * scale).round(),
+      height: (sourceHeight * scale).round(),
+      sourceWidth: sourceWidth,
+      sourceHeight: sourceHeight,
+      faceCount: 1,
+      faceTrackingAvailable: true,
+    );
+  }
+
   @override
   Future<void> pause() async => calls.add('pause');
 
@@ -112,6 +145,32 @@ class FakeEngineHost implements BeautyEngineHostApi {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+class FakeGallerySaver implements GallerySaver {
+  FakeGallerySaver({this.accept = true});
+
+  bool accept;
+  final List<String> saved = [];
+
+  @override
+  Future<bool> saveImage(String path) async {
+    saved.add(path);
+    return accept;
+  }
+}
+
+/// A valid 1×1 PNG, enough for Image.file and file-copy tests.
+final Uint8List kTinyPng = base64Decode(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+);
+
+/// Lets real file I/O started inside a widget test complete, then rebuilds.
+Future<void> settleIo(WidgetTester tester, {int rounds = 25}) async {
+  for (var i = 0; i < rounds; i++) {
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+    await tester.pump();
+  }
+}
+
 class FakePermissionService implements CameraPermissionService {
   FakePermissionService(this.state);
 
@@ -140,15 +199,23 @@ Future<ProviderContainer> createContainer({
   FakeEngineHost? host,
   Map<String, Object> preferences = const {},
   CameraPermissionState permission = CameraPermissionState.granted,
+  Directory? projectsRoot,
+  GallerySaver? gallerySaver,
+  List<Override> extraOverrides = const [],
 }) async {
   final prefs = await mockPreferences(preferences);
   final engineHost = host ?? FakeEngineHost();
   final container = ProviderContainer(
     overrides: [
+      ...extraOverrides,
       sharedPreferencesProvider.overrideWithValue(prefs),
       beautyEngineProvider.overrideWithValue(BeautyEngine(hostApi: engineHost, registerEventHandlers: false)),
       capturePathBuilderProvider.overrideWithValue(() async => '/tmp/yuz_test_capture.jpg'),
       cameraPermissionServiceProvider.overrideWithValue(FakePermissionService(permission)),
+      projectRepositoryProvider.overrideWithValue(
+        ProjectRepository(root: () async => projectsRoot ?? Directory('${Directory.systemTemp.path}/yuz_no_projects')),
+      ),
+      gallerySaverProvider.overrideWithValue(gallerySaver ?? FakeGallerySaver()),
       filterLutRepositoryProvider.overrideWithValue(
         FilterLutRepository(
           storageDirectory: () async => Directory.systemTemp.createTemp('yuz_lut_test'),

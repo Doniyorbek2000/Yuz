@@ -330,6 +330,7 @@ class BeautyParameters {
     required this.eyeshadowColor,
     required this.eyelinerColor,
     required this.filterIntensity,
+    required this.sharpen,
   });
 
   double skinSmoothing;
@@ -391,6 +392,9 @@ class BeautyParameters {
   /// Strength of the colour LUT set with setColorLut (0 = off).
   double filterIntensity;
 
+  /// Unsharp-mask strength (skin being smoothed is protected).
+  double sharpen;
+
   List<Object?> _toList() {
     return <Object?>[
       skinSmoothing,
@@ -422,6 +426,7 @@ class BeautyParameters {
       eyeshadowColor,
       eyelinerColor,
       filterIntensity,
+      sharpen,
     ];
   }
 
@@ -460,6 +465,7 @@ class BeautyParameters {
       eyeshadowColor: result[26]! as int,
       eyelinerColor: result[27]! as int,
       filterIntensity: result[28]! as double,
+      sharpen: result[29]! as double,
     );
   }
 
@@ -472,7 +478,7 @@ class BeautyParameters {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(skinSmoothing, other.skinSmoothing) && _deepEquals(texturePreservation, other.texturePreservation) && _deepEquals(skinBrightening, other.skinBrightening) && _deepEquals(skinTone, other.skinTone) && _deepEquals(blemishReduction, other.blemishReduction) && _deepEquals(shineReduction, other.shineReduction) && _deepEquals(glow, other.glow) && _deepEquals(eyeBrightening, other.eyeBrightening) && _deepEquals(teethWhitening, other.teethWhitening) && _deepEquals(darkCircles, other.darkCircles) && _deepEquals(faceSlim, other.faceSlim) && _deepEquals(jawline, other.jawline) && _deepEquals(chin, other.chin) && _deepEquals(eyeEnlarge, other.eyeEnlarge) && _deepEquals(noseSlim, other.noseSlim) && _deepEquals(lips, other.lips) && _deepEquals(forehead, other.forehead) && _deepEquals(lipstick, other.lipstick) && _deepEquals(blush, other.blush) && _deepEquals(eyebrows, other.eyebrows) && _deepEquals(eyeshadow, other.eyeshadow) && _deepEquals(eyeliner, other.eyeliner) && _deepEquals(makeupIntensity, other.makeupIntensity) && _deepEquals(lipstickColor, other.lipstickColor) && _deepEquals(blushColor, other.blushColor) && _deepEquals(eyebrowColor, other.eyebrowColor) && _deepEquals(eyeshadowColor, other.eyeshadowColor) && _deepEquals(eyelinerColor, other.eyelinerColor) && _deepEquals(filterIntensity, other.filterIntensity);
+    return _deepEquals(skinSmoothing, other.skinSmoothing) && _deepEquals(texturePreservation, other.texturePreservation) && _deepEquals(skinBrightening, other.skinBrightening) && _deepEquals(skinTone, other.skinTone) && _deepEquals(blemishReduction, other.blemishReduction) && _deepEquals(shineReduction, other.shineReduction) && _deepEquals(glow, other.glow) && _deepEquals(eyeBrightening, other.eyeBrightening) && _deepEquals(teethWhitening, other.teethWhitening) && _deepEquals(darkCircles, other.darkCircles) && _deepEquals(faceSlim, other.faceSlim) && _deepEquals(jawline, other.jawline) && _deepEquals(chin, other.chin) && _deepEquals(eyeEnlarge, other.eyeEnlarge) && _deepEquals(noseSlim, other.noseSlim) && _deepEquals(lips, other.lips) && _deepEquals(forehead, other.forehead) && _deepEquals(lipstick, other.lipstick) && _deepEquals(blush, other.blush) && _deepEquals(eyebrows, other.eyebrows) && _deepEquals(eyeshadow, other.eyeshadow) && _deepEquals(eyeliner, other.eyeliner) && _deepEquals(makeupIntensity, other.makeupIntensity) && _deepEquals(lipstickColor, other.lipstickColor) && _deepEquals(blushColor, other.blushColor) && _deepEquals(eyebrowColor, other.eyebrowColor) && _deepEquals(eyeshadowColor, other.eyeshadowColor) && _deepEquals(eyelinerColor, other.eyelinerColor) && _deepEquals(filterIntensity, other.filterIntensity) && _deepEquals(sharpen, other.sharpen);
   }
 
   @override
@@ -481,7 +487,167 @@ class BeautyParameters {
 
   @override
   String toString() {
-    return 'BeautyParameters(skinSmoothing: $skinSmoothing, texturePreservation: $texturePreservation, skinBrightening: $skinBrightening, skinTone: $skinTone, blemishReduction: $blemishReduction, shineReduction: $shineReduction, glow: $glow, eyeBrightening: $eyeBrightening, teethWhitening: $teethWhitening, darkCircles: $darkCircles, faceSlim: $faceSlim, jawline: $jawline, chin: $chin, eyeEnlarge: $eyeEnlarge, noseSlim: $noseSlim, lips: $lips, forehead: $forehead, lipstick: $lipstick, blush: $blush, eyebrows: $eyebrows, eyeshadow: $eyeshadow, eyeliner: $eyeliner, makeupIntensity: $makeupIntensity, lipstickColor: $lipstickColor, blushColor: $blushColor, eyebrowColor: $eyebrowColor, eyeshadowColor: $eyeshadowColor, eyelinerColor: $eyelinerColor, filterIntensity: $filterIntensity)';
+    return 'BeautyParameters(skinSmoothing: $skinSmoothing, texturePreservation: $texturePreservation, skinBrightening: $skinBrightening, skinTone: $skinTone, blemishReduction: $blemishReduction, shineReduction: $shineReduction, glow: $glow, eyeBrightening: $eyeBrightening, teethWhitening: $teethWhitening, darkCircles: $darkCircles, faceSlim: $faceSlim, jawline: $jawline, chin: $chin, eyeEnlarge: $eyeEnlarge, noseSlim: $noseSlim, lips: $lips, forehead: $forehead, lipstick: $lipstick, blush: $blush, eyebrows: $eyebrows, eyeshadow: $eyeshadow, eyeliner: $eyeliner, makeupIntensity: $makeupIntensity, lipstickColor: $lipstickColor, blushColor: $blushColor, eyebrowColor: $eyebrowColor, eyeshadowColor: $eyeshadowColor, eyelinerColor: $eyelinerColor, filterIntensity: $filterIntensity, sharpen: $sharpen)';
+  }
+}
+
+/// Still-image job: runs the same GPU pipeline as the camera on a photo.
+class ImageProcessingRequest {
+  ImageProcessingRequest({
+    required this.inputPath,
+    required this.outputPath,
+    required this.maxLongEdge,
+    required this.parameters,
+    this.lutRgba,
+    required this.jpegQuality,
+    required this.maxFaces,
+  });
+
+  /// JPEG/PNG/HEIC file; EXIF orientation is applied.
+  String inputPath;
+
+  /// Destination JPEG.
+  String outputPath;
+
+  /// Long edge of the output; 0 = original size (capped at the GPU's maximum
+  /// texture size).
+  int maxLongEdge;
+
+  BeautyParameters parameters;
+
+  /// Optional 512x512 RGBA LUT for parameters.filterIntensity.
+  Uint8List? lutRgba;
+
+  /// 1..100
+  int jpegQuality;
+
+  /// Faces to beautify (all faces policy, clamped to 1..4).
+  int maxFaces;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      inputPath,
+      outputPath,
+      maxLongEdge,
+      parameters,
+      lutRgba,
+      jpegQuality,
+      maxFaces,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static ImageProcessingRequest decode(Object result) {
+    result as List<Object?>;
+    return ImageProcessingRequest(
+      inputPath: result[0]! as String,
+      outputPath: result[1]! as String,
+      maxLongEdge: result[2]! as int,
+      parameters: result[3]! as BeautyParameters,
+      lutRgba: result[4] as Uint8List?,
+      jpegQuality: result[5]! as int,
+      maxFaces: result[6]! as int,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! ImageProcessingRequest || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(inputPath, other.inputPath) && _deepEquals(outputPath, other.outputPath) && _deepEquals(maxLongEdge, other.maxLongEdge) && _deepEquals(parameters, other.parameters) && _deepEquals(lutRgba, other.lutRgba) && _deepEquals(jpegQuality, other.jpegQuality) && _deepEquals(maxFaces, other.maxFaces);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'ImageProcessingRequest(inputPath: $inputPath, outputPath: $outputPath, maxLongEdge: $maxLongEdge, parameters: $parameters, lutRgba: $lutRgba, jpegQuality: $jpegQuality, maxFaces: $maxFaces)';
+  }
+}
+
+class ImageProcessingResult {
+  ImageProcessingResult({
+    required this.outputPath,
+    required this.width,
+    required this.height,
+    required this.sourceWidth,
+    required this.sourceHeight,
+    required this.faceCount,
+    required this.faceTrackingAvailable,
+  });
+
+  String outputPath;
+
+  /// Output size (upright).
+  int width;
+
+  int height;
+
+  /// Original size after EXIF orientation.
+  int sourceWidth;
+
+  int sourceHeight;
+
+  int faceCount;
+
+  bool faceTrackingAvailable;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      outputPath,
+      width,
+      height,
+      sourceWidth,
+      sourceHeight,
+      faceCount,
+      faceTrackingAvailable,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static ImageProcessingResult decode(Object result) {
+    result as List<Object?>;
+    return ImageProcessingResult(
+      outputPath: result[0]! as String,
+      width: result[1]! as int,
+      height: result[2]! as int,
+      sourceWidth: result[3]! as int,
+      sourceHeight: result[4]! as int,
+      faceCount: result[5]! as int,
+      faceTrackingAvailable: result[6]! as bool,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! ImageProcessingResult || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(outputPath, other.outputPath) && _deepEquals(width, other.width) && _deepEquals(height, other.height) && _deepEquals(sourceWidth, other.sourceWidth) && _deepEquals(sourceHeight, other.sourceHeight) && _deepEquals(faceCount, other.faceCount) && _deepEquals(faceTrackingAvailable, other.faceTrackingAvailable);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'ImageProcessingResult(outputPath: $outputPath, width: $width, height: $height, sourceWidth: $sourceWidth, sourceHeight: $sourceHeight, faceCount: $faceCount, faceTrackingAvailable: $faceTrackingAvailable)';
   }
 }
 
@@ -828,20 +994,26 @@ class _PigeonCodec extends StandardMessageCodec {
     }    else if (value is BeautyParameters) {
       buffer.putUint8(137);
       writeValue(buffer, value.encode());
-    }    else if (value is CameraCapabilities) {
+    }    else if (value is ImageProcessingRequest) {
       buffer.putUint8(138);
       writeValue(buffer, value.encode());
-    }    else if (value is PhotoCaptureResult) {
+    }    else if (value is ImageProcessingResult) {
       buffer.putUint8(139);
       writeValue(buffer, value.encode());
-    }    else if (value is FaceTrackingStatus) {
+    }    else if (value is CameraCapabilities) {
       buffer.putUint8(140);
       writeValue(buffer, value.encode());
-    }    else if (value is PerformanceSample) {
+    }    else if (value is PhotoCaptureResult) {
       buffer.putUint8(141);
       writeValue(buffer, value.encode());
-    }    else if (value is EngineError) {
+    }    else if (value is FaceTrackingStatus) {
       buffer.putUint8(142);
+      writeValue(buffer, value.encode());
+    }    else if (value is PerformanceSample) {
+      buffer.putUint8(143);
+      writeValue(buffer, value.encode());
+    }    else if (value is EngineError) {
+      buffer.putUint8(144);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -876,14 +1048,18 @@ class _PigeonCodec extends StandardMessageCodec {
       case 137:
         return BeautyParameters.decode(readValue(buffer)!);
       case 138:
-        return CameraCapabilities.decode(readValue(buffer)!);
+        return ImageProcessingRequest.decode(readValue(buffer)!);
       case 139:
-        return PhotoCaptureResult.decode(readValue(buffer)!);
+        return ImageProcessingResult.decode(readValue(buffer)!);
       case 140:
-        return FaceTrackingStatus.decode(readValue(buffer)!);
+        return CameraCapabilities.decode(readValue(buffer)!);
       case 141:
-        return PerformanceSample.decode(readValue(buffer)!);
+        return PhotoCaptureResult.decode(readValue(buffer)!);
       case 142:
+        return FaceTrackingStatus.decode(readValue(buffer)!);
+      case 143:
+        return PerformanceSample.decode(readValue(buffer)!);
+      case 144:
         return EngineError.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -1074,6 +1250,26 @@ class BeautyEngineHostApi {
     )
     ;
     return pigeonVar_replyValue! as PhotoCaptureResult;
+  }
+
+  /// Independent of the camera session; jobs run one at a time.
+  Future<ImageProcessingResult> processImage(ImageProcessingRequest request) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.processImage$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[request]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as ImageProcessingResult;
   }
 
   Future<void> pause() async {

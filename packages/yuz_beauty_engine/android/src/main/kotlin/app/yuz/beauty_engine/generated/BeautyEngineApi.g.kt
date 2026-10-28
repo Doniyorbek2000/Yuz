@@ -443,7 +443,9 @@ data class BeautyParameters (
   val eyeshadowColor: Long,
   val eyelinerColor: Long,
   /** Strength of the colour LUT set with setColorLut (0 = off). */
-  val filterIntensity: Double
+  val filterIntensity: Double,
+  /** Unsharp-mask strength (skin being smoothed is protected). */
+  val sharpen: Double
 )
  {
   companion object {
@@ -477,7 +479,8 @@ data class BeautyParameters (
       val eyeshadowColor = pigeonVar_list[26] as Long
       val eyelinerColor = pigeonVar_list[27] as Long
       val filterIntensity = pigeonVar_list[28] as Double
-      return BeautyParameters(skinSmoothing, texturePreservation, skinBrightening, skinTone, blemishReduction, shineReduction, glow, eyeBrightening, teethWhitening, darkCircles, faceSlim, jawline, chin, eyeEnlarge, noseSlim, lips, forehead, lipstick, blush, eyebrows, eyeshadow, eyeliner, makeupIntensity, lipstickColor, blushColor, eyebrowColor, eyeshadowColor, eyelinerColor, filterIntensity)
+      val sharpen = pigeonVar_list[29] as Double
+      return BeautyParameters(skinSmoothing, texturePreservation, skinBrightening, skinTone, blemishReduction, shineReduction, glow, eyeBrightening, teethWhitening, darkCircles, faceSlim, jawline, chin, eyeEnlarge, noseSlim, lips, forehead, lipstick, blush, eyebrows, eyeshadow, eyeliner, makeupIntensity, lipstickColor, blushColor, eyebrowColor, eyeshadowColor, eyelinerColor, filterIntensity, sharpen)
     }
   }
   fun toList(): List<Any?> {
@@ -511,6 +514,7 @@ data class BeautyParameters (
       eyeshadowColor,
       eyelinerColor,
       filterIntensity,
+      sharpen,
     )
   }
   override fun equals(other: Any?): Boolean {
@@ -521,7 +525,7 @@ data class BeautyParameters (
       return true
     }
     val other = other as BeautyParameters
-    return BeautyEngineApiPigeonUtils.deepEquals(this.skinSmoothing, other.skinSmoothing) && BeautyEngineApiPigeonUtils.deepEquals(this.texturePreservation, other.texturePreservation) && BeautyEngineApiPigeonUtils.deepEquals(this.skinBrightening, other.skinBrightening) && BeautyEngineApiPigeonUtils.deepEquals(this.skinTone, other.skinTone) && BeautyEngineApiPigeonUtils.deepEquals(this.blemishReduction, other.blemishReduction) && BeautyEngineApiPigeonUtils.deepEquals(this.shineReduction, other.shineReduction) && BeautyEngineApiPigeonUtils.deepEquals(this.glow, other.glow) && BeautyEngineApiPigeonUtils.deepEquals(this.eyeBrightening, other.eyeBrightening) && BeautyEngineApiPigeonUtils.deepEquals(this.teethWhitening, other.teethWhitening) && BeautyEngineApiPigeonUtils.deepEquals(this.darkCircles, other.darkCircles) && BeautyEngineApiPigeonUtils.deepEquals(this.faceSlim, other.faceSlim) && BeautyEngineApiPigeonUtils.deepEquals(this.jawline, other.jawline) && BeautyEngineApiPigeonUtils.deepEquals(this.chin, other.chin) && BeautyEngineApiPigeonUtils.deepEquals(this.eyeEnlarge, other.eyeEnlarge) && BeautyEngineApiPigeonUtils.deepEquals(this.noseSlim, other.noseSlim) && BeautyEngineApiPigeonUtils.deepEquals(this.lips, other.lips) && BeautyEngineApiPigeonUtils.deepEquals(this.forehead, other.forehead) && BeautyEngineApiPigeonUtils.deepEquals(this.lipstick, other.lipstick) && BeautyEngineApiPigeonUtils.deepEquals(this.blush, other.blush) && BeautyEngineApiPigeonUtils.deepEquals(this.eyebrows, other.eyebrows) && BeautyEngineApiPigeonUtils.deepEquals(this.eyeshadow, other.eyeshadow) && BeautyEngineApiPigeonUtils.deepEquals(this.eyeliner, other.eyeliner) && BeautyEngineApiPigeonUtils.deepEquals(this.makeupIntensity, other.makeupIntensity) && BeautyEngineApiPigeonUtils.deepEquals(this.lipstickColor, other.lipstickColor) && BeautyEngineApiPigeonUtils.deepEquals(this.blushColor, other.blushColor) && BeautyEngineApiPigeonUtils.deepEquals(this.eyebrowColor, other.eyebrowColor) && BeautyEngineApiPigeonUtils.deepEquals(this.eyeshadowColor, other.eyeshadowColor) && BeautyEngineApiPigeonUtils.deepEquals(this.eyelinerColor, other.eyelinerColor) && BeautyEngineApiPigeonUtils.deepEquals(this.filterIntensity, other.filterIntensity)
+    return BeautyEngineApiPigeonUtils.deepEquals(this.skinSmoothing, other.skinSmoothing) && BeautyEngineApiPigeonUtils.deepEquals(this.texturePreservation, other.texturePreservation) && BeautyEngineApiPigeonUtils.deepEquals(this.skinBrightening, other.skinBrightening) && BeautyEngineApiPigeonUtils.deepEquals(this.skinTone, other.skinTone) && BeautyEngineApiPigeonUtils.deepEquals(this.blemishReduction, other.blemishReduction) && BeautyEngineApiPigeonUtils.deepEquals(this.shineReduction, other.shineReduction) && BeautyEngineApiPigeonUtils.deepEquals(this.glow, other.glow) && BeautyEngineApiPigeonUtils.deepEquals(this.eyeBrightening, other.eyeBrightening) && BeautyEngineApiPigeonUtils.deepEquals(this.teethWhitening, other.teethWhitening) && BeautyEngineApiPigeonUtils.deepEquals(this.darkCircles, other.darkCircles) && BeautyEngineApiPigeonUtils.deepEquals(this.faceSlim, other.faceSlim) && BeautyEngineApiPigeonUtils.deepEquals(this.jawline, other.jawline) && BeautyEngineApiPigeonUtils.deepEquals(this.chin, other.chin) && BeautyEngineApiPigeonUtils.deepEquals(this.eyeEnlarge, other.eyeEnlarge) && BeautyEngineApiPigeonUtils.deepEquals(this.noseSlim, other.noseSlim) && BeautyEngineApiPigeonUtils.deepEquals(this.lips, other.lips) && BeautyEngineApiPigeonUtils.deepEquals(this.forehead, other.forehead) && BeautyEngineApiPigeonUtils.deepEquals(this.lipstick, other.lipstick) && BeautyEngineApiPigeonUtils.deepEquals(this.blush, other.blush) && BeautyEngineApiPigeonUtils.deepEquals(this.eyebrows, other.eyebrows) && BeautyEngineApiPigeonUtils.deepEquals(this.eyeshadow, other.eyeshadow) && BeautyEngineApiPigeonUtils.deepEquals(this.eyeliner, other.eyeliner) && BeautyEngineApiPigeonUtils.deepEquals(this.makeupIntensity, other.makeupIntensity) && BeautyEngineApiPigeonUtils.deepEquals(this.lipstickColor, other.lipstickColor) && BeautyEngineApiPigeonUtils.deepEquals(this.blushColor, other.blushColor) && BeautyEngineApiPigeonUtils.deepEquals(this.eyebrowColor, other.eyebrowColor) && BeautyEngineApiPigeonUtils.deepEquals(this.eyeshadowColor, other.eyeshadowColor) && BeautyEngineApiPigeonUtils.deepEquals(this.eyelinerColor, other.eyelinerColor) && BeautyEngineApiPigeonUtils.deepEquals(this.filterIntensity, other.filterIntensity) && BeautyEngineApiPigeonUtils.deepEquals(this.sharpen, other.sharpen)
   }
 
   override fun hashCode(): Int {
@@ -555,10 +559,148 @@ data class BeautyParameters (
     result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.eyeshadowColor)
     result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.eyelinerColor)
     result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.filterIntensity)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.sharpen)
     return result
   }
   override fun toString(): String {
-    return "BeautyParameters(skinSmoothing=$skinSmoothing, texturePreservation=$texturePreservation, skinBrightening=$skinBrightening, skinTone=$skinTone, blemishReduction=$blemishReduction, shineReduction=$shineReduction, glow=$glow, eyeBrightening=$eyeBrightening, teethWhitening=$teethWhitening, darkCircles=$darkCircles, faceSlim=$faceSlim, jawline=$jawline, chin=$chin, eyeEnlarge=$eyeEnlarge, noseSlim=$noseSlim, lips=$lips, forehead=$forehead, lipstick=$lipstick, blush=$blush, eyebrows=$eyebrows, eyeshadow=$eyeshadow, eyeliner=$eyeliner, makeupIntensity=$makeupIntensity, lipstickColor=$lipstickColor, blushColor=$blushColor, eyebrowColor=$eyebrowColor, eyeshadowColor=$eyeshadowColor, eyelinerColor=$eyelinerColor, filterIntensity=$filterIntensity)"
+    return "BeautyParameters(skinSmoothing=$skinSmoothing, texturePreservation=$texturePreservation, skinBrightening=$skinBrightening, skinTone=$skinTone, blemishReduction=$blemishReduction, shineReduction=$shineReduction, glow=$glow, eyeBrightening=$eyeBrightening, teethWhitening=$teethWhitening, darkCircles=$darkCircles, faceSlim=$faceSlim, jawline=$jawline, chin=$chin, eyeEnlarge=$eyeEnlarge, noseSlim=$noseSlim, lips=$lips, forehead=$forehead, lipstick=$lipstick, blush=$blush, eyebrows=$eyebrows, eyeshadow=$eyeshadow, eyeliner=$eyeliner, makeupIntensity=$makeupIntensity, lipstickColor=$lipstickColor, blushColor=$blushColor, eyebrowColor=$eyebrowColor, eyeshadowColor=$eyeshadowColor, eyelinerColor=$eyelinerColor, filterIntensity=$filterIntensity, sharpen=$sharpen)"
+  }
+}
+
+/**
+ * Still-image job: runs the same GPU pipeline as the camera on a photo.
+ *
+ * Generated class from Pigeon that represents data sent in messages.
+ */
+data class ImageProcessingRequest (
+  /** JPEG/PNG/HEIC file; EXIF orientation is applied. */
+  val inputPath: String,
+  /** Destination JPEG. */
+  val outputPath: String,
+  /**
+   * Long edge of the output; 0 = original size (capped at the GPU's maximum
+   * texture size).
+   */
+  val maxLongEdge: Long,
+  val parameters: BeautyParameters,
+  /** Optional 512x512 RGBA LUT for parameters.filterIntensity. */
+  val lutRgba: ByteArray? = null,
+  /** 1..100 */
+  val jpegQuality: Long,
+  /** Faces to beautify (all faces policy, clamped to 1..4). */
+  val maxFaces: Long
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): ImageProcessingRequest {
+      val inputPath = pigeonVar_list[0] as String
+      val outputPath = pigeonVar_list[1] as String
+      val maxLongEdge = pigeonVar_list[2] as Long
+      val parameters = pigeonVar_list[3] as BeautyParameters
+      val lutRgba = pigeonVar_list[4] as ByteArray?
+      val jpegQuality = pigeonVar_list[5] as Long
+      val maxFaces = pigeonVar_list[6] as Long
+      return ImageProcessingRequest(inputPath, outputPath, maxLongEdge, parameters, lutRgba, jpegQuality, maxFaces)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      inputPath,
+      outputPath,
+      maxLongEdge,
+      parameters,
+      lutRgba,
+      jpegQuality,
+      maxFaces,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as ImageProcessingRequest
+    return BeautyEngineApiPigeonUtils.deepEquals(this.inputPath, other.inputPath) && BeautyEngineApiPigeonUtils.deepEquals(this.outputPath, other.outputPath) && BeautyEngineApiPigeonUtils.deepEquals(this.maxLongEdge, other.maxLongEdge) && BeautyEngineApiPigeonUtils.deepEquals(this.parameters, other.parameters) && BeautyEngineApiPigeonUtils.deepEquals(this.lutRgba, other.lutRgba) && BeautyEngineApiPigeonUtils.deepEquals(this.jpegQuality, other.jpegQuality) && BeautyEngineApiPigeonUtils.deepEquals(this.maxFaces, other.maxFaces)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.inputPath)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.outputPath)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.maxLongEdge)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.parameters)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.lutRgba)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.jpegQuality)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.maxFaces)
+    return result
+  }
+  override fun toString(): String {
+    return "ImageProcessingRequest(inputPath=$inputPath, outputPath=$outputPath, maxLongEdge=$maxLongEdge, parameters=$parameters, lutRgba=${lutRgba?.contentToString()}, jpegQuality=$jpegQuality, maxFaces=$maxFaces)"
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class ImageProcessingResult (
+  val outputPath: String,
+  /** Output size (upright). */
+  val width: Long,
+  val height: Long,
+  /** Original size after EXIF orientation. */
+  val sourceWidth: Long,
+  val sourceHeight: Long,
+  val faceCount: Long,
+  val faceTrackingAvailable: Boolean
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): ImageProcessingResult {
+      val outputPath = pigeonVar_list[0] as String
+      val width = pigeonVar_list[1] as Long
+      val height = pigeonVar_list[2] as Long
+      val sourceWidth = pigeonVar_list[3] as Long
+      val sourceHeight = pigeonVar_list[4] as Long
+      val faceCount = pigeonVar_list[5] as Long
+      val faceTrackingAvailable = pigeonVar_list[6] as Boolean
+      return ImageProcessingResult(outputPath, width, height, sourceWidth, sourceHeight, faceCount, faceTrackingAvailable)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      outputPath,
+      width,
+      height,
+      sourceWidth,
+      sourceHeight,
+      faceCount,
+      faceTrackingAvailable,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as ImageProcessingResult
+    return BeautyEngineApiPigeonUtils.deepEquals(this.outputPath, other.outputPath) && BeautyEngineApiPigeonUtils.deepEquals(this.width, other.width) && BeautyEngineApiPigeonUtils.deepEquals(this.height, other.height) && BeautyEngineApiPigeonUtils.deepEquals(this.sourceWidth, other.sourceWidth) && BeautyEngineApiPigeonUtils.deepEquals(this.sourceHeight, other.sourceHeight) && BeautyEngineApiPigeonUtils.deepEquals(this.faceCount, other.faceCount) && BeautyEngineApiPigeonUtils.deepEquals(this.faceTrackingAvailable, other.faceTrackingAvailable)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.outputPath)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.width)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.height)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.sourceWidth)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.sourceHeight)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.faceCount)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.faceTrackingAvailable)
+    return result
+  }
+  override fun toString(): String {
+    return "ImageProcessingResult(outputPath=$outputPath, width=$width, height=$height, sourceWidth=$sourceWidth, sourceHeight=$sourceHeight, faceCount=$faceCount, faceTrackingAvailable=$faceTrackingAvailable)"
   }
 }
 
@@ -866,25 +1008,35 @@ private open class BeautyEngineApiPigeonCodec : StandardMessageCodec() {
       }
       138.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          CameraCapabilities.fromList(it)
+          ImageProcessingRequest.fromList(it)
         }
       }
       139.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          PhotoCaptureResult.fromList(it)
+          ImageProcessingResult.fromList(it)
         }
       }
       140.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          FaceTrackingStatus.fromList(it)
+          CameraCapabilities.fromList(it)
         }
       }
       141.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          PerformanceSample.fromList(it)
+          PhotoCaptureResult.fromList(it)
         }
       }
       142.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          FaceTrackingStatus.fromList(it)
+        }
+      }
+      143.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          PerformanceSample.fromList(it)
+        }
+      }
+      144.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
           EngineError.fromList(it)
         }
@@ -930,24 +1082,32 @@ private open class BeautyEngineApiPigeonCodec : StandardMessageCodec() {
         stream.write(137)
         writeValue(stream, value.toList())
       }
-      is CameraCapabilities -> {
+      is ImageProcessingRequest -> {
         stream.write(138)
         writeValue(stream, value.toList())
       }
-      is PhotoCaptureResult -> {
+      is ImageProcessingResult -> {
         stream.write(139)
         writeValue(stream, value.toList())
       }
-      is FaceTrackingStatus -> {
+      is CameraCapabilities -> {
         stream.write(140)
         writeValue(stream, value.toList())
       }
-      is PerformanceSample -> {
+      is PhotoCaptureResult -> {
         stream.write(141)
         writeValue(stream, value.toList())
       }
-      is EngineError -> {
+      is FaceTrackingStatus -> {
         stream.write(142)
+        writeValue(stream, value.toList())
+      }
+      is PerformanceSample -> {
+        stream.write(143)
+        writeValue(stream, value.toList())
+      }
+      is EngineError -> {
+        stream.write(144)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
@@ -971,6 +1131,8 @@ interface BeautyEngineHostApi {
   fun setZoomRatio(ratio: Double)
   fun setExposureBias(ev: Double)
   suspend fun capturePhoto(outputFilePath: String): PhotoCaptureResult
+  /** Independent of the camera session; jobs run one at a time. */
+  suspend fun processImage(request: ImageProcessingRequest): ImageProcessingResult
   suspend fun pause()
   suspend fun resume()
   suspend fun dispose()
@@ -1136,6 +1298,25 @@ interface BeautyEngineHostApi {
             CoroutineScope(Dispatchers.Main).launch {
               val wrapped: List<Any?> = try {
                 listOf(api.capturePhoto(outputFilePathArg))
+              } catch (exception: Throwable) {
+                BeautyEngineApiPigeonUtils.wrapError(exception)
+              }
+              reply.reply(wrapped)
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.processImage$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val requestArg = args[0] as ImageProcessingRequest
+            CoroutineScope(Dispatchers.Main).launch {
+              val wrapped: List<Any?> = try {
+                listOf(api.processImage(requestArg))
               } catch (exception: Throwable) {
                 BeautyEngineApiPigeonUtils.wrapError(exception)
               }

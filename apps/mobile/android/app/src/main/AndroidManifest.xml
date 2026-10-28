@@ -1,4 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Saving exports to the gallery (MediaStore) needs no permission on
+         Android 10+; older versions need legacy external-storage write. -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29" />
     <application
         android:label="Yuz"
         android:name="${applicationName}"

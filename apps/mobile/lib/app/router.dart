@@ -10,6 +10,9 @@ import '../features/home/home_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/permissions/permissions_screen.dart';
 import '../features/privacy/privacy_screen.dart';
+import '../features/projects/presentation/photo_edit_screen.dart';
+import '../features/projects/presentation/photo_retouch_screen.dart';
+import '../features/projects/presentation/projects_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/splash/splash_screen.dart';
 
@@ -34,6 +37,17 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
     GoRoute(
       path: '/capture',
       builder: (_, state) => CaptureResultScreen(filePath: state.uri.queryParameters['path'] ?? ''),
+    ),
+    GoRoute(path: '/projects', builder: (_, _) => const ProjectsScreen()),
+    GoRoute(
+      path: '/photo/:id',
+      builder: (_, state) => PhotoRetouchScreen(projectId: state.pathParameters['id']!),
+      routes: [
+        GoRoute(
+          path: 'edit',
+          builder: (_, state) => PhotoEditScreen(projectId: state.pathParameters['id']!),
+        ),
+      ],
     ),
     GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
     GoRoute(path: '/privacy', builder: (_, _) => const PrivacyScreen()),

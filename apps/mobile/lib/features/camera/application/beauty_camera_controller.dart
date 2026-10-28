@@ -11,6 +11,7 @@ import '../data/filter_lut_repository.dart';
 import '../domain/beauty_adjustments.dart';
 import '../domain/beauty_preset.dart';
 import '../domain/color_filters.dart';
+import 'look_editor.dart';
 
 final beautyEngineProvider = Provider<BeautyEngine>((ref) {
   final engine = BeautyEngine();
@@ -339,7 +340,7 @@ final beautyCameraControllerProvider = NotifierProvider.autoDispose<BeautyCamera
 
 /// Beauty sliders, undo and presets. Pushes every change to the engine while
 /// the camera is running and remembers the last look across launches.
-class BeautyEditorNotifier extends Notifier<BeautyEditorState> {
+class BeautyEditorNotifier extends Notifier<BeautyEditorState> implements LookEditor {
   BeautyPresetRepository get _repository => ref.read(beautyPresetRepositoryProvider);
 
   @override
@@ -347,8 +348,10 @@ class BeautyEditorNotifier extends Notifier<BeautyEditorState> {
       BeautyEditorState(current: ref.watch(beautyPresetRepositoryProvider).loadLastAdjustments());
 
   /// Call when a slider drag starts so the whole drag is one undo step.
+  @override
   void beginEdit() => state = state.checkpoint();
 
+  @override
   void updateLive(BeautyEffect effect, int value) {
     final next = state.current.withValue(effect, value);
     if (next == state.current) return;
@@ -356,22 +359,28 @@ class BeautyEditorNotifier extends Notifier<BeautyEditorState> {
     _push();
   }
 
+  @override
   Future<void> endEdit() {
     state = state.finalizeEdit();
     return _repository.saveLastAdjustments(state.current);
   }
 
+  @override
   void applyPreset(BeautyPreset preset) => _commit(preset.adjustments);
 
+  @override
   void selectFilter(FilterId filter) => _commit(state.current.withFilter(filter));
 
+  @override
   void selectColor(MakeupItem item, int color) => _commit(state.current.withColor(item, color));
 
+  @override
   void undo() {
     state = state.undo();
     _afterDiscreteChange();
   }
 
+  @override
   void reset() {
     state = state.reset();
     _afterDiscreteChange();

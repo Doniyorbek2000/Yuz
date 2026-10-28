@@ -393,6 +393,8 @@ struct BeautyParameters: Hashable, CustomStringConvertible {
   var eyelinerColor: Int64
   /// Strength of the colour LUT set with setColorLut (0 = off).
   var filterIntensity: Double
+  /// Unsharp-mask strength (skin being smoothed is protected).
+  var sharpen: Double
 
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
@@ -426,6 +428,7 @@ struct BeautyParameters: Hashable, CustomStringConvertible {
     let eyeshadowColor = pigeonVar_list[26] as! Int64
     let eyelinerColor = pigeonVar_list[27] as! Int64
     let filterIntensity = pigeonVar_list[28] as! Double
+    let sharpen = pigeonVar_list[29] as! Double
 
     return BeautyParameters(
       skinSmoothing: skinSmoothing,
@@ -456,7 +459,8 @@ struct BeautyParameters: Hashable, CustomStringConvertible {
       eyebrowColor: eyebrowColor,
       eyeshadowColor: eyeshadowColor,
       eyelinerColor: eyelinerColor,
-      filterIntensity: filterIntensity
+      filterIntensity: filterIntensity,
+      sharpen: sharpen
     )
   }
   func toList() -> [Any?] {
@@ -490,13 +494,14 @@ struct BeautyParameters: Hashable, CustomStringConvertible {
       eyeshadowColor,
       eyelinerColor,
       filterIntensity,
+      sharpen,
     ]
   }
   static func == (lhs: BeautyParameters, rhs: BeautyParameters) -> Bool {
     if Swift.type(of: lhs) != Swift.type(of: rhs) {
       return false
     }
-    return BeautyEngineApiPigeonInternal.deepEquals(lhs.skinSmoothing, rhs.skinSmoothing) && BeautyEngineApiPigeonInternal.deepEquals(lhs.texturePreservation, rhs.texturePreservation) && BeautyEngineApiPigeonInternal.deepEquals(lhs.skinBrightening, rhs.skinBrightening) && BeautyEngineApiPigeonInternal.deepEquals(lhs.skinTone, rhs.skinTone) && BeautyEngineApiPigeonInternal.deepEquals(lhs.blemishReduction, rhs.blemishReduction) && BeautyEngineApiPigeonInternal.deepEquals(lhs.shineReduction, rhs.shineReduction) && BeautyEngineApiPigeonInternal.deepEquals(lhs.glow, rhs.glow) && BeautyEngineApiPigeonInternal.deepEquals(lhs.eyeBrightening, rhs.eyeBrightening) && BeautyEngineApiPigeonInternal.deepEquals(lhs.teethWhitening, rhs.teethWhitening) && BeautyEngineApiPigeonInternal.deepEquals(lhs.darkCircles, rhs.darkCircles) && BeautyEngineApiPigeonInternal.deepEquals(lhs.faceSlim, rhs.faceSlim) && BeautyEngineApiPigeonInternal.deepEquals(lhs.jawline, rhs.jawline) && BeautyEngineApiPigeonInternal.deepEquals(lhs.chin, rhs.chin) && BeautyEngineApiPigeonInternal.deepEquals(lhs.eyeEnlarge, rhs.eyeEnlarge) && BeautyEngineApiPigeonInternal.deepEquals(lhs.noseSlim, rhs.noseSlim) && BeautyEngineApiPigeonInternal.deepEquals(lhs.lips, rhs.lips) && BeautyEngineApiPigeonInternal.deepEquals(lhs.forehead, rhs.forehead) && BeautyEngineApiPigeonInternal.deepEquals(lhs.lipstick, rhs.lipstick) && BeautyEngineApiPigeonInternal.deepEquals(lhs.blush, rhs.blush) && BeautyEngineApiPigeonInternal.deepEquals(lhs.eyebrows, rhs.eyebrows) && BeautyEngineApiPigeonInternal.deepEquals(lhs.eyeshadow, rhs.eyeshadow) && BeautyEngineApiPigeonInternal.deepEquals(lhs.eyeliner, rhs.eyeliner) && BeautyEngineApiPigeonInternal.deepEquals(lhs.makeupIntensity, rhs.makeupIntensity) && BeautyEngineApiPigeonInternal.deepEquals(lhs.lipstickColor, rhs.lipstickColor) && BeautyEngineApiPigeonInternal.deepEquals(lhs.blushColor, rhs.blushColor) && BeautyEngineApiPigeonInternal.deepEquals(lhs.eyebrowColor, rhs.eyebrowColor) && BeautyEngineApiPigeonInternal.deepEquals(lhs.eyeshadowColor, rhs.eyeshadowColor) && BeautyEngineApiPigeonInternal.deepEquals(lhs.eyelinerColor, rhs.eyelinerColor) && BeautyEngineApiPigeonInternal.deepEquals(lhs.filterIntensity, rhs.filterIntensity)
+    return BeautyEngineApiPigeonInternal.deepEquals(lhs.skinSmoothing, rhs.skinSmoothing) && BeautyEngineApiPigeonInternal.deepEquals(lhs.texturePreservation, rhs.texturePreservation) && BeautyEngineApiPigeonInternal.deepEquals(lhs.skinBrightening, rhs.skinBrightening) && BeautyEngineApiPigeonInternal.deepEquals(lhs.skinTone, rhs.skinTone) && BeautyEngineApiPigeonInternal.deepEquals(lhs.blemishReduction, rhs.blemishReduction) && BeautyEngineApiPigeonInternal.deepEquals(lhs.shineReduction, rhs.shineReduction) && BeautyEngineApiPigeonInternal.deepEquals(lhs.glow, rhs.glow) && BeautyEngineApiPigeonInternal.deepEquals(lhs.eyeBrightening, rhs.eyeBrightening) && BeautyEngineApiPigeonInternal.deepEquals(lhs.teethWhitening, rhs.teethWhitening) && BeautyEngineApiPigeonInternal.deepEquals(lhs.darkCircles, rhs.darkCircles) && BeautyEngineApiPigeonInternal.deepEquals(lhs.faceSlim, rhs.faceSlim) && BeautyEngineApiPigeonInternal.deepEquals(lhs.jawline, rhs.jawline) && BeautyEngineApiPigeonInternal.deepEquals(lhs.chin, rhs.chin) && BeautyEngineApiPigeonInternal.deepEquals(lhs.eyeEnlarge, rhs.eyeEnlarge) && BeautyEngineApiPigeonInternal.deepEquals(lhs.noseSlim, rhs.noseSlim) && BeautyEngineApiPigeonInternal.deepEquals(lhs.lips, rhs.lips) && BeautyEngineApiPigeonInternal.deepEquals(lhs.forehead, rhs.forehead) && BeautyEngineApiPigeonInternal.deepEquals(lhs.lipstick, rhs.lipstick) && BeautyEngineApiPigeonInternal.deepEquals(lhs.blush, rhs.blush) && BeautyEngineApiPigeonInternal.deepEquals(lhs.eyebrows, rhs.eyebrows) && BeautyEngineApiPigeonInternal.deepEquals(lhs.eyeshadow, rhs.eyeshadow) && BeautyEngineApiPigeonInternal.deepEquals(lhs.eyeliner, rhs.eyeliner) && BeautyEngineApiPigeonInternal.deepEquals(lhs.makeupIntensity, rhs.makeupIntensity) && BeautyEngineApiPigeonInternal.deepEquals(lhs.lipstickColor, rhs.lipstickColor) && BeautyEngineApiPigeonInternal.deepEquals(lhs.blushColor, rhs.blushColor) && BeautyEngineApiPigeonInternal.deepEquals(lhs.eyebrowColor, rhs.eyebrowColor) && BeautyEngineApiPigeonInternal.deepEquals(lhs.eyeshadowColor, rhs.eyeshadowColor) && BeautyEngineApiPigeonInternal.deepEquals(lhs.eyelinerColor, rhs.eyelinerColor) && BeautyEngineApiPigeonInternal.deepEquals(lhs.filterIntensity, rhs.filterIntensity) && BeautyEngineApiPigeonInternal.deepEquals(lhs.sharpen, rhs.sharpen)
   }
 
   func hash(into hasher: inout Hasher) {
@@ -530,10 +535,152 @@ struct BeautyParameters: Hashable, CustomStringConvertible {
     BeautyEngineApiPigeonInternal.deepHash(value: eyeshadowColor, hasher: &hasher)
     BeautyEngineApiPigeonInternal.deepHash(value: eyelinerColor, hasher: &hasher)
     BeautyEngineApiPigeonInternal.deepHash(value: filterIntensity, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: sharpen, hasher: &hasher)
   }
 
   public var description: String {
-    return "BeautyParameters(skinSmoothing: \(String(describing: skinSmoothing)), texturePreservation: \(String(describing: texturePreservation)), skinBrightening: \(String(describing: skinBrightening)), skinTone: \(String(describing: skinTone)), blemishReduction: \(String(describing: blemishReduction)), shineReduction: \(String(describing: shineReduction)), glow: \(String(describing: glow)), eyeBrightening: \(String(describing: eyeBrightening)), teethWhitening: \(String(describing: teethWhitening)), darkCircles: \(String(describing: darkCircles)), faceSlim: \(String(describing: faceSlim)), jawline: \(String(describing: jawline)), chin: \(String(describing: chin)), eyeEnlarge: \(String(describing: eyeEnlarge)), noseSlim: \(String(describing: noseSlim)), lips: \(String(describing: lips)), forehead: \(String(describing: forehead)), lipstick: \(String(describing: lipstick)), blush: \(String(describing: blush)), eyebrows: \(String(describing: eyebrows)), eyeshadow: \(String(describing: eyeshadow)), eyeliner: \(String(describing: eyeliner)), makeupIntensity: \(String(describing: makeupIntensity)), lipstickColor: \(String(describing: lipstickColor)), blushColor: \(String(describing: blushColor)), eyebrowColor: \(String(describing: eyebrowColor)), eyeshadowColor: \(String(describing: eyeshadowColor)), eyelinerColor: \(String(describing: eyelinerColor)), filterIntensity: \(String(describing: filterIntensity)))"
+    return "BeautyParameters(skinSmoothing: \(String(describing: skinSmoothing)), texturePreservation: \(String(describing: texturePreservation)), skinBrightening: \(String(describing: skinBrightening)), skinTone: \(String(describing: skinTone)), blemishReduction: \(String(describing: blemishReduction)), shineReduction: \(String(describing: shineReduction)), glow: \(String(describing: glow)), eyeBrightening: \(String(describing: eyeBrightening)), teethWhitening: \(String(describing: teethWhitening)), darkCircles: \(String(describing: darkCircles)), faceSlim: \(String(describing: faceSlim)), jawline: \(String(describing: jawline)), chin: \(String(describing: chin)), eyeEnlarge: \(String(describing: eyeEnlarge)), noseSlim: \(String(describing: noseSlim)), lips: \(String(describing: lips)), forehead: \(String(describing: forehead)), lipstick: \(String(describing: lipstick)), blush: \(String(describing: blush)), eyebrows: \(String(describing: eyebrows)), eyeshadow: \(String(describing: eyeshadow)), eyeliner: \(String(describing: eyeliner)), makeupIntensity: \(String(describing: makeupIntensity)), lipstickColor: \(String(describing: lipstickColor)), blushColor: \(String(describing: blushColor)), eyebrowColor: \(String(describing: eyebrowColor)), eyeshadowColor: \(String(describing: eyeshadowColor)), eyelinerColor: \(String(describing: eyelinerColor)), filterIntensity: \(String(describing: filterIntensity)), sharpen: \(String(describing: sharpen)))"
+  }
+}
+
+/// Still-image job: runs the same GPU pipeline as the camera on a photo.
+///
+/// Generated class from Pigeon that represents data sent in messages.
+struct ImageProcessingRequest: Hashable, CustomStringConvertible {
+  /// JPEG/PNG/HEIC file; EXIF orientation is applied.
+  var inputPath: String
+  /// Destination JPEG.
+  var outputPath: String
+  /// Long edge of the output; 0 = original size (capped at the GPU's maximum
+  /// texture size).
+  var maxLongEdge: Int64
+  var parameters: BeautyParameters
+  /// Optional 512x512 RGBA LUT for parameters.filterIntensity.
+  var lutRgba: FlutterStandardTypedData? = nil
+  /// 1..100
+  var jpegQuality: Int64
+  /// Faces to beautify (all faces policy, clamped to 1..4).
+  var maxFaces: Int64
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> ImageProcessingRequest? {
+    let inputPath = pigeonVar_list[0] as! String
+    let outputPath = pigeonVar_list[1] as! String
+    let maxLongEdge = pigeonVar_list[2] as! Int64
+    let parameters = pigeonVar_list[3] as! BeautyParameters
+    let lutRgba: FlutterStandardTypedData? = nilOrValue(pigeonVar_list[4])
+    let jpegQuality = pigeonVar_list[5] as! Int64
+    let maxFaces = pigeonVar_list[6] as! Int64
+
+    return ImageProcessingRequest(
+      inputPath: inputPath,
+      outputPath: outputPath,
+      maxLongEdge: maxLongEdge,
+      parameters: parameters,
+      lutRgba: lutRgba,
+      jpegQuality: jpegQuality,
+      maxFaces: maxFaces
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      inputPath,
+      outputPath,
+      maxLongEdge,
+      parameters,
+      lutRgba,
+      jpegQuality,
+      maxFaces,
+    ]
+  }
+  static func == (lhs: ImageProcessingRequest, rhs: ImageProcessingRequest) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return BeautyEngineApiPigeonInternal.deepEquals(lhs.inputPath, rhs.inputPath) && BeautyEngineApiPigeonInternal.deepEquals(lhs.outputPath, rhs.outputPath) && BeautyEngineApiPigeonInternal.deepEquals(lhs.maxLongEdge, rhs.maxLongEdge) && BeautyEngineApiPigeonInternal.deepEquals(lhs.parameters, rhs.parameters) && BeautyEngineApiPigeonInternal.deepEquals(lhs.lutRgba, rhs.lutRgba) && BeautyEngineApiPigeonInternal.deepEquals(lhs.jpegQuality, rhs.jpegQuality) && BeautyEngineApiPigeonInternal.deepEquals(lhs.maxFaces, rhs.maxFaces)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("ImageProcessingRequest")
+    BeautyEngineApiPigeonInternal.deepHash(value: inputPath, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: outputPath, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: maxLongEdge, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: parameters, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: lutRgba, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: jpegQuality, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: maxFaces, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "ImageProcessingRequest(inputPath: \(String(describing: inputPath)), outputPath: \(String(describing: outputPath)), maxLongEdge: \(String(describing: maxLongEdge)), parameters: \(String(describing: parameters)), lutRgba: \(String(describing: lutRgba)), jpegQuality: \(String(describing: jpegQuality)), maxFaces: \(String(describing: maxFaces)))"
+  }
+}
+
+/// Generated class from Pigeon that represents data sent in messages.
+struct ImageProcessingResult: Hashable, CustomStringConvertible {
+  var outputPath: String
+  /// Output size (upright).
+  var width: Int64
+  var height: Int64
+  /// Original size after EXIF orientation.
+  var sourceWidth: Int64
+  var sourceHeight: Int64
+  var faceCount: Int64
+  var faceTrackingAvailable: Bool
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> ImageProcessingResult? {
+    let outputPath = pigeonVar_list[0] as! String
+    let width = pigeonVar_list[1] as! Int64
+    let height = pigeonVar_list[2] as! Int64
+    let sourceWidth = pigeonVar_list[3] as! Int64
+    let sourceHeight = pigeonVar_list[4] as! Int64
+    let faceCount = pigeonVar_list[5] as! Int64
+    let faceTrackingAvailable = pigeonVar_list[6] as! Bool
+
+    return ImageProcessingResult(
+      outputPath: outputPath,
+      width: width,
+      height: height,
+      sourceWidth: sourceWidth,
+      sourceHeight: sourceHeight,
+      faceCount: faceCount,
+      faceTrackingAvailable: faceTrackingAvailable
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      outputPath,
+      width,
+      height,
+      sourceWidth,
+      sourceHeight,
+      faceCount,
+      faceTrackingAvailable,
+    ]
+  }
+  static func == (lhs: ImageProcessingResult, rhs: ImageProcessingResult) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return BeautyEngineApiPigeonInternal.deepEquals(lhs.outputPath, rhs.outputPath) && BeautyEngineApiPigeonInternal.deepEquals(lhs.width, rhs.width) && BeautyEngineApiPigeonInternal.deepEquals(lhs.height, rhs.height) && BeautyEngineApiPigeonInternal.deepEquals(lhs.sourceWidth, rhs.sourceWidth) && BeautyEngineApiPigeonInternal.deepEquals(lhs.sourceHeight, rhs.sourceHeight) && BeautyEngineApiPigeonInternal.deepEquals(lhs.faceCount, rhs.faceCount) && BeautyEngineApiPigeonInternal.deepEquals(lhs.faceTrackingAvailable, rhs.faceTrackingAvailable)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("ImageProcessingResult")
+    BeautyEngineApiPigeonInternal.deepHash(value: outputPath, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: width, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: height, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: sourceWidth, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: sourceHeight, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: faceCount, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: faceTrackingAvailable, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "ImageProcessingResult(outputPath: \(String(describing: outputPath)), width: \(String(describing: width)), height: \(String(describing: height)), sourceWidth: \(String(describing: sourceWidth)), sourceHeight: \(String(describing: sourceHeight)), faceCount: \(String(describing: faceCount)), faceTrackingAvailable: \(String(describing: faceTrackingAvailable)))"
   }
 }
 
@@ -842,14 +989,18 @@ private class BeautyEngineApiPigeonCodecReader: FlutterStandardReader {
     case 137:
       return BeautyParameters.fromList(self.readValue() as! [Any?])
     case 138:
-      return CameraCapabilities.fromList(self.readValue() as! [Any?])
+      return ImageProcessingRequest.fromList(self.readValue() as! [Any?])
     case 139:
-      return PhotoCaptureResult.fromList(self.readValue() as! [Any?])
+      return ImageProcessingResult.fromList(self.readValue() as! [Any?])
     case 140:
-      return FaceTrackingStatus.fromList(self.readValue() as! [Any?])
+      return CameraCapabilities.fromList(self.readValue() as! [Any?])
     case 141:
-      return PerformanceSample.fromList(self.readValue() as! [Any?])
+      return PhotoCaptureResult.fromList(self.readValue() as! [Any?])
     case 142:
+      return FaceTrackingStatus.fromList(self.readValue() as! [Any?])
+    case 143:
+      return PerformanceSample.fromList(self.readValue() as! [Any?])
+    case 144:
       return EngineError.fromList(self.readValue() as! [Any?])
     default:
       return super.readValue(ofType: type)
@@ -886,20 +1037,26 @@ private class BeautyEngineApiPigeonCodecWriter: FlutterStandardWriter {
     } else if let value = value as? BeautyParameters {
       super.writeByte(137)
       super.writeValue(value.toList())
-    } else if let value = value as? CameraCapabilities {
+    } else if let value = value as? ImageProcessingRequest {
       super.writeByte(138)
       super.writeValue(value.toList())
-    } else if let value = value as? PhotoCaptureResult {
+    } else if let value = value as? ImageProcessingResult {
       super.writeByte(139)
       super.writeValue(value.toList())
-    } else if let value = value as? FaceTrackingStatus {
+    } else if let value = value as? CameraCapabilities {
       super.writeByte(140)
       super.writeValue(value.toList())
-    } else if let value = value as? PerformanceSample {
+    } else if let value = value as? PhotoCaptureResult {
       super.writeByte(141)
       super.writeValue(value.toList())
-    } else if let value = value as? EngineError {
+    } else if let value = value as? FaceTrackingStatus {
       super.writeByte(142)
+      super.writeValue(value.toList())
+    } else if let value = value as? PerformanceSample {
+      super.writeByte(143)
+      super.writeValue(value.toList())
+    } else if let value = value as? EngineError {
+      super.writeByte(144)
       super.writeValue(value.toList())
     } else {
       super.writeValue(value)
@@ -935,6 +1092,8 @@ protocol BeautyEngineHostApi {
   func setZoomRatio(ratio: Double) throws
   func setExposureBias(ev: Double) throws
   func capturePhoto(outputFilePath: String) async throws -> PhotoCaptureResult
+  /// Independent of the camera session; jobs run one at a time.
+  func processImage(request: ImageProcessingRequest) async throws -> ImageProcessingResult
   func pause() async throws
   func resume() async throws
   func dispose() async throws
@@ -1086,6 +1245,24 @@ class BeautyEngineHostApiSetup {
       }
     } else {
       capturePhotoChannel.setMessageHandler(nil)
+    }
+    /// Independent of the camera session; jobs run one at a time.
+    let processImageChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.processImage\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      processImageChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let requestArg = args[0] as! ImageProcessingRequest
+        Task { @MainActor in
+          do {
+            let result = try await api.processImage(request: requestArg)
+            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      processImageChannel.setMessageHandler(nil)
     }
     let pauseChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.pause\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {

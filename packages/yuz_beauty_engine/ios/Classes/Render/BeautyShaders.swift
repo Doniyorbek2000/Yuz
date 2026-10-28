@@ -9,7 +9,7 @@ enum BeautyShaders {
   enum Value: Int, CaseIterable {
     case faceMaskEnabled, skinSmoothing, texturePreservation, skinBrightening, skinTone, blemishReduction
     case shineReduction, glow, eyeBrightening, teethWhitening, darkCircles
-    case lipstick, blush, eyebrows, eyeshadow, eyeliner, lutIntensity
+    case lipstick, blush, eyebrows, eyeshadow, eyeliner, lutIntensity, sharpen
   }
 
   /// Indices into the composite `colors` buffer.
@@ -62,6 +62,7 @@ enum BeautyShaders {
     constant int vEyeshadow = 14;
     constant int vEyeliner = 15;
     constant int vLut = 16;
+    constant int vSharpen = 17;
 
     struct BlurParams {
       float2 texelStep;
@@ -289,6 +290,7 @@ enum BeautyShaders {
                                 texture2d<float, access::sample> maskCTexture [[texture(5)]],
                                 texture2d<float, access::sample> lut [[texture(6)]],
                                 texture2d<float, access::write> output [[texture(7)]],
+                                texture2d<float, access::sample> detailBlurTexture [[texture(8)]],
                                 constant float *v [[buffer(0)]],
                                 constant float4 *colors [[buffer(1)]],
                                 uint2 gid [[thread_position_in_grid]]) {
@@ -343,6 +345,12 @@ enum BeautyShaders {
       result = mix(result, result * colors[2].rgb * 1.15, v[vEyebrows] * 0.6 * maskB.b);
       result = mix(result, result * mix(float3(1.0), colors[3].rgb, 0.8), v[vEyeshadow] * 0.7 * maskB.a);
       result = mix(result, colors[4].rgb, v[vEyeliner] * 0.85 * maskC);
+
+      if (v[vSharpen] > 0.0) {
+        float3 detailBlur = detailBlurTexture.sample(linearClamp, uv).rgb;
+        float protection = 1.0 - skin * min(1.0, v[vSmoothing] * 2.0);
+        result = clamp(result + (source.rgb - detailBlur) * v[vSharpen] * 1.5 * protection, 0.0, 1.0);
+      }
 
       if (v[vLut] > 0.0) {
         result = mix(result, lutLookup(lut, result), v[vLut]);

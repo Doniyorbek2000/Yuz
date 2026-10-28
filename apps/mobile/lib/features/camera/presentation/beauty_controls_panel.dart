@@ -3,12 +3,14 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show ProviderListenable;
 import 'package:image_picker/image_picker.dart';
 import 'package:yuz_beauty_engine/yuz_beauty_engine.dart';
 
 import '../../../core/theme/app_tokens.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../application/beauty_camera_controller.dart';
+import '../application/look_editor.dart';
 import '../data/filter_lut_repository.dart';
 import '../domain/beauty_adjustments.dart';
 import '../domain/beauty_preset.dart';
@@ -62,6 +64,7 @@ extension BeautyEffectPresentation on BeautyEffect {
     BeautyEffect.eyeliner => l10n.effectEyeliner,
     BeautyEffect.makeupIntensity => l10n.effectMakeupIntensity,
     BeautyEffect.filterIntensity => l10n.effectFilterIntensity,
+    BeautyEffect.sharpen => l10n.effectSharpen,
   };
 
   IconData get icon => switch (this) {
@@ -89,6 +92,7 @@ extension BeautyEffectPresentation on BeautyEffect {
     BeautyEffect.eyeliner => Icons.edit_outlined,
     BeautyEffect.makeupIntensity => Icons.tune_rounded,
     BeautyEffect.filterIntensity => Icons.tune_rounded,
+    BeautyEffect.sharpen => Icons.details_rounded,
   };
 }
 
@@ -120,10 +124,23 @@ extension BuiltInPresetLabel on BuiltInPreset {
 
 /// The beauty studio: tab row, per-tab content and the undo/reset/save row.
 class BeautyStudioPanel extends ConsumerStatefulWidget {
-  const BeautyStudioPanel({required this.faceTrackingAvailable, super.key});
+  const BeautyStudioPanel({
+    required this.faceTrackingAvailable,
+    required this.look,
+    required this.editor,
+    this.onCustomLutImported,
+    super.key,
+  });
 
   /// When false, face-dependent effects are shown but marked as unavailable.
   final bool faceTrackingAvailable;
+
+  /// The look being edited (camera look or a photo project's look).
+  final ProviderListenable<BeautyEditorState> look;
+  final LookEditor Function(WidgetRef ref) editor;
+
+  /// Re-applies the custom LUT after a new one was imported.
+  final Future<void> Function()? onCustomLutImported;
 
   @override
   ConsumerState<BeautyStudioPanel> createState() => _BeautyStudioPanelState();
@@ -138,8 +155,8 @@ class _BeautyStudioPanelState extends ConsumerState<BeautyStudioPanel> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final editor = ref.watch(beautyEditorProvider);
-    final notifier = ref.read(beautyEditorProvider.notifier);
+    final editor = ref.watch(widget.look);
+    final notifier = widget.editor(ref);
     final category = _tab.category;
 
     return Column(
@@ -169,9 +186,14 @@ class _BeautyStudioPanelState extends ConsumerState<BeautyStudioPanel> {
           duration: AppDurations.medium,
           alignment: Alignment.topCenter,
           child: switch (_tab) {
-            StudioTab.looks => _LooksTab(current: editor.current),
-            StudioTab.filters => _FiltersTab(current: editor.current),
+            StudioTab.looks => _LooksTab(current: editor.current, editor: notifier),
+            StudioTab.filters => _FiltersTab(
+              current: editor.current,
+              editor: notifier,
+              onCustomLutImported: widget.onCustomLutImported,
+            ),
             _ => _EffectsTab(
+              editor: notifier,
               key: ValueKey(category),
               category: category!,
               selected: _selected[category]!,
@@ -219,6 +241,7 @@ class _BeautyStudioPanelState extends ConsumerState<BeautyStudioPanel> {
 
 class _EffectsTab extends ConsumerWidget {
   const _EffectsTab({
+    required this.editor,
     required this.category,
     required this.selected,
     required this.adjustments,
@@ -232,12 +255,13 @@ class _EffectsTab extends ConsumerWidget {
   final BeautyAdjustments adjustments;
   final bool faceTrackingAvailable;
   final ValueChanged<BeautyEffect> onSelect;
+  final LookEditor editor;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final effects = BeautyEffect.inCategory(category);
-    final notifier = ref.read(beautyEditorProvider.notifier);
+    final notifier = editor;
     final unavailable = selected.requiresFace && !faceTrackingAvailable;
     final item = selected.makeupItem;
 
@@ -284,7 +308,7 @@ class _EffectsTab extends ConsumerWidget {
               style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.warning),
             ),
           ),
-        if (item != null && !unavailable) _ShadePicker(item: item, selected: adjustments.colorOf(item)),
+        if (item != null && !unavailable) _ShadePicker(item: item, selected: adjustments.colorOf(item), editor: editor),
       ],
     );
   }
@@ -359,6 +383,7 @@ class _EffectButton extends StatelessWidget {
 
 class _ValueSlider extends StatelessWidget {
   const _ValueSlider({
+    this.leading,
     required this.label,
     required this.value,
     required this.enabled,
@@ -374,12 +399,18 @@ class _ValueSlider extends StatelessWidget {
   final VoidCallback onChangeStart;
   final ValueChanged<int> onChanged;
   final Future<void> Function() onChangeEnd;
+  final IconData? leading;
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Row(
       children: [
+        if (leading != null)
+          Tooltip(
+            message: label,
+            child: Icon(leading, size: 18, color: AppColors.textSecondary),
+          ),
         Expanded(
           child: Slider(
             value: value.toDouble(),
@@ -407,10 +438,11 @@ class _ValueSlider extends StatelessWidget {
 }
 
 class _ShadePicker extends ConsumerWidget {
-  const _ShadePicker({required this.item, required this.selected});
+  const _ShadePicker({required this.item, required this.selected, required this.editor});
 
   final MakeupItem item;
   final int selected;
+  final LookEditor editor;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -430,7 +462,7 @@ class _ShadePicker extends ConsumerWidget {
             label: '${l10n.makeupShade} ${index + 1}',
             child: GestureDetector(
               key: ValueKey('shade-${item.name}-$index'),
-              onTap: () => ref.read(beautyEditorProvider.notifier).selectColor(item, color),
+              onTap: () => editor.selectColor(item, color),
               child: AnimatedContainer(
                 duration: AppDurations.fast,
                 width: 30,
@@ -450,9 +482,10 @@ class _ShadePicker extends ConsumerWidget {
 }
 
 class _LooksTab extends ConsumerWidget {
-  const _LooksTab({required this.current});
+  const _LooksTab({required this.current, required this.editor});
 
   final BeautyAdjustments current;
+  final LookEditor editor;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -472,7 +505,7 @@ class _LooksTab extends ConsumerWidget {
             child: ChoiceChip(
               label: Text(label),
               selected: preset.adjustments == current,
-              onSelected: (_) => ref.read(beautyEditorProvider.notifier).applyPreset(preset),
+              onSelected: (_) => editor.applyPreset(preset),
             ),
           );
         },
@@ -497,9 +530,11 @@ class _LooksTab extends ConsumerWidget {
 }
 
 class _FiltersTab extends ConsumerStatefulWidget {
-  const _FiltersTab({required this.current});
+  const _FiltersTab({required this.current, required this.editor, this.onCustomLutImported});
 
   final BeautyAdjustments current;
+  final LookEditor editor;
+  final Future<void> Function()? onCustomLutImported;
 
   @override
   ConsumerState<_FiltersTab> createState() => _FiltersTabState();
@@ -519,7 +554,7 @@ class _FiltersTabState extends ConsumerState<_FiltersTab> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final notifier = ref.read(beautyEditorProvider.notifier);
+    final notifier = widget.editor;
     final filters = [FilterId.none, ...FilterId.builtIns, if (_hasCustom) FilterId.custom];
     final current = widget.current;
     return Column(
@@ -565,6 +600,16 @@ class _FiltersTabState extends ConsumerState<_FiltersTab> {
             onChanged: (value) => notifier.updateLive(BeautyEffect.filterIntensity, value),
             onChangeEnd: notifier.endEdit,
           ),
+        _ValueSlider(
+          key: const ValueKey('slider-sharpen'),
+          label: l10n.effectSharpen,
+          value: current.valueOf(BeautyEffect.sharpen),
+          enabled: true,
+          leading: Icons.details_rounded,
+          onChangeStart: notifier.beginEdit,
+          onChanged: (value) => notifier.updateLive(BeautyEffect.sharpen, value),
+          onChangeEnd: notifier.endEdit,
+        ),
       ],
     );
   }
@@ -578,9 +623,9 @@ class _FiltersTabState extends ConsumerState<_FiltersTab> {
       await ref.read(filterLutRepositoryProvider).importCustom(await picked.readAsBytes());
       if (!mounted) return;
       setState(() => _hasCustom = true);
-      ref.read(beautyEditorProvider.notifier).selectFilter(FilterId.custom);
-      // Re-upload even if "custom" was already selected (new table).
-      await ref.read(beautyCameraControllerProvider.notifier).applyFilterLut(FilterId.custom);
+      widget.editor.selectFilter(FilterId.custom);
+      // Re-apply even if "custom" was already selected (new table).
+      await widget.onCustomLutImported?.call();
       messenger.showSnackBar(SnackBar(content: Text(l10n.lutImported)));
     } on LutImportException catch (error) {
       messenger.showSnackBar(

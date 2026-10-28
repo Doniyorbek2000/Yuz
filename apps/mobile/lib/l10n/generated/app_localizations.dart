@@ -1016,6 +1016,330 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Shade'**
   String get makeupShade;
+
+  /// No description provided for @effectSharpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharpen'**
+  String get effectSharpen;
+
+  /// No description provided for @projectsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Projects'**
+  String get projectsTitle;
+
+  /// No description provided for @projectsNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New photo'**
+  String get projectsNew;
+
+  /// No description provided for @projectsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No projects yet'**
+  String get projectsEmptyTitle;
+
+  /// No description provided for @projectsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Import a photo to retouch it. Your original is never changed.'**
+  String get projectsEmptyBody;
+
+  /// No description provided for @projectsDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete project?'**
+  String get projectsDeleteTitle;
+
+  /// No description provided for @projectsDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The copy, edits and exports stored in the app are removed. Photos already saved to your gallery stay.'**
+  String get projectsDeleteBody;
+
+  /// No description provided for @projectsImportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'This file could not be imported.'**
+  String get projectsImportFailed;
+
+  /// No description provided for @photoRetouchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Retouch'**
+  String get photoRetouchTitle;
+
+  /// No description provided for @photoNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get photoNext;
+
+  /// No description provided for @photoCompare.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold to compare'**
+  String get photoCompare;
+
+  /// No description provided for @photoPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing full-resolution image…'**
+  String get photoPreparing;
+
+  /// No description provided for @photoNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This project no longer exists.'**
+  String get photoNotFound;
+
+  /// No description provided for @photoRenderFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The photo could not be processed.'**
+  String get photoRenderFailed;
+
+  /// No description provided for @photoSavedToGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to your gallery'**
+  String get photoSavedToGallery;
+
+  /// No description provided for @photoSavedInApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved in Yuz (no gallery access)'**
+  String get photoSavedInApp;
+
+  /// No description provided for @photoSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The edit could not be saved.'**
+  String get photoSaveFailed;
+
+  /// No description provided for @editorPaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw'**
+  String get editorPaint;
+
+  /// No description provided for @editorText.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get editorText;
+
+  /// No description provided for @editorCrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Crop'**
+  String get editorCrop;
+
+  /// No description provided for @editorTune.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust'**
+  String get editorTune;
+
+  /// No description provided for @editorBlur.
+  ///
+  /// In en, this message translates to:
+  /// **'Blur'**
+  String get editorBlur;
+
+  /// No description provided for @editorEmoji.
+  ///
+  /// In en, this message translates to:
+  /// **'Emoji'**
+  String get editorEmoji;
+
+  /// No description provided for @editorStickers.
+  ///
+  /// In en, this message translates to:
+  /// **'Stickers'**
+  String get editorStickers;
+
+  /// No description provided for @editorBrightness.
+  ///
+  /// In en, this message translates to:
+  /// **'Brightness'**
+  String get editorBrightness;
+
+  /// No description provided for @editorContrast.
+  ///
+  /// In en, this message translates to:
+  /// **'Contrast'**
+  String get editorContrast;
+
+  /// No description provided for @editorSaturation.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturation'**
+  String get editorSaturation;
+
+  /// No description provided for @editorExposure.
+  ///
+  /// In en, this message translates to:
+  /// **'Exposure'**
+  String get editorExposure;
+
+  /// No description provided for @editorHue.
+  ///
+  /// In en, this message translates to:
+  /// **'Hue'**
+  String get editorHue;
+
+  /// No description provided for @editorTemperature.
+  ///
+  /// In en, this message translates to:
+  /// **'Temperature'**
+  String get editorTemperature;
+
+  /// No description provided for @editorFade.
+  ///
+  /// In en, this message translates to:
+  /// **'Fade'**
+  String get editorFade;
+
+  /// No description provided for @editorTint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tint'**
+  String get editorTint;
+
+  /// No description provided for @editorRotate.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotate'**
+  String get editorRotate;
+
+  /// No description provided for @editorFlip.
+  ///
+  /// In en, this message translates to:
+  /// **'Flip'**
+  String get editorFlip;
+
+  /// No description provided for @editorRatio.
+  ///
+  /// In en, this message translates to:
+  /// **'Ratio'**
+  String get editorRatio;
+
+  /// No description provided for @editorReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get editorReset;
+
+  /// No description provided for @editorTextHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter text'**
+  String get editorTextHint;
+
+  /// No description provided for @editorDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get editorDone;
+
+  /// No description provided for @editorBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get editorBack;
+
+  /// No description provided for @editorUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get editorUndo;
+
+  /// No description provided for @editorRedo.
+  ///
+  /// In en, this message translates to:
+  /// **'Redo'**
+  String get editorRedo;
+
+  /// No description provided for @editorRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get editorRemove;
+
+  /// No description provided for @editorEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get editorEdit;
+
+  /// No description provided for @editorApplying.
+  ///
+  /// In en, this message translates to:
+  /// **'Applying changes…'**
+  String get editorApplying;
+
+  /// No description provided for @editorLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait…'**
+  String get editorLoading;
+
+  /// No description provided for @editorCloseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Close the editor?'**
+  String get editorCloseTitle;
+
+  /// No description provided for @editorCloseBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your edits are kept in the project.'**
+  String get editorCloseBody;
+
+  /// No description provided for @editorEraser.
+  ///
+  /// In en, this message translates to:
+  /// **'Eraser'**
+  String get editorEraser;
+
+  /// No description provided for @editorLineWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Line width'**
+  String get editorLineWidth;
+
+  /// No description provided for @editorOpacity.
+  ///
+  /// In en, this message translates to:
+  /// **'Opacity'**
+  String get editorOpacity;
+
+  /// No description provided for @editorColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get editorColor;
+
+  /// No description provided for @editorSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get editorSearch;
+
+  /// No description provided for @editorAlign.
+  ///
+  /// In en, this message translates to:
+  /// **'Align text'**
+  String get editorAlign;
+
+  /// No description provided for @editorRotateScale.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotate and scale'**
+  String get editorRotateScale;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -6,7 +6,7 @@ Statuses: **IMPLEMENTED** (code complete, verified where noted) · **TESTED** (a
 "Verified" always names *how*. Native code that has only been compiled in CI and never run on a device is at most
 PARTIAL.
 
-Last update: 2026-10-28 (Phase 2–3 effects).
+Last update: 2026-10-28 (Phase 3 photo editor).
 
 ## Native beauty engine (`packages/yuz_beauty_engine`)
 
@@ -18,7 +18,8 @@ Last update: 2026-10-28 (Phase 2–3 effects).
 | Flash (off/auto/on/torch) | PARTIAL | PARTIAL | torch-assisted capture; front "screen flash" NOT STARTED |
 | Zoom, exposure compensation | PARTIAL | PARTIAL | clamped to device ranges |
 | Timer (3 s / 10 s, cancellable) | TESTED (Dart) | TESTED (Dart) | `beauty_camera_controller_test.dart` |
-| Photo capture (processed frame, JPEG) | PARTIAL | PARTIAL | captured at preview resolution (≤1080p); full-sensor capture is Phase 3 |
+| Photo capture (processed frame, JPEG) | PARTIAL | PARTIAL | captured at preview resolution (≤1080p); full-sensor capture NOT STARTED |
+| Still-image beauty processing (`processImage`: EXIF-upright decode, IMAGE-mode face detection, same shaders, original or capped resolution, atomic JPEG) | PARTIAL | PARTIAL | Kotlin geometry/EXIF planner TESTED (7 JUnit); Android type-checked + CI build; iOS CI build; **not run on a device** |
 | Video recording | NOT STARTED | NOT STARTED | Phase 4 |
 | Resolution / aspect control | PARTIAL | PARTIAL | API supports 720p/1080p, 4:3/16:9; UI fixed to 1080p 16:9 |
 | Permission-denied handling | TESTED (Dart) | TESTED (Dart) | native check + typed `PERMISSION_DENIED`; widget tests |
@@ -52,6 +53,8 @@ pixel-tested; nothing is device-tested yet.
 | Filters: Natural, Soft, Glow, Portrait, Cinematic, Warm, Cool, Vintage, B&W | TESTED (Dart LUT + GLSL lookup) | LUT layout/grade tests; identity & monochrome LUT in shader |
 | Custom LUT import (512×512 PNG/JPEG) | TESTED (Dart) | valid/wrong-size/unreadable/persistence tests |
 | 0..100 slider per parameter, undo, reset, save/delete presets | TESTED | unit + widget tests |
+| Sharpen (unsharp mask from half-res gaussian, reduced on smoothed skin) | TESTED (GLSL) | 3 tests: identity at 0, edge contrast gain, skin protection |
+| Resolution-independent smoothing (blur step ∝ long edge / 1280) | TESTED (GLSL path) / IMPLEMENTED (Metal) | preview (1600 px) and full-resolution export match in look |
 | Multiple faces | IMPLEMENTED | masks MAX-accumulated per face; warps for every beautified face (≤16 warps total) |
 
 ## App screens (`apps/mobile`)
@@ -61,7 +64,12 @@ pixel-tested; nothing is device-tested yet.
 | Splash, Onboarding, Permissions, Home, Settings (language, perf overlay), Privacy | TESTED (widget tests) |
 | AI Camera / Beauty | PARTIAL (UI tested with fake engine; native device run pending) |
 | Capture result viewer | IMPLEMENTED |
-| Photo editor, Video editor, AI Photoshoot/Hairstyle/Makeup/Background, Templates, Projects, Export, Premium, Credits, Profile, Help, Account deletion | NOT STARTED — shown as "Planned" and routed to an honest "not available" screen |
+| Projects (import from gallery, grid, thumbnails, delete; original copied, never modified; corrupt projects skipped; path-traversal-safe ids) | TESTED (unit + widget, fake engine) |
+| Photo retouch step (all camera beauty/filter/reshape/makeup tools on a photo, 1600 px live preview, latest-wins rendering, hold-to-compare, zoom) | PARTIAL — TESTED with fake engine; native render not run on a device |
+| Photo editor (pro_image_editor 14.21.1): crop, rotate, flip, ratio, tune (brightness, contrast, saturation, exposure, hue, temperature, fade, tint), blur, draw, text, emoji, own sticker set, undo/redo, zoom | PARTIAL — opens without framework errors in a widget test; tool interactions not device-tested |
+| Non-destructive save: beauty look + editor history (JSON) stored per project and restored on reopen; full-resolution render cached per look | TESTED (unit) for storage; history import relies on pro_image_editor |
+| Export: JPEG q95 at original resolution into the project and the system gallery ("Yuz" album, gal) with denied-access fallback | PARTIAL — TESTED (unit, fake gallery); gallery write not device-tested |
+| Video editor, AI Photoshoot/Hairstyle/Makeup/Background, Templates, Premium, Credits, Profile, Help, Account deletion | NOT STARTED — shown as "Planned" and routed to an honest "not available" screen |
 | Localization uz / ru / en | TESTED |
 
 ## Platform / infrastructure

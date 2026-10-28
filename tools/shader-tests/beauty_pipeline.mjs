@@ -29,6 +29,7 @@ export const ZERO_PARAMS = {
   uBrowColor: [0.25, 0.17, 0.12],
   uShadowColor: [0.55, 0.35, 0.45],
   uLinerColor: [0.05, 0.04, 0.04],
+  uSharpen: 0,
   uLutIntensity: 0,
 };
 
@@ -71,6 +72,15 @@ export async function baseBlur(harness, input, width, height) {
   return 'baseBlur';
 }
 
+/** Plain Gaussian at half resolution (1 separable iteration) for sharpening. */
+export async function detailBlur(harness, input, width, height) {
+  const w = Math.max(1, Math.floor(width / 2));
+  const h = Math.max(1, Math.floor(height / 2));
+  await harness.run({ program: 'gauss', inputs: { uInput: input }, uniforms: { uTexelStep: [1 / w, 0] }, output: 'detailTmp', width: w, height: h });
+  await harness.run({ program: 'gauss', inputs: { uInput: 'detailTmp' }, uniforms: { uTexelStep: [0, 1 / h] }, output: 'detailBlur', width: w, height: h });
+  return 'detailBlur';
+}
+
 /**
  * Renders the composite. `options.masks` = true uses the masks produced by
  * renderFaceMask(); otherwise colour-only mode. `options.lut` names an
@@ -81,6 +91,7 @@ export async function renderBeauty(harness, image, params, options = {}) {
   await harness.upload('original', image);
   await smooth(harness, 'original', width, height);
   await baseBlur(harness, 'original', width, height);
+  await detailBlur(harness, 'original', width, height);
   const masks = options.masks ?? false;
   await harness.run({
     program: 'composite',
@@ -88,6 +99,7 @@ export async function renderBeauty(harness, image, params, options = {}) {
       uOriginal: 'original',
       uSmoothed: 'smoothed',
       uBaseBlur: 'baseBlur',
+      uDetailBlur: 'detailBlur',
       uMaskA: masks ? 'maskA' : 'blank',
       uMaskB: masks ? 'maskB' : 'blank',
       uMaskC: masks ? 'maskC' : 'blank',

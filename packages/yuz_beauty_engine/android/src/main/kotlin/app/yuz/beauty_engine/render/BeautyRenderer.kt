@@ -30,6 +30,7 @@ import java.nio.ByteBuffer
 class BeautyRenderer(shaders: ShaderLibrary) {
     private val vertex = shaders.load("fullscreen.vert")
     private val cameraProgram = GlProgram(vertex, shaders.load("camera_oes.frag"), "camera_oes")
+    private val copyProgram = GlProgram(vertex, shaders.load("copy_2d.frag"), "copy_2d")
     private val warpProgram = GlProgram(vertex, shaders.load("face_warp.frag"), "face_warp")
     private val blurProgram = GlProgram(vertex, shaders.load("edge_preserving_blur.frag"), "edge_preserving_blur")
     private val gaussianProgram = GlProgram(vertex, shaders.load("gaussian_blur.frag"), "gaussian_blur")
@@ -43,6 +44,8 @@ class BeautyRenderer(shaders: ShaderLibrary) {
     private var warped: GlRenderTarget? = null
     private var smoothHorizontal: GlRenderTarget? = null
     private var smoothed: GlRenderTarget? = null
+    private var detailTemp: GlRenderTarget? = null
+    private var detailBlur: GlRenderTarget? = null
     private var baseTemp: GlRenderTarget? = null
     private var baseBlur: GlRenderTarget? = null
     private var masks: GlMultiTarget? = null
@@ -70,6 +73,8 @@ class BeautyRenderer(shaders: ShaderLibrary) {
         warped = GlRenderTarget(newWidth, newHeight)
         smoothHorizontal = GlRenderTarget(halfWidth, halfHeight)
         smoothed = GlRenderTarget(halfWidth, halfHeight)
+        detailTemp = GlRenderTarget(halfWidth, halfHeight)
+        detailBlur = GlRenderTarget(halfWidth, halfHeight)
         baseTemp = GlRenderTarget(quarterWidth, quarterHeight)
         baseBlur = GlRenderTarget(quarterWidth, quarterHeight)
         val multi = GlMultiTarget(quarterWidth, quarterHeight, MASK_COUNT)
@@ -96,12 +101,26 @@ class BeautyRenderer(shaders: ShaderLibrary) {
      */
     fun process(cameraTextureId: Int, uvMatrix: FloatArray, settings: BeautySettings, faces: List<TrackedFace>?) {
         val originalTarget = checkNotNull(original) { "resize() must be called before process()" }
-
         originalTarget.bind()
         cameraProgram.use()
         cameraProgram.setMatrix("uTexMatrix", uvMatrix)
         cameraProgram.bindTexture("uCameraTexture", 0, GLES11Ext.GL_TEXTURE_EXTERNAL_OES, cameraTextureId)
         quad.draw()
+        runEffects(originalTarget, settings, faces)
+    }
+
+    /** Same pipeline for a decoded still image held in a regular 2D texture (top row first). */
+    fun processStill(textureId: Int, settings: BeautySettings, faces: List<TrackedFace>?) {
+        val originalTarget = checkNotNull(original) { "resize() must be called before processStill()" }
+        originalTarget.bind()
+        copyProgram.use()
+        copyProgram.setMatrix("uTexMatrix", FLIP_VERTICAL)
+        copyProgram.bindTexture("uInput", 0, GLES30.GL_TEXTURE_2D, textureId)
+        quad.draw()
+        runEffects(originalTarget, settings, faces)
+    }
+
+    private fun runEffects(originalTarget: GlRenderTarget, settings: BeautySettings, faces: List<TrackedFace>?) {
         sourceTextureId = originalTarget.textureId
 
         val aspect = width.toFloat() / height.toFloat()
@@ -116,7 +135,17 @@ class BeautyRenderer(shaders: ShaderLibrary) {
 
         if (!settings.compositeActive) return
 
-        separableBlur(blurProgram, sourceTextureId, smoothHorizontal!!, smoothed!!, rangeSigma = RANGE_SIGMA)
+        separableBlur(
+            blurProgram,
+            sourceTextureId,
+            smoothHorizontal!!,
+            smoothed!!,
+            rangeSigma = RANGE_SIGMA,
+            stepScale = smoothingStepScale(width, height),
+        )
+        if (settings.sharpen > 0f) {
+            separableBlur(gaussianProgram, sourceTextureId, detailTemp!!, detailBlur!!, rangeSigma = null)
+        }
         var baseSource = sourceTextureId
         repeat(BASE_BLUR_ITERATIONS) {
             separableBlur(gaussianProgram, baseSource, baseTemp!!, baseBlur!!, rangeSigma = null)
@@ -141,6 +170,7 @@ class BeautyRenderer(shaders: ShaderLibrary) {
         program.bindTexture("uMaskB", 4, GLES30.GL_TEXTURE_2D, maskTextures[1])
         program.bindTexture("uMaskC", 5, GLES30.GL_TEXTURE_2D, maskTextures[2])
         program.bindTexture("uLut", 6, GLES30.GL_TEXTURE_2D, lut.textureId)
+        program.bindTexture("uDetailBlur", 7, GLES30.GL_TEXTURE_2D, detailBlur!!.textureId)
         program.setFloat("uFaceMaskEnabled", if (faceMaskEnabled) 1f else 0f)
 
         fun gate(value: Float) = if (active) value else 0f
@@ -165,6 +195,7 @@ class BeautyRenderer(shaders: ShaderLibrary) {
         program.setVec3("uBrowColor", MakeupColors.rgb(settings.colors.eyebrow))
         program.setVec3("uShadowColor", MakeupColors.rgb(settings.colors.eyeshadow))
         program.setVec3("uLinerColor", MakeupColors.rgb(settings.colors.eyeliner))
+        program.setFloat("uSharpen", gate(settings.sharpen))
         program.setFloat("uLutIntensity", if (lutLoaded) gate(settings.filterIntensity) else 0f)
         quad.draw()
     }
@@ -261,6 +292,7 @@ class BeautyRenderer(shaders: ShaderLibrary) {
         intermediate: GlRenderTarget,
         destination: GlRenderTarget,
         rangeSigma: Float?,
+        stepScale: Float = 1f,
     ) {
         program.use()
         program.setMatrix("uTexMatrix", IDENTITY)
@@ -268,12 +300,12 @@ class BeautyRenderer(shaders: ShaderLibrary) {
 
         intermediate.bind()
         program.bindTexture("uInput", 0, GLES30.GL_TEXTURE_2D, sourceTexture)
-        program.setVec2("uTexelStep", 1f / intermediate.width, 0f)
+        program.setVec2("uTexelStep", stepScale / intermediate.width, 0f)
         quad.draw()
 
         destination.bind()
         program.bindTexture("uInput", 0, GLES30.GL_TEXTURE_2D, intermediate.textureId)
-        program.setVec2("uTexelStep", 0f, 1f / destination.height)
+        program.setVec2("uTexelStep", 0f, stepScale / destination.height)
         quad.draw()
     }
 
@@ -282,11 +314,13 @@ class BeautyRenderer(shaders: ShaderLibrary) {
         maskTargets = emptyList()
         masks?.release()
         masks = null
-        listOfNotNull(original, warped, smoothHorizontal, smoothed, baseTemp, baseBlur, maskTemp).forEach { it.release() }
+        listOfNotNull(original, warped, smoothHorizontal, smoothed, detailTemp, detailBlur, baseTemp, baseBlur, maskTemp).forEach { it.release() }
         original = null
         warped = null
         smoothHorizontal = null
         smoothed = null
+        detailTemp = null
+        detailBlur = null
         baseTemp = null
         baseBlur = null
         maskTemp = null
@@ -294,7 +328,7 @@ class BeautyRenderer(shaders: ShaderLibrary) {
 
     fun release() {
         releaseTargets()
-        listOf(cameraProgram, warpProgram, blurProgram, gaussianProgram, maskProgram, compositeProgram).forEach { it.release() }
+        listOf(cameraProgram, copyProgram, warpProgram, blurProgram, gaussianProgram, maskProgram, compositeProgram).forEach { it.release() }
         lut.release()
         quad.release()
     }
@@ -305,8 +339,23 @@ class BeautyRenderer(shaders: ShaderLibrary) {
         const val MASK_BLUR_ITERATIONS = 2
         const val LINER_BLUR_ITERATIONS = 1
         const val BASE_BLUR_ITERATIONS = 2
+        /** Long edge at which the bilateral blur uses 1-texel steps. */
+        const val REFERENCE_LONG_EDGE = 1280f
         private const val MASK_COUNT = 3
         private const val EYELINER_MASK = 2
+
+        /**
+         * Keeps the smoothing radius a constant fraction of the image so a
+         * 1600 px preview and a 4000 px export look the same.
+         */
+        fun smoothingStepScale(width: Int, height: Int): Float = maxOf(1f, maxOf(width, height) / REFERENCE_LONG_EDGE)
+
+        val FLIP_VERTICAL = floatArrayOf(
+            1f, 0f, 0f, 0f,
+            0f, -1f, 0f, 0f,
+            0f, 0f, 1f, 0f,
+            0f, 1f, 0f, 1f,
+        )
 
         val IDENTITY = floatArrayOf(
             1f, 0f, 0f, 0f,

@@ -130,6 +130,43 @@ describe('skin smoothing (GLSL ES 3.00, WebGL2/SwiftShader)', () => {
   });
 });
 
+describe('sharpen', () => {
+  let harness;
+
+  before(async () => {
+    harness = await GlHarness.launch();
+    await compileAll(harness);
+  });
+
+  after(async () => {
+    await harness?.close();
+  });
+
+  const blueEdge = () => createImage(SIZE, SIZE, (x) => (x < SIZE / 2 ? [0.15, 0.25, 0.55] : [0.35, 0.5, 0.85]));
+
+  it('increases edge contrast on non-skin content', async () => {
+    const input = blueEdge();
+    const output = await renderBeauty(harness, input, { uSharpen: 1 });
+    const step = (img) => luma(img, SIZE / 2 + 1, 40) - luma(img, SIZE / 2 - 2, 40);
+    assert.ok(step(output) > step(input) * 1.15, `edge step ${step(output)} vs ${step(input)}`);
+  });
+
+  it('leaves flat areas and zero strength unchanged', async () => {
+    const input = blueEdge();
+    const off = await renderBeauty(harness, input, { uSharpen: 0 });
+    assert.ok(maxChannelDifference(input, off) <= 1);
+    const on = await renderBeauty(harness, input, { uSharpen: 1 });
+    assert.ok(Math.abs(luma(on, 10, 40) - luma(input, 10, 40)) < 0.005, 'flat area changed');
+  });
+
+  it('does not re-sharpen skin that is being smoothed', async () => {
+    const input = noisyPatch(SIZE, SIZE, SKIN_LIGHT, 0.04, 9);
+    const smoothOnly = await renderBeauty(harness, input, FULL_SMOOTH);
+    const smoothAndSharpen = await renderBeauty(harness, input, { uSkinSmoothing: 1, uSharpen: 1 });
+    assert.ok(maxChannelDifference(smoothOnly, smoothAndSharpen) <= 2, 'sharpen undid skin smoothing');
+  });
+});
+
 describe('face regions and makeup', () => {
   let harness;
   const face = syntheticFace();

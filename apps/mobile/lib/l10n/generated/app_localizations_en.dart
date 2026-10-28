@@ -488,4 +488,167 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get makeupShade => 'Shade';
+
+  @override
+  String get effectSharpen => 'Sharpen';
+
+  @override
+  String get projectsTitle => 'Projects';
+
+  @override
+  String get projectsNew => 'New photo';
+
+  @override
+  String get projectsEmptyTitle => 'No projects yet';
+
+  @override
+  String get projectsEmptyBody => 'Import a photo to retouch it. Your original is never changed.';
+
+  @override
+  String get projectsDeleteTitle => 'Delete project?';
+
+  @override
+  String get projectsDeleteBody =>
+      'The copy, edits and exports stored in the app are removed. Photos already saved to your gallery stay.';
+
+  @override
+  String get projectsImportFailed => 'This file could not be imported.';
+
+  @override
+  String get photoRetouchTitle => 'Retouch';
+
+  @override
+  String get photoNext => 'Edit';
+
+  @override
+  String get photoCompare => 'Hold to compare';
+
+  @override
+  String get photoPreparing => 'Preparing full-resolution image…';
+
+  @override
+  String get photoNotFound => 'This project no longer exists.';
+
+  @override
+  String get photoRenderFailed => 'The photo could not be processed.';
+
+  @override
+  String get photoSavedToGallery => 'Saved to your gallery';
+
+  @override
+  String get photoSavedInApp => 'Saved in Yuz (no gallery access)';
+
+  @override
+  String get photoSaveFailed => 'The edit could not be saved.';
+
+  @override
+  String get editorPaint => 'Draw';
+
+  @override
+  String get editorText => 'Text';
+
+  @override
+  String get editorCrop => 'Crop';
+
+  @override
+  String get editorTune => 'Adjust';
+
+  @override
+  String get editorBlur => 'Blur';
+
+  @override
+  String get editorEmoji => 'Emoji';
+
+  @override
+  String get editorStickers => 'Stickers';
+
+  @override
+  String get editorBrightness => 'Brightness';
+
+  @override
+  String get editorContrast => 'Contrast';
+
+  @override
+  String get editorSaturation => 'Saturation';
+
+  @override
+  String get editorExposure => 'Exposure';
+
+  @override
+  String get editorHue => 'Hue';
+
+  @override
+  String get editorTemperature => 'Temperature';
+
+  @override
+  String get editorFade => 'Fade';
+
+  @override
+  String get editorTint => 'Tint';
+
+  @override
+  String get editorRotate => 'Rotate';
+
+  @override
+  String get editorFlip => 'Flip';
+
+  @override
+  String get editorRatio => 'Ratio';
+
+  @override
+  String get editorReset => 'Reset';
+
+  @override
+  String get editorTextHint => 'Enter text';
+
+  @override
+  String get editorDone => 'Done';
+
+  @override
+  String get editorBack => 'Back';
+
+  @override
+  String get editorUndo => 'Undo';
+
+  @override
+  String get editorRedo => 'Redo';
+
+  @override
+  String get editorRemove => 'Remove';
+
+  @override
+  String get editorEdit => 'Edit';
+
+  @override
+  String get editorApplying => 'Applying changes…';
+
+  @override
+  String get editorLoading => 'Please wait…';
+
+  @override
+  String get editorCloseTitle => 'Close the editor?';
+
+  @override
+  String get editorCloseBody => 'Your edits are kept in the project.';
+
+  @override
+  String get editorEraser => 'Eraser';
+
+  @override
+  String get editorLineWidth => 'Line width';
+
+  @override
+  String get editorOpacity => 'Opacity';
+
+  @override
+  String get editorColor => 'Color';
+
+  @override
+  String get editorSearch => 'Search';
+
+  @override
+  String get editorAlign => 'Align text';
+
+  @override
+  String get editorRotateScale => 'Rotate and scale';
 }

@@ -11,6 +11,7 @@ import '../../../core/theme/app_tokens.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../permissions/camera_permission_service.dart';
 import '../application/beauty_camera_controller.dart';
+import '../domain/color_filters.dart';
 import 'beauty_controls_panel.dart';
 import 'engine_error_text.dart';
 
@@ -340,6 +341,9 @@ class _BottomPanel extends StatelessWidget {
               child: switch (tab) {
                 _PanelTab.beauty => BeautyStudioPanel(
                   faceTrackingAvailable: state.descriptor?.faceTrackingAvailable ?? false,
+                  look: beautyEditorProvider,
+                  editor: (ref) => ref.read(beautyEditorProvider.notifier),
+                  onCustomLutImported: () => controller.applyFilterLut(FilterId.custom),
                 ),
                 _PanelTab.camera => _CameraAdjustments(state: state, controller: controller),
                 _PanelTab.hidden => const SizedBox(width: double.infinity),

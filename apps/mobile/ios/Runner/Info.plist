@@ -5,7 +5,9 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Yuz uses the camera to show a live beauty preview and take photos. Frames are processed on this device and are not uploaded.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Yuz opens a photo you choose to import it as a colour filter (LUT). The image stays on this device.</string>
+	<string>Yuz opens a photo you choose to retouch it or to import it as a colour filter (LUT). The image stays on this device.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Yuz saves the photos you finish editing to your library in the Yuz album.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>CADisableMinimumFrameDurationOnPhone</key>

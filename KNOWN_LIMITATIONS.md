@@ -16,8 +16,8 @@
 
 ## Functional limitations
 
-- Photo capture saves the processed preview frame (≤1080p). Full-resolution still capture through the same shaders is
-  planned for Phase 3 together with the photo editor.
+- Camera capture saves the processed preview frame (≤1080p). Imported photos are processed at full resolution
+  (`processImage`), capped at the GPU texture limit (≤8192 px, ≤24 MP); larger photos are downscaled, never upscaled.
 - Flash is torch-assisted; the front camera has no screen-flash yet.
 - Masks are built from the un-warped landmarks; with strong reshape (e.g. eye enlarge 100) makeup and eye masks can
   sit up to a few pixels off the warped feature.
@@ -27,7 +27,15 @@
 - Custom LUTs must use the standard 512×512 (8×8 tiles of 64³) layout; .cube files are not supported yet.
 - Face mask exclusions (eyes, brows, lips) use fixed dilation factors; very large head yaw can let the mask touch
   the hairline. Colour-based skin detection limits spill onto hair and background.
-- Captures are stored in app-private storage; saving to the system gallery is not implemented.
+- Camera captures are stored in app-private storage; only photo-editor exports are saved to the system gallery.
+- Photo editor: the beauty look is baked into a full-resolution render first; changing the look after editing keeps
+  the editor layers (re-imported from history) but crop/tune are re-applied by pro_image_editor, which recalculates
+  layer positions for the new image. Large images (>12 MP) can take several seconds to export on mid-range phones
+  (not measured yet).
+- Editor colour adjustments (tune) run in Flutter colour matrices on export, not in the native engine; sharpening is
+  done natively in the retouch step because pro_image_editor has no sharpen tool.
+- Imports: HEIC/HEIF is decoded by the platform (Android 9+/iOS). RAW and animated images are not supported.
+- Stickers are an own vector icon set (Material Icons, Apache-2.0); no downloadable sticker packs yet.
 
 ## Third-party / legal
 

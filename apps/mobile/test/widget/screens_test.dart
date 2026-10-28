@@ -49,10 +49,11 @@ void main() {
 
   testWidgets('a planned feature opens the honest unavailable screen', (tester) async {
     await pumpRoute(tester, '/home');
-    await tester.tap(find.text('Photo editor'));
+    await tester.scrollUntilVisible(find.text('Video editor'), 200);
+    await tester.tap(find.text('Video editor'));
     await tester.pumpAndSettle();
     expect(find.text('Not available yet'), findsOneWidget);
-    expect(find.textContaining('phase 3'), findsOneWidget);
+    expect(find.textContaining('phase 4'), findsOneWidget);
   });
 
   testWidgets('home does not overflow on a small phone', (tester) async {
@@ -137,7 +138,13 @@ void main() {
         container: container,
         child: localizedApp(
           Scaffold(
-            body: SingleChildScrollView(child: BeautyStudioPanel(faceTrackingAvailable: faceTracking)),
+            body: SingleChildScrollView(
+              child: BeautyStudioPanel(
+                faceTrackingAvailable: faceTracking,
+                look: beautyEditorProvider,
+                editor: (ref) => ref.read(beautyEditorProvider.notifier),
+              ),
+            ),
           ),
         ),
       ),
@@ -199,10 +206,11 @@ void main() {
   testWidgets('choosing a filter stores it and shows the intensity slider', (tester) async {
     final container = await pumpStudio(tester);
     await tapInList(tester, 'studio-tab-filters', 0);
-    expect(find.byType(Slider), findsNothing);
+    expect(find.byKey(const ValueKey('slider-filterIntensity')), findsNothing);
+    expect(find.byKey(const ValueKey('slider-sharpen')), findsOneWidget);
     await tapInList(tester, 'filter-cinematic', 1);
     expect(container.read(beautyEditorProvider).current.filter, FilterId.cinematic);
-    expect(find.byType(Slider), findsOneWidget);
+    expect(find.byKey(const ValueKey('slider-filterIntensity')), findsOneWidget);
   });
 
   testWidgets('selecting a built-in look applies all of its values', (tester) async {

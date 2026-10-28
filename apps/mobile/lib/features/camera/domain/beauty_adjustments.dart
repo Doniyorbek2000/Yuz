@@ -32,7 +32,10 @@ enum BeautyEffect {
   makeupIntensity(BeautyCategory.makeup, defaultValue: 100, requiresFace: true),
 
   /// Strength of the selected colour filter.
-  filterIntensity(null, defaultValue: 80);
+  filterIntensity(null, defaultValue: 80),
+
+  /// Global unsharp mask (shown with the filters).
+  sharpen(null);
 
   const BeautyEffect(this.category, {this.defaultValue = 0, this.requiresFace = false, this.makeupItem});
 
@@ -137,6 +140,7 @@ class BeautyAdjustments {
       eyeshadowColor: colorOf(MakeupItem.eyeshadow),
       eyelinerColor: colorOf(MakeupItem.eyeliner),
       filterIntensity: filter == FilterId.none ? 0 : unit(BeautyEffect.filterIntensity),
+      sharpen: unit(BeautyEffect.sharpen),
     );
   }
 

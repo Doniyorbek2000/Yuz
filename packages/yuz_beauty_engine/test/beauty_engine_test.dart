@@ -30,6 +30,24 @@ class FakeHostApi implements BeautyEngineHostApi {
     if (gate != null) await gate.future;
   }
 
+  ImageProcessingRequest? lastImageRequest;
+
+  @override
+  Future<ImageProcessingResult> processImage(
+    ImageProcessingRequest request,
+  ) async {
+    lastImageRequest = request;
+    return ImageProcessingResult(
+      outputPath: request.outputPath,
+      width: 100,
+      height: 50,
+      sourceWidth: 400,
+      sourceHeight: 200,
+      faceCount: 1,
+      faceTrackingAvailable: true,
+    );
+  }
+
   Uint8List? lut;
   int lutCalls = 0;
 
@@ -159,4 +177,42 @@ void main() {
     expect(() => engine.setColorLut(Uint8List(10)), throwsArgumentError);
     expect(host.lutCalls, 2);
   });
+
+  test(
+    'processImage forwards a clamped request and validates inputs',
+    () async {
+      final host = FakeHostApi();
+      final engine = BeautyEngine(hostApi: host, registerEventHandlers: false);
+      final result = await engine.processImage(
+        inputPath: '/in.jpg',
+        outputPath: '/out.jpg',
+        parameters: neutralBeautyParameters(),
+        maxLongEdge: 1600,
+        jpegQuality: 300,
+        maxFaces: 9,
+      );
+      expect(result.width, 100);
+      expect(host.lastImageRequest!.maxLongEdge, 1600);
+      expect(host.lastImageRequest!.jpegQuality, 100);
+      expect(host.lastImageRequest!.maxFaces, 4);
+      expect(
+        () => engine.processImage(
+          inputPath: 'a',
+          outputPath: 'b',
+          parameters: neutralBeautyParameters(),
+          maxLongEdge: -1,
+        ),
+        throwsArgumentError,
+      );
+      expect(
+        () => engine.processImage(
+          inputPath: 'a',
+          outputPath: 'b',
+          parameters: neutralBeautyParameters(),
+          lutRgba: Uint8List(3),
+        ),
+        throwsArgumentError,
+      );
+    },
+  );
 }

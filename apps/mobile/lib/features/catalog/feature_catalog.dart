@@ -10,10 +10,10 @@ enum FeatureSection { camera, editing, ai, account }
 
 enum AppFeature {
   beautyCamera(FeatureSection.camera, FeatureStatus.partial, 1, Icons.face_retouching_natural, '/camera'),
-  photoEditor(FeatureSection.editing, FeatureStatus.notStarted, 3, Icons.photo_filter_outlined, null),
+  photoEditor(FeatureSection.editing, FeatureStatus.partial, 3, Icons.photo_filter_outlined, '/projects'),
   videoEditor(FeatureSection.editing, FeatureStatus.notStarted, 4, Icons.movie_filter_outlined, null),
   templates(FeatureSection.editing, FeatureStatus.notStarted, 6, Icons.dashboard_customize_outlined, null),
-  projects(FeatureSection.editing, FeatureStatus.notStarted, 3, Icons.folder_open_outlined, null),
+  projects(FeatureSection.editing, FeatureStatus.partial, 3, Icons.folder_open_outlined, '/projects'),
   aiPhotoshoot(FeatureSection.ai, FeatureStatus.notStarted, 6, Icons.auto_awesome_outlined, null),
   aiHairstyle(FeatureSection.ai, FeatureStatus.notStarted, 6, Icons.content_cut_outlined, null),
   aiMakeup(FeatureSection.ai, FeatureStatus.notStarted, 3, Icons.brush_outlined, null),

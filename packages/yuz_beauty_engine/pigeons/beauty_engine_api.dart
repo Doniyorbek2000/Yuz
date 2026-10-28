@@ -132,6 +132,7 @@ class BeautyParameters {
     required this.eyeshadowColor,
     required this.eyelinerColor,
     required this.filterIntensity,
+    required this.sharpen,
   });
 
   // Skin
@@ -172,6 +173,66 @@ class BeautyParameters {
 
   /// Strength of the colour LUT set with setColorLut (0 = off).
   double filterIntensity;
+
+  /// Unsharp-mask strength (skin being smoothed is protected).
+  double sharpen;
+}
+
+/// Still-image job: runs the same GPU pipeline as the camera on a photo.
+class ImageProcessingRequest {
+  ImageProcessingRequest({
+    required this.inputPath,
+    required this.outputPath,
+    required this.maxLongEdge,
+    required this.parameters,
+    required this.lutRgba,
+    required this.jpegQuality,
+    required this.maxFaces,
+  });
+
+  /// JPEG/PNG/HEIC file; EXIF orientation is applied.
+  String inputPath;
+
+  /// Destination JPEG.
+  String outputPath;
+
+  /// Long edge of the output; 0 = original size (capped at the GPU's maximum
+  /// texture size).
+  int maxLongEdge;
+  BeautyParameters parameters;
+
+  /// Optional 512x512 RGBA LUT for parameters.filterIntensity.
+  Uint8List? lutRgba;
+
+  /// 1..100
+  int jpegQuality;
+
+  /// Faces to beautify (all faces policy, clamped to 1..4).
+  int maxFaces;
+}
+
+class ImageProcessingResult {
+  ImageProcessingResult({
+    required this.outputPath,
+    required this.width,
+    required this.height,
+    required this.sourceWidth,
+    required this.sourceHeight,
+    required this.faceCount,
+    required this.faceTrackingAvailable,
+  });
+
+  String outputPath;
+
+  /// Output size (upright).
+  int width;
+  int height;
+
+  /// Original size after EXIF orientation.
+  int sourceWidth;
+  int sourceHeight;
+  int faceCount;
+  bool faceTrackingAvailable;
 }
 
 class CameraCapabilities {
@@ -272,6 +333,10 @@ abstract class BeautyEngineHostApi {
 
   @async
   PhotoCaptureResult capturePhoto(String outputFilePath);
+
+  /// Independent of the camera session; jobs run one at a time.
+  @async
+  ImageProcessingResult processImage(ImageProcessingRequest request);
 
   @async
   void pause();

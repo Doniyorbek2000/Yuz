@@ -40,4 +40,5 @@ fun BeautyParameters.toSettings(): BeautySettings = BeautySettings(
         eyeliner = eyelinerColor.toInt(),
     ),
     filterIntensity = filterIntensity.unit(),
+    sharpen = sharpen.unit(),
 )
