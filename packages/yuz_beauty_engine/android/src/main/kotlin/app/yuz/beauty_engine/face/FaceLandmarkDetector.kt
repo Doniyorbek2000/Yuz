@@ -120,7 +120,7 @@ class FaceLandmarkDetector private constructor(
 
     companion object {
         private const val TAG = "YuzFaceDetector"
-        const val MODEL_ASSET = "yuz_beauty_engine/models/face_landmarker.task"
+        const val MODEL_ASSET = FaceModel.ASSET
         private const val STALE_IN_FLIGHT_MILLIS = 500L
 
         /**

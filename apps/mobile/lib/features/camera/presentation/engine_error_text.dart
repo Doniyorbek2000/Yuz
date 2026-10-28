@@ -13,6 +13,7 @@ extension EngineErrorText on EngineErrorCode {
     EngineErrorCode.captureFailed => l10n.errorCaptureFailed,
     EngineErrorCode.thermalThrottling => l10n.errorThermal,
     EngineErrorCode.recordingFailed => l10n.errorRecordingFailed,
+    EngineErrorCode.exportCancelled => l10n.errorExportCancelled,
     EngineErrorCode.unknown => l10n.errorUnknown,
   };
 }

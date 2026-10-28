@@ -27,6 +27,11 @@ export 'src/generated/beauty_engine_api.g.dart'
         PhotoCaptureResult,
         PreviewDescriptor,
         PreviewQuality,
+        VideoClipSpec,
+        VideoExportRequest,
+        VideoExportResult,
+        VideoMetadata,
+        VideoOverlaySpec,
         VideoRecordingOptions,
         VideoRecordingResult,
         BeautyEngineHostApi;

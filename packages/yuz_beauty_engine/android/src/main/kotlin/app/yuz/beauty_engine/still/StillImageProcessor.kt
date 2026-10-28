@@ -6,12 +6,9 @@ import android.opengl.EGLSurface
 import android.opengl.GLES30
 import android.opengl.GLUtils
 import android.util.Log
-import app.yuz.beauty_engine.face.DetectedFace
-import app.yuz.beauty_engine.face.FaceLandmarkDetector
-import app.yuz.beauty_engine.face.FaceMaskGeometry
 import app.yuz.beauty_engine.face.FaceSelectionPolicy
 import app.yuz.beauty_engine.face.FaceTracker
-import app.yuz.beauty_engine.face.NormalizedPoint
+import app.yuz.beauty_engine.face.OfflineLandmarker
 import app.yuz.beauty_engine.face.TrackedFace
 import app.yuz.beauty_engine.gl.EglCore
 import app.yuz.beauty_engine.gl.GlUtil
@@ -19,11 +16,7 @@ import app.yuz.beauty_engine.gl.ShaderLibrary
 import app.yuz.beauty_engine.render.BeautyRenderer
 import app.yuz.beauty_engine.render.BeautySettings
 import app.yuz.beauty_engine.render.GlThread
-import com.google.mediapipe.framework.image.BitmapImageBuilder
-import com.google.mediapipe.tasks.core.BaseOptions
-import com.google.mediapipe.tasks.core.Delegate
 import com.google.mediapipe.tasks.vision.core.RunningMode
-import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarker
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
@@ -51,7 +44,7 @@ class StillImageProcessor(private val context: Context) {
     private var surface: EGLSurface? = null
     private var renderer: BeautyRenderer? = null
     private var maxTextureSize = 4096
-    private var landmarker: FaceLandmarker? = null
+    private var landmarker: OfflineLandmarker? = null
     private var landmarkerUnavailable = false
 
     suspend fun process(
@@ -150,53 +143,22 @@ class StillImageProcessor(private val context: Context) {
     /** null when the face model is unavailable (colour-only processing). */
     private fun detectFaces(bitmap: Bitmap, maxFaces: Int): List<TrackedFace>? {
         val detector = obtainLandmarker() ?: return null
-        val result = runCatching { detector.detect(BitmapImageBuilder(bitmap).build()) }
-            .onFailure { Log.w(TAG, "Face detection failed", it) }
-            .getOrNull() ?: return emptyList()
-        val faces = result.faceLandmarks().mapNotNull { landmarks ->
-            if (landmarks.size < FaceMaskGeometry.MESH_LANDMARK_COUNT) return@mapNotNull null
-            DetectedFace(landmarks.map { NormalizedPoint(it.x(), it.y()) })
-        }
-        val tracker = FaceTracker(maxFaces.coerceIn(1, MAX_FACES), FaceSelectionPolicy.ALL_FACES)
+        val faces = detector.detect(bitmap)
+        val tracker = FaceTracker(maxFaces.coerceIn(1, OfflineLandmarker.MAX_FACES), FaceSelectionPolicy.ALL_FACES)
         return tracker.update(faces, System.nanoTime()).beautifiedFaces
     }
 
-    private fun obtainLandmarker(): FaceLandmarker? {
+    private fun obtainLandmarker(): OfflineLandmarker? {
         landmarker?.let { return it }
         if (landmarkerUnavailable) return null
-        val modelAvailable = runCatching { context.assets.open(FaceLandmarkDetector.MODEL_ASSET).close() }.isSuccess
-        if (modelAvailable) {
-            for (delegate in listOf(Delegate.GPU, Delegate.CPU)) {
-                val created = runCatching {
-                    FaceLandmarker.createFromOptions(
-                        context,
-                        FaceLandmarker.FaceLandmarkerOptions.builder()
-                            .setBaseOptions(
-                                BaseOptions.builder()
-                                    .setModelAssetPath(FaceLandmarkDetector.MODEL_ASSET)
-                                    .setDelegate(delegate)
-                                    .build(),
-                            )
-                            .setRunningMode(RunningMode.IMAGE)
-                            .setNumFaces(MAX_FACES)
-                            .setMinFaceDetectionConfidence(0.5f)
-                            .setMinFacePresenceConfidence(0.5f)
-                            .build(),
-                    )
-                }.onFailure { Log.w(TAG, "IMAGE landmarker unavailable on $delegate", it) }.getOrNull()
-                if (created != null) {
-                    landmarker = created
-                    return created
-                }
-            }
-        }
-        landmarkerUnavailable = true
-        return null
+        val created = OfflineLandmarker.create(context, RunningMode.IMAGE)
+        if (created == null) landmarkerUnavailable = true
+        landmarker = created
+        return created
     }
 
     private companion object {
         const val TAG = "YuzStillProcessor"
-        const val MAX_FACES = 4
         const val MAX_OUTPUT_EDGE = 8192
     }
 }

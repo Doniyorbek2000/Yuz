@@ -232,7 +232,8 @@ enum EngineErrorCode: Int, CaseIterable {
   case captureFailed = 6
   case thermalThrottling = 7
   case recordingFailed = 8
-  case unknown = 9
+  case exportCancelled = 9
+  case unknown = 10
 }
 
 /// Generated class from Pigeon that represents data sent in messages.
@@ -900,6 +901,312 @@ struct VideoRecordingResult: Hashable, CustomStringConvertible {
   }
 }
 
+/// Upright (display-oriented) properties of a video file.
+///
+/// Generated class from Pigeon that represents data sent in messages.
+struct VideoMetadata: Hashable, CustomStringConvertible {
+  var durationMillis: Int64
+  var width: Int64
+  var height: Int64
+  var rotationDegrees: Int64
+  var hasAudio: Bool
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> VideoMetadata? {
+    let durationMillis = pigeonVar_list[0] as! Int64
+    let width = pigeonVar_list[1] as! Int64
+    let height = pigeonVar_list[2] as! Int64
+    let rotationDegrees = pigeonVar_list[3] as! Int64
+    let hasAudio = pigeonVar_list[4] as! Bool
+
+    return VideoMetadata(
+      durationMillis: durationMillis,
+      width: width,
+      height: height,
+      rotationDegrees: rotationDegrees,
+      hasAudio: hasAudio
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      durationMillis,
+      width,
+      height,
+      rotationDegrees,
+      hasAudio,
+    ]
+  }
+  static func == (lhs: VideoMetadata, rhs: VideoMetadata) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return BeautyEngineApiPigeonInternal.deepEquals(lhs.durationMillis, rhs.durationMillis) && BeautyEngineApiPigeonInternal.deepEquals(lhs.width, rhs.width) && BeautyEngineApiPigeonInternal.deepEquals(lhs.height, rhs.height) && BeautyEngineApiPigeonInternal.deepEquals(lhs.rotationDegrees, rhs.rotationDegrees) && BeautyEngineApiPigeonInternal.deepEquals(lhs.hasAudio, rhs.hasAudio)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("VideoMetadata")
+    BeautyEngineApiPigeonInternal.deepHash(value: durationMillis, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: width, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: height, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: rotationDegrees, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: hasAudio, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "VideoMetadata(durationMillis: \(String(describing: durationMillis)), width: \(String(describing: width)), height: \(String(describing: height)), rotationDegrees: \(String(describing: rotationDegrees)), hasAudio: \(String(describing: hasAudio)))"
+  }
+}
+
+/// One trimmed clip of an edit. Speeds other than 1 drop the clip's own
+/// sound (no time-stretching); music still plays.
+///
+/// Generated class from Pigeon that represents data sent in messages.
+struct VideoClipSpec: Hashable, CustomStringConvertible {
+  var path: String
+  var startMillis: Int64
+  var endMillis: Int64
+  /// 0.25..4
+  var speed: Double
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> VideoClipSpec? {
+    let path = pigeonVar_list[0] as! String
+    let startMillis = pigeonVar_list[1] as! Int64
+    let endMillis = pigeonVar_list[2] as! Int64
+    let speed = pigeonVar_list[3] as! Double
+
+    return VideoClipSpec(
+      path: path,
+      startMillis: startMillis,
+      endMillis: endMillis,
+      speed: speed
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      path,
+      startMillis,
+      endMillis,
+      speed,
+    ]
+  }
+  static func == (lhs: VideoClipSpec, rhs: VideoClipSpec) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return BeautyEngineApiPigeonInternal.deepEquals(lhs.path, rhs.path) && BeautyEngineApiPigeonInternal.deepEquals(lhs.startMillis, rhs.startMillis) && BeautyEngineApiPigeonInternal.deepEquals(lhs.endMillis, rhs.endMillis) && BeautyEngineApiPigeonInternal.deepEquals(lhs.speed, rhs.speed)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("VideoClipSpec")
+    BeautyEngineApiPigeonInternal.deepHash(value: path, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: startMillis, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: endMillis, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: speed, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "VideoClipSpec(path: \(String(describing: path)), startMillis: \(String(describing: startMillis)), endMillis: \(String(describing: endMillis)), speed: \(String(describing: speed)))"
+  }
+}
+
+/// A transparent PNG at the output size (text, stickers) shown during
+/// [startMillis, endMillis) of the output timeline.
+///
+/// Generated class from Pigeon that represents data sent in messages.
+struct VideoOverlaySpec: Hashable, CustomStringConvertible {
+  var imagePath: String
+  var startMillis: Int64
+  var endMillis: Int64
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> VideoOverlaySpec? {
+    let imagePath = pigeonVar_list[0] as! String
+    let startMillis = pigeonVar_list[1] as! Int64
+    let endMillis = pigeonVar_list[2] as! Int64
+
+    return VideoOverlaySpec(
+      imagePath: imagePath,
+      startMillis: startMillis,
+      endMillis: endMillis
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      imagePath,
+      startMillis,
+      endMillis,
+    ]
+  }
+  static func == (lhs: VideoOverlaySpec, rhs: VideoOverlaySpec) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return BeautyEngineApiPigeonInternal.deepEquals(lhs.imagePath, rhs.imagePath) && BeautyEngineApiPigeonInternal.deepEquals(lhs.startMillis, rhs.startMillis) && BeautyEngineApiPigeonInternal.deepEquals(lhs.endMillis, rhs.endMillis)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("VideoOverlaySpec")
+    BeautyEngineApiPigeonInternal.deepHash(value: imagePath, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: startMillis, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: endMillis, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "VideoOverlaySpec(imagePath: \(String(describing: imagePath)), startMillis: \(String(describing: startMillis)), endMillis: \(String(describing: endMillis)))"
+  }
+}
+
+/// Generated class from Pigeon that represents data sent in messages.
+struct VideoExportRequest: Hashable, CustomStringConvertible {
+  /// Identifies progress events and cancelVideoExport().
+  var jobId: String
+  var clips: [VideoClipSpec]
+  /// Destination .mp4 (H.264 + AAC), written atomically.
+  var outputPath: String
+  var parameters: BeautyParameters
+  var lutRgba: FlutterStandardTypedData? = nil
+  /// false keeps only the colour look (filter LUT, sharpen).
+  var applyBeauty: Bool
+  var overlays: [VideoOverlaySpec]
+  /// Optional background music, looped and faded out at the end.
+  var musicPath: String? = nil
+  /// 0..1
+  var musicVolume: Double
+  /// 0..1 (clips' own sound)
+  var originalVolume: Double
+  /// Output long edge (the first clip's aspect, letterboxed others), <= 1920.
+  var maxLongEdge: Int64
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> VideoExportRequest? {
+    let jobId = pigeonVar_list[0] as! String
+    let clips = pigeonVar_list[1] as! [VideoClipSpec]
+    let outputPath = pigeonVar_list[2] as! String
+    let parameters = pigeonVar_list[3] as! BeautyParameters
+    let lutRgba: FlutterStandardTypedData? = nilOrValue(pigeonVar_list[4])
+    let applyBeauty = pigeonVar_list[5] as! Bool
+    let overlays = pigeonVar_list[6] as! [VideoOverlaySpec]
+    let musicPath: String? = nilOrValue(pigeonVar_list[7])
+    let musicVolume = pigeonVar_list[8] as! Double
+    let originalVolume = pigeonVar_list[9] as! Double
+    let maxLongEdge = pigeonVar_list[10] as! Int64
+
+    return VideoExportRequest(
+      jobId: jobId,
+      clips: clips,
+      outputPath: outputPath,
+      parameters: parameters,
+      lutRgba: lutRgba,
+      applyBeauty: applyBeauty,
+      overlays: overlays,
+      musicPath: musicPath,
+      musicVolume: musicVolume,
+      originalVolume: originalVolume,
+      maxLongEdge: maxLongEdge
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      jobId,
+      clips,
+      outputPath,
+      parameters,
+      lutRgba,
+      applyBeauty,
+      overlays,
+      musicPath,
+      musicVolume,
+      originalVolume,
+      maxLongEdge,
+    ]
+  }
+  static func == (lhs: VideoExportRequest, rhs: VideoExportRequest) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return BeautyEngineApiPigeonInternal.deepEquals(lhs.jobId, rhs.jobId) && BeautyEngineApiPigeonInternal.deepEquals(lhs.clips, rhs.clips) && BeautyEngineApiPigeonInternal.deepEquals(lhs.outputPath, rhs.outputPath) && BeautyEngineApiPigeonInternal.deepEquals(lhs.parameters, rhs.parameters) && BeautyEngineApiPigeonInternal.deepEquals(lhs.lutRgba, rhs.lutRgba) && BeautyEngineApiPigeonInternal.deepEquals(lhs.applyBeauty, rhs.applyBeauty) && BeautyEngineApiPigeonInternal.deepEquals(lhs.overlays, rhs.overlays) && BeautyEngineApiPigeonInternal.deepEquals(lhs.musicPath, rhs.musicPath) && BeautyEngineApiPigeonInternal.deepEquals(lhs.musicVolume, rhs.musicVolume) && BeautyEngineApiPigeonInternal.deepEquals(lhs.originalVolume, rhs.originalVolume) && BeautyEngineApiPigeonInternal.deepEquals(lhs.maxLongEdge, rhs.maxLongEdge)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("VideoExportRequest")
+    BeautyEngineApiPigeonInternal.deepHash(value: jobId, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: clips, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: outputPath, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: parameters, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: lutRgba, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: applyBeauty, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: overlays, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: musicPath, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: musicVolume, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: originalVolume, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: maxLongEdge, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "VideoExportRequest(jobId: \(String(describing: jobId)), clips: \(String(describing: clips)), outputPath: \(String(describing: outputPath)), parameters: \(String(describing: parameters)), lutRgba: \(String(describing: lutRgba)), applyBeauty: \(String(describing: applyBeauty)), overlays: \(String(describing: overlays)), musicPath: \(String(describing: musicPath)), musicVolume: \(String(describing: musicVolume)), originalVolume: \(String(describing: originalVolume)), maxLongEdge: \(String(describing: maxLongEdge)))"
+  }
+}
+
+/// Generated class from Pigeon that represents data sent in messages.
+struct VideoExportResult: Hashable, CustomStringConvertible {
+  var outputPath: String
+  var durationMillis: Int64
+  var width: Int64
+  var height: Int64
+  var hasAudio: Bool
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> VideoExportResult? {
+    let outputPath = pigeonVar_list[0] as! String
+    let durationMillis = pigeonVar_list[1] as! Int64
+    let width = pigeonVar_list[2] as! Int64
+    let height = pigeonVar_list[3] as! Int64
+    let hasAudio = pigeonVar_list[4] as! Bool
+
+    return VideoExportResult(
+      outputPath: outputPath,
+      durationMillis: durationMillis,
+      width: width,
+      height: height,
+      hasAudio: hasAudio
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      outputPath,
+      durationMillis,
+      width,
+      height,
+      hasAudio,
+    ]
+  }
+  static func == (lhs: VideoExportResult, rhs: VideoExportResult) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return BeautyEngineApiPigeonInternal.deepEquals(lhs.outputPath, rhs.outputPath) && BeautyEngineApiPigeonInternal.deepEquals(lhs.durationMillis, rhs.durationMillis) && BeautyEngineApiPigeonInternal.deepEquals(lhs.width, rhs.width) && BeautyEngineApiPigeonInternal.deepEquals(lhs.height, rhs.height) && BeautyEngineApiPigeonInternal.deepEquals(lhs.hasAudio, rhs.hasAudio)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("VideoExportResult")
+    BeautyEngineApiPigeonInternal.deepHash(value: outputPath, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: durationMillis, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: width, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: height, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: hasAudio, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "VideoExportResult(outputPath: \(String(describing: outputPath)), durationMillis: \(String(describing: durationMillis)), width: \(String(describing: width)), height: \(String(describing: height)), hasAudio: \(String(describing: hasAudio)))"
+  }
+}
+
 /// Generated class from Pigeon that represents data sent in messages.
 struct FaceTrackingStatus: Hashable, CustomStringConvertible {
   var faceCount: Int64
@@ -1106,10 +1413,20 @@ private class BeautyEngineApiPigeonCodecReader: FlutterStandardReader {
     case 143:
       return VideoRecordingResult.fromList(self.readValue() as! [Any?])
     case 144:
-      return FaceTrackingStatus.fromList(self.readValue() as! [Any?])
+      return VideoMetadata.fromList(self.readValue() as! [Any?])
     case 145:
-      return PerformanceSample.fromList(self.readValue() as! [Any?])
+      return VideoClipSpec.fromList(self.readValue() as! [Any?])
     case 146:
+      return VideoOverlaySpec.fromList(self.readValue() as! [Any?])
+    case 147:
+      return VideoExportRequest.fromList(self.readValue() as! [Any?])
+    case 148:
+      return VideoExportResult.fromList(self.readValue() as! [Any?])
+    case 149:
+      return FaceTrackingStatus.fromList(self.readValue() as! [Any?])
+    case 150:
+      return PerformanceSample.fromList(self.readValue() as! [Any?])
+    case 151:
       return EngineError.fromList(self.readValue() as! [Any?])
     default:
       return super.readValue(ofType: type)
@@ -1164,14 +1481,29 @@ private class BeautyEngineApiPigeonCodecWriter: FlutterStandardWriter {
     } else if let value = value as? VideoRecordingResult {
       super.writeByte(143)
       super.writeValue(value.toList())
-    } else if let value = value as? FaceTrackingStatus {
+    } else if let value = value as? VideoMetadata {
       super.writeByte(144)
       super.writeValue(value.toList())
-    } else if let value = value as? PerformanceSample {
+    } else if let value = value as? VideoClipSpec {
       super.writeByte(145)
       super.writeValue(value.toList())
-    } else if let value = value as? EngineError {
+    } else if let value = value as? VideoOverlaySpec {
       super.writeByte(146)
+      super.writeValue(value.toList())
+    } else if let value = value as? VideoExportRequest {
+      super.writeByte(147)
+      super.writeValue(value.toList())
+    } else if let value = value as? VideoExportResult {
+      super.writeByte(148)
+      super.writeValue(value.toList())
+    } else if let value = value as? FaceTrackingStatus {
+      super.writeByte(149)
+      super.writeValue(value.toList())
+    } else if let value = value as? PerformanceSample {
+      super.writeByte(150)
+      super.writeValue(value.toList())
+    } else if let value = value as? EngineError {
+      super.writeByte(151)
       super.writeValue(value.toList())
     } else {
       super.writeValue(value)
@@ -1212,6 +1544,13 @@ protocol BeautyEngineHostApi {
   /// stopRecording() returns it.
   func startRecording(options: VideoRecordingOptions) async throws
   func stopRecording() async throws -> VideoRecordingResult
+  func probeVideo(path: String) async throws -> VideoMetadata
+  /// Writes [count] evenly spaced JPEG frames into [outputDirectory].
+  func videoThumbnails(path: String, count: Int64, maxEdge: Int64, outputDirectory: String) async throws -> [String]
+  /// Renders an edit; progress arrives through onVideoExportProgress.
+  func exportVideo(request: VideoExportRequest) async throws -> VideoExportResult
+  /// The running exportVideo() call then fails with EXPORT_CANCELLED.
+  func cancelVideoExport(jobId: String) throws
   /// Independent of the camera session; jobs run one at a time.
   func processImage(request: ImageProcessingRequest) async throws -> ImageProcessingResult
   func pause() async throws
@@ -1401,6 +1740,78 @@ class BeautyEngineHostApiSetup {
     } else {
       stopRecordingChannel.setMessageHandler(nil)
     }
+    let probeVideoChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.probeVideo\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      probeVideoChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let pathArg = args[0] as! String
+        Task { @MainActor in
+          do {
+            let result = try await api.probeVideo(path: pathArg)
+            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      probeVideoChannel.setMessageHandler(nil)
+    }
+    /// Writes [count] evenly spaced JPEG frames into [outputDirectory].
+    let videoThumbnailsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.videoThumbnails\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      videoThumbnailsChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let pathArg = args[0] as! String
+        let countArg = args[1] as! Int64
+        let maxEdgeArg = args[2] as! Int64
+        let outputDirectoryArg = args[3] as! String
+        Task { @MainActor in
+          do {
+            let result = try await api.videoThumbnails(path: pathArg, count: countArg, maxEdge: maxEdgeArg, outputDirectory: outputDirectoryArg)
+            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      videoThumbnailsChannel.setMessageHandler(nil)
+    }
+    /// Renders an edit; progress arrives through onVideoExportProgress.
+    let exportVideoChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.exportVideo\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      exportVideoChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let requestArg = args[0] as! VideoExportRequest
+        Task { @MainActor in
+          do {
+            let result = try await api.exportVideo(request: requestArg)
+            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      exportVideoChannel.setMessageHandler(nil)
+    }
+    /// The running exportVideo() call then fails with EXPORT_CANCELLED.
+    let cancelVideoExportChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.cancelVideoExport\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      cancelVideoExportChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let jobIdArg = args[0] as! String
+        do {
+          try api.cancelVideoExport(jobId: jobIdArg)
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      cancelVideoExportChannel.setMessageHandler(nil)
+    }
     /// Independent of the camera session; jobs run one at a time.
     let processImageChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.processImage\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
@@ -1472,6 +1883,8 @@ protocol BeautyEngineEventsApiProtocol {
   @MainActor func onFaceTrackingStatus(status statusArg: FaceTrackingStatus) async throws
   @MainActor func onPerformanceSample(sample sampleArg: PerformanceSample) async throws
   @MainActor func onEngineError(error errorArg: EngineError) async throws
+  /// 0..1, at most ~10 times per second.
+  @MainActor func onVideoExportProgress(jobId jobIdArg: String, progress progressArg: Double) async throws
 }
 class BeautyEngineEventsApi: BeautyEngineEventsApiProtocol {
   private let binaryMessenger: FlutterBinaryMessenger
@@ -1528,6 +1941,27 @@ class BeautyEngineEventsApi: BeautyEngineEventsApiProtocol {
       let channelName: String = "dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineEventsApi.onEngineError\(messageChannelSuffix)"
       let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
       channel.sendMessage([errorArg] as [Any?]) { response in
+        guard let listResponse = response as? [Any?] else {
+          continuation.resume(throwing: createConnectionError(withChannelName: channelName))
+          return
+        }
+        if listResponse.count > 1 {
+          let code: String = listResponse[0] as! String
+          let message: String? = nilOrValue(listResponse[1])
+          let details: String? = nilOrValue(listResponse[2])
+          continuation.resume(throwing: BeautyEngineFlutterError(code: code, message: message, details: details))
+        } else {
+          continuation.resume()
+        }
+      }
+    }
+  }
+  /// 0..1, at most ~10 times per second.
+  @MainActor func onVideoExportProgress(jobId jobIdArg: String, progress progressArg: Double) async throws {
+    return try await withCheckedThrowingContinuation { continuation in
+      let channelName: String = "dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineEventsApi.onVideoExportProgress\(messageChannelSuffix)"
+      let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
+      channel.sendMessage([jobIdArg, progressArg] as [Any?]) { response in
         guard let listResponse = response as? [Any?] else {
           continuation.resume(throwing: createConnectionError(withChannelName: channelName))
           return

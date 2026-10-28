@@ -54,4 +54,14 @@ data class BeautySettings(
         get() = makeupIntensity > 0f && listOf(lipstick, blush, eyebrows, eyeshadow, eyeliner).any { it > 0f }
 
     val isIdentity: Boolean get() = !compositeActive && reshape.isIdentity
+
+    /** Effects that read the face landmarks (masks or warps). */
+    val usesFaces: Boolean
+        get() = listOf(
+            skinSmoothing, skinBrightening, skinTone, blemishReduction, shineReduction, glow,
+            eyeBrightening, teethWhitening, darkCircles,
+        ).any { it > 0f } || makeupActive || !reshape.isIdentity
+
+    /** Keeps only the colour look (filter LUT and sharpening). */
+    fun colorOnly(): BeautySettings = BeautySettings(filterIntensity = filterIntensity, sharpen = sharpen)
 }

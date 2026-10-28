@@ -274,5 +274,6 @@
   "videoPlay": "Play",
   "videoPause": "Pause",
   "videoEdit": "Edit video",
-  "videoSilent": "Recorded without sound"
+  "videoSilent": "Recorded without sound",
+  "errorExportCancelled": "Export cancelled."
 }

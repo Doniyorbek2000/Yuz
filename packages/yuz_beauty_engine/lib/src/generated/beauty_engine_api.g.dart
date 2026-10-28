@@ -151,6 +151,7 @@ enum EngineErrorCode {
   captureFailed,
   thermalThrottling,
   recordingFailed,
+  exportCancelled,
   unknown;
 }
 
@@ -907,6 +908,359 @@ class VideoRecordingResult {
   }
 }
 
+/// Upright (display-oriented) properties of a video file.
+class VideoMetadata {
+  VideoMetadata({
+    required this.durationMillis,
+    required this.width,
+    required this.height,
+    required this.rotationDegrees,
+    required this.hasAudio,
+  });
+
+  int durationMillis;
+
+  int width;
+
+  int height;
+
+  int rotationDegrees;
+
+  bool hasAudio;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      durationMillis,
+      width,
+      height,
+      rotationDegrees,
+      hasAudio,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static VideoMetadata decode(Object result) {
+    result as List<Object?>;
+    return VideoMetadata(
+      durationMillis: result[0]! as int,
+      width: result[1]! as int,
+      height: result[2]! as int,
+      rotationDegrees: result[3]! as int,
+      hasAudio: result[4]! as bool,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! VideoMetadata || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(durationMillis, other.durationMillis) && _deepEquals(width, other.width) && _deepEquals(height, other.height) && _deepEquals(rotationDegrees, other.rotationDegrees) && _deepEquals(hasAudio, other.hasAudio);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'VideoMetadata(durationMillis: $durationMillis, width: $width, height: $height, rotationDegrees: $rotationDegrees, hasAudio: $hasAudio)';
+  }
+}
+
+/// One trimmed clip of an edit. Speeds other than 1 drop the clip's own
+/// sound (no time-stretching); music still plays.
+class VideoClipSpec {
+  VideoClipSpec({
+    required this.path,
+    required this.startMillis,
+    required this.endMillis,
+    required this.speed,
+  });
+
+  String path;
+
+  int startMillis;
+
+  int endMillis;
+
+  /// 0.25..4
+  double speed;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      path,
+      startMillis,
+      endMillis,
+      speed,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static VideoClipSpec decode(Object result) {
+    result as List<Object?>;
+    return VideoClipSpec(
+      path: result[0]! as String,
+      startMillis: result[1]! as int,
+      endMillis: result[2]! as int,
+      speed: result[3]! as double,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! VideoClipSpec || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(path, other.path) && _deepEquals(startMillis, other.startMillis) && _deepEquals(endMillis, other.endMillis) && _deepEquals(speed, other.speed);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'VideoClipSpec(path: $path, startMillis: $startMillis, endMillis: $endMillis, speed: $speed)';
+  }
+}
+
+/// A transparent PNG at the output size (text, stickers) shown during
+/// [startMillis, endMillis) of the output timeline.
+class VideoOverlaySpec {
+  VideoOverlaySpec({
+    required this.imagePath,
+    required this.startMillis,
+    required this.endMillis,
+  });
+
+  String imagePath;
+
+  int startMillis;
+
+  int endMillis;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      imagePath,
+      startMillis,
+      endMillis,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static VideoOverlaySpec decode(Object result) {
+    result as List<Object?>;
+    return VideoOverlaySpec(
+      imagePath: result[0]! as String,
+      startMillis: result[1]! as int,
+      endMillis: result[2]! as int,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! VideoOverlaySpec || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(imagePath, other.imagePath) && _deepEquals(startMillis, other.startMillis) && _deepEquals(endMillis, other.endMillis);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'VideoOverlaySpec(imagePath: $imagePath, startMillis: $startMillis, endMillis: $endMillis)';
+  }
+}
+
+class VideoExportRequest {
+  VideoExportRequest({
+    required this.jobId,
+    required this.clips,
+    required this.outputPath,
+    required this.parameters,
+    this.lutRgba,
+    required this.applyBeauty,
+    required this.overlays,
+    this.musicPath,
+    required this.musicVolume,
+    required this.originalVolume,
+    required this.maxLongEdge,
+  });
+
+  /// Identifies progress events and cancelVideoExport().
+  String jobId;
+
+  List<VideoClipSpec> clips;
+
+  /// Destination .mp4 (H.264 + AAC), written atomically.
+  String outputPath;
+
+  BeautyParameters parameters;
+
+  Uint8List? lutRgba;
+
+  /// false keeps only the colour look (filter LUT, sharpen).
+  bool applyBeauty;
+
+  List<VideoOverlaySpec> overlays;
+
+  /// Optional background music, looped and faded out at the end.
+  String? musicPath;
+
+  /// 0..1
+  double musicVolume;
+
+  /// 0..1 (clips' own sound)
+  double originalVolume;
+
+  /// Output long edge (the first clip's aspect, letterboxed others), <= 1920.
+  int maxLongEdge;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      jobId,
+      clips,
+      outputPath,
+      parameters,
+      lutRgba,
+      applyBeauty,
+      overlays,
+      musicPath,
+      musicVolume,
+      originalVolume,
+      maxLongEdge,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static VideoExportRequest decode(Object result) {
+    result as List<Object?>;
+    return VideoExportRequest(
+      jobId: result[0]! as String,
+      clips: (result[1]! as List<Object?>).cast<VideoClipSpec>(),
+      outputPath: result[2]! as String,
+      parameters: result[3]! as BeautyParameters,
+      lutRgba: result[4] as Uint8List?,
+      applyBeauty: result[5]! as bool,
+      overlays: (result[6]! as List<Object?>).cast<VideoOverlaySpec>(),
+      musicPath: result[7] as String?,
+      musicVolume: result[8]! as double,
+      originalVolume: result[9]! as double,
+      maxLongEdge: result[10]! as int,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! VideoExportRequest || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(jobId, other.jobId) && _deepEquals(clips, other.clips) && _deepEquals(outputPath, other.outputPath) && _deepEquals(parameters, other.parameters) && _deepEquals(lutRgba, other.lutRgba) && _deepEquals(applyBeauty, other.applyBeauty) && _deepEquals(overlays, other.overlays) && _deepEquals(musicPath, other.musicPath) && _deepEquals(musicVolume, other.musicVolume) && _deepEquals(originalVolume, other.originalVolume) && _deepEquals(maxLongEdge, other.maxLongEdge);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'VideoExportRequest(jobId: $jobId, clips: $clips, outputPath: $outputPath, parameters: $parameters, lutRgba: $lutRgba, applyBeauty: $applyBeauty, overlays: $overlays, musicPath: $musicPath, musicVolume: $musicVolume, originalVolume: $originalVolume, maxLongEdge: $maxLongEdge)';
+  }
+}
+
+class VideoExportResult {
+  VideoExportResult({
+    required this.outputPath,
+    required this.durationMillis,
+    required this.width,
+    required this.height,
+    required this.hasAudio,
+  });
+
+  String outputPath;
+
+  int durationMillis;
+
+  int width;
+
+  int height;
+
+  bool hasAudio;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      outputPath,
+      durationMillis,
+      width,
+      height,
+      hasAudio,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static VideoExportResult decode(Object result) {
+    result as List<Object?>;
+    return VideoExportResult(
+      outputPath: result[0]! as String,
+      durationMillis: result[1]! as int,
+      width: result[2]! as int,
+      height: result[3]! as int,
+      hasAudio: result[4]! as bool,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! VideoExportResult || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(outputPath, other.outputPath) && _deepEquals(durationMillis, other.durationMillis) && _deepEquals(width, other.width) && _deepEquals(height, other.height) && _deepEquals(hasAudio, other.hasAudio);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'VideoExportResult(outputPath: $outputPath, durationMillis: $durationMillis, width: $width, height: $height, hasAudio: $hasAudio)';
+  }
+}
+
 class FaceTrackingStatus {
   FaceTrackingStatus({
     required this.faceCount,
@@ -1137,14 +1491,29 @@ class _PigeonCodec extends StandardMessageCodec {
     }    else if (value is VideoRecordingResult) {
       buffer.putUint8(143);
       writeValue(buffer, value.encode());
-    }    else if (value is FaceTrackingStatus) {
+    }    else if (value is VideoMetadata) {
       buffer.putUint8(144);
       writeValue(buffer, value.encode());
-    }    else if (value is PerformanceSample) {
+    }    else if (value is VideoClipSpec) {
       buffer.putUint8(145);
       writeValue(buffer, value.encode());
-    }    else if (value is EngineError) {
+    }    else if (value is VideoOverlaySpec) {
       buffer.putUint8(146);
+      writeValue(buffer, value.encode());
+    }    else if (value is VideoExportRequest) {
+      buffer.putUint8(147);
+      writeValue(buffer, value.encode());
+    }    else if (value is VideoExportResult) {
+      buffer.putUint8(148);
+      writeValue(buffer, value.encode());
+    }    else if (value is FaceTrackingStatus) {
+      buffer.putUint8(149);
+      writeValue(buffer, value.encode());
+    }    else if (value is PerformanceSample) {
+      buffer.putUint8(150);
+      writeValue(buffer, value.encode());
+    }    else if (value is EngineError) {
+      buffer.putUint8(151);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -1191,10 +1560,20 @@ class _PigeonCodec extends StandardMessageCodec {
       case 143:
         return VideoRecordingResult.decode(readValue(buffer)!);
       case 144:
-        return FaceTrackingStatus.decode(readValue(buffer)!);
+        return VideoMetadata.decode(readValue(buffer)!);
       case 145:
-        return PerformanceSample.decode(readValue(buffer)!);
+        return VideoClipSpec.decode(readValue(buffer)!);
       case 146:
+        return VideoOverlaySpec.decode(readValue(buffer)!);
+      case 147:
+        return VideoExportRequest.decode(readValue(buffer)!);
+      case 148:
+        return VideoExportResult.decode(readValue(buffer)!);
+      case 149:
+        return FaceTrackingStatus.decode(readValue(buffer)!);
+      case 150:
+        return PerformanceSample.decode(readValue(buffer)!);
+      case 151:
         return EngineError.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -1427,6 +1806,84 @@ class BeautyEngineHostApi {
     return pigeonVar_replyValue! as VideoRecordingResult;
   }
 
+  Future<VideoMetadata> probeVideo(String path) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.probeVideo$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[path]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as VideoMetadata;
+  }
+
+  /// Writes [count] evenly spaced JPEG frames into [outputDirectory].
+  Future<List<String>> videoThumbnails(String path, int count, int maxEdge, String outputDirectory) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.videoThumbnails$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[path, count, maxEdge, outputDirectory]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return (pigeonVar_replyValue! as List<Object?>).cast<String>();
+  }
+
+  /// Renders an edit; progress arrives through onVideoExportProgress.
+  Future<VideoExportResult> exportVideo(VideoExportRequest request) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.exportVideo$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[request]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as VideoExportResult;
+  }
+
+  /// The running exportVideo() call then fails with EXPORT_CANCELLED.
+  Future<void> cancelVideoExport(String jobId) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.cancelVideoExport$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[jobId]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
   /// Independent of the camera session; jobs run one at a time.
   Future<ImageProcessingResult> processImage(ImageProcessingRequest request) async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.processImage$pigeonVar_messageChannelSuffix';
@@ -1511,6 +1968,9 @@ abstract class BeautyEngineEventsApi {
 
   void onEngineError(EngineError error);
 
+  /// 0..1, at most ~10 times per second.
+  void onVideoExportProgress(String jobId, double progress);
+
   static void setUp(BeautyEngineEventsApi? api, {
     BinaryMessenger? binaryMessenger, 
     String messageChannelSuffix = '',
@@ -1571,6 +2031,28 @@ abstract class BeautyEngineEventsApi {
           final EngineError arg_error = args[0]! as EngineError;
           try {
             api.onEngineError(arg_error);
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+    {
+      final pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineEventsApi.onVideoExportProgress$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          final List<Object?> args = message! as List<Object?>;
+          final String arg_jobId = args[0]! as String;
+          final double arg_progress = args[1]! as double;
+          try {
+            api.onVideoExportProgress(arg_jobId, arg_progress);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);

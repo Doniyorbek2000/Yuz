@@ -223,5 +223,6 @@
   "videoPlay": "Воспроизвести",
   "videoPause": "Пауза",
   "videoEdit": "Редактировать видео",
-  "videoSilent": "Записано без звука"
+  "videoSilent": "Записано без звука",
+  "errorExportCancelled": "Экспорт отменён."
 }

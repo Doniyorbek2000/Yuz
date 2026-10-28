@@ -44,6 +44,9 @@ final class BeautyEngineController: NSObject, BeautyEngineHostApi,
   private var thermalLevel = 0
   private var stillProcessor: StillImageProcessor?
   private var recorder: VideoRecorder?
+  private lazy var videoExporter = VideoExporter()
+  private var exportCancellations: [String: LockedValue<Bool>] = [:]
+  private var exportRunning = false
 
   /// A recording finished by pause(); handed out by the next stopRecording().
   private var finishedRecording: Result<VideoRecordingOutput, Error>?
@@ -216,6 +219,97 @@ final class BeautyEngineController: NSObject, BeautyEngineHostApi,
       height: Int64(CVPixelBufferGetHeight(frame)))
   }
 
+  func probeVideo(path: String) async throws -> VideoMetadata {
+    do {
+      let metadata = try await VideoInspector.probe(URL(fileURLWithPath: path))
+      return VideoMetadata(
+        durationMillis: Int64(metadata.durationMillis), width: Int64(metadata.width), height: Int64(metadata.height),
+        rotationDegrees: Int64(metadata.rotationDegrees), hasAudio: metadata.hasAudio)
+    } catch {
+      throw Self.error(.captureFailed, "Video could not be read: \(error)")
+    }
+  }
+
+  func videoThumbnails(path: String, count: Int64, maxEdge: Int64, outputDirectory: String) async throws -> [String] {
+    do {
+      return try await VideoInspector.thumbnails(
+        URL(fileURLWithPath: path), count: Int(count), maxEdge: Int(min(max(maxEdge, 32), 1024)),
+        directory: URL(fileURLWithPath: outputDirectory))
+    } catch VideoExportError.invalid(let reason) {
+      throw Self.error(.unknown, reason)
+    } catch {
+      throw Self.error(.captureFailed, "Video could not be read: \(error)")
+    }
+  }
+
+  func exportVideo(request: VideoExportRequest) async throws -> VideoExportResult {
+    if let lut = request.lutRgba, lut.data.count != MetalBeautyRenderer.lutBytes {
+      throw Self.error(.unknown, "LUT must be \(MetalBeautyRenderer.lutBytes) bytes, got \(lut.data.count)")
+    }
+    let cancelled = LockedValue(false)
+    let accepted = withState { () -> Bool in
+      // One export at a time (GPU and encoder budget), and job ids are unique.
+      guard !exportRunning, exportCancellations[request.jobId] == nil else { return false }
+      exportRunning = true
+      exportCancellations[request.jobId] = cancelled
+      return true
+    }
+    guard accepted else { throw Self.error(.recordingFailed, "Another export is already running") }
+    defer {
+      withState {
+        exportRunning = false
+        exportCancellations[request.jobId] = nil
+      }
+    }
+    let base = BeautySettings(request.parameters)
+    let job = VideoExportJob(
+      clips: request.clips.map {
+        VideoExportClip(
+          url: URL(fileURLWithPath: $0.path), startMillis: Int($0.startMillis), endMillis: Int($0.endMillis),
+          speed: $0.speed)
+      },
+      output: URL(fileURLWithPath: request.outputPath),
+      settings: request.applyBeauty ? base : base.colorOnly,
+      lut: request.lutRgba?.data,
+      overlays: request.overlays.map {
+        VideoExportOverlay(
+          url: URL(fileURLWithPath: $0.imagePath), startMillis: Int($0.startMillis), endMillis: Int($0.endMillis))
+      },
+      music: request.musicPath.map { URL(fileURLWithPath: $0) },
+      musicVolume: Float(min(max(request.musicVolume, 0), 1)),
+      originalVolume: Float(min(max(request.originalVolume, 0), 1)),
+      maxLongEdge: Int(request.maxLongEdge))
+    let jobId = request.jobId
+    let lastSent = LockedValue<TimeInterval>(0)
+    do {
+      let output = try await videoExporter.export(
+        job, isCancelled: { cancelled.value },
+        progress: { [events] value in
+          let now = ProcessInfo.processInfo.systemUptime
+          guard value >= 1 || now - lastSent.value >= 0.1 else { return }
+          lastSent.value = now
+          Task { @MainActor in try? await events.onVideoExportProgress(jobId: jobId, progress: value) }
+        })
+      return VideoExportResult(
+        outputPath: output.url.path, durationMillis: Int64(output.durationMillis), width: Int64(output.width),
+        height: Int64(output.height), hasAudio: output.hasAudio)
+    } catch VideoExportError.cancelled {
+      throw Self.error(.exportCancelled, "Export cancelled")
+    } catch VideoExportError.invalid(let reason) {
+      throw Self.error(.recordingFailed, reason)
+    } catch VideoExportError.unreadable(let path) {
+      throw Self.error(.recordingFailed, "Media could not be read: \(path)")
+    } catch let error as RendererError {
+      throw Self.error(.gpuInitializationFailed, "Metal initialization failed: \(error)")
+    } catch {
+      throw Self.error(.recordingFailed, "Video export failed: \(error)")
+    }
+  }
+
+  func cancelVideoExport(jobId: String) throws {
+    if let flag = withState({ exportCancellations[jobId] }) { flag.value = true }
+  }
+
   func processImage(request: ImageProcessingRequest) async throws -> ImageProcessingResult {
     if let lut = request.lutRgba, lut.data.count != MetalBeautyRenderer.lutBytes {
       throw Self.error(.unknown, "LUT must be \(MetalBeautyRenderer.lutBytes) bytes, got \(lut.data.count)")
@@ -280,7 +374,14 @@ final class BeautyEngineController: NSObject, BeautyEngineHostApi,
       finishedRecording = nil
       return value
     }
-    guard let result = stashed ?? (await finishRecording()) else {
+    // `??` takes an autoclosure, which cannot contain `await`.
+    let finished: Result<VideoRecordingOutput, Error>?
+    if let stashed {
+      finished = stashed
+    } else {
+      finished = await finishRecording()
+    }
+    guard let result = finished else {
       throw Self.error(.recordingFailed, "Not recording")
     }
     switch result {
@@ -647,6 +748,7 @@ extension EngineErrorCode {
     case .captureFailed: return "CAPTURE_FAILED"
     case .thermalThrottling: return "THERMAL_THROTTLING"
     case .recordingFailed: return "RECORDING_FAILED"
+    case .exportCancelled: return "EXPORT_CANCELLED"
     case .unknown: return "UNKNOWN"
     }
   }

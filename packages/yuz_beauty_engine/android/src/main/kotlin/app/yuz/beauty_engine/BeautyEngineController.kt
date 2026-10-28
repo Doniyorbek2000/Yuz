@@ -43,6 +43,9 @@ import app.yuz.beauty_engine.generated.PerformanceSample
 import app.yuz.beauty_engine.generated.PhotoCaptureResult
 import app.yuz.beauty_engine.generated.PreviewDescriptor
 import app.yuz.beauty_engine.generated.PreviewQuality
+import app.yuz.beauty_engine.generated.VideoExportRequest
+import app.yuz.beauty_engine.generated.VideoExportResult
+import app.yuz.beauty_engine.generated.VideoMetadata
 import app.yuz.beauty_engine.generated.VideoRecordingOptions
 import app.yuz.beauty_engine.generated.VideoRecordingResult
 import app.yuz.beauty_engine.gl.GlLutTexture
@@ -57,6 +60,15 @@ import app.yuz.beauty_engine.still.StillImageProcessor
 import app.yuz.beauty_engine.video.RecordingException
 import app.yuz.beauty_engine.video.RecordingResult
 import app.yuz.beauty_engine.video.VideoRecorder
+import app.yuz.beauty_engine.video.edit.ExportClip
+import app.yuz.beauty_engine.video.edit.ExportRequest
+import app.yuz.beauty_engine.video.edit.OverlayWindow
+import app.yuz.beauty_engine.video.edit.VideoExporter
+import app.yuz.beauty_engine.video.edit.VideoProbe
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import io.flutter.view.TextureRegistry
 import java.io.File
 import java.util.concurrent.Executor
@@ -90,6 +102,9 @@ class BeautyEngineController(
 
     private var session: Session? = null
     private var stillProcessor: StillImageProcessor? = null
+    private val videoExporter by lazy { VideoExporter(context) }
+    private val exportMutex = Mutex()
+    private val exportCancellations = ConcurrentHashMap<String, AtomicBoolean>()
 
     /** Everything that lives between initialize() and dispose(). */
     private inner class Session(val config: EngineConfig) {
@@ -348,6 +363,96 @@ class BeautyEngineController(
         is RecordingException -> engineError(EngineErrorCode.RECORDING_FAILED, error.message ?: "Recording failed")
         else -> engineError(EngineErrorCode.RECORDING_FAILED, error.message ?: error.javaClass.simpleName)
     }
+
+    override suspend fun probeVideo(path: String): VideoMetadata = withContext(Dispatchers.IO) {
+        try {
+            val probe = VideoProbe.probe(path)
+            VideoMetadata(
+                durationMillis = probe.durationUs / 1_000,
+                width = probe.uprightWidth.toLong(),
+                height = probe.uprightHeight.toLong(),
+                rotationDegrees = probe.rotationDegrees.toLong(),
+                hasAudio = probe.hasAudio,
+            )
+        } catch (error: java.io.IOException) {
+            throw engineError(EngineErrorCode.CAPTURE_FAILED, error.message ?: "Video could not be read")
+        }
+    }
+
+    override suspend fun videoThumbnails(path: String, count: Long, maxEdge: Long, outputDirectory: String): List<String> =
+        withContext(Dispatchers.IO) {
+            try {
+                VideoProbe.thumbnails(path, count.toInt(), maxEdge.toInt().coerceIn(32, 1024), File(outputDirectory))
+            } catch (error: java.io.IOException) {
+                throw engineError(EngineErrorCode.CAPTURE_FAILED, error.message ?: "Video could not be read")
+            } catch (error: IllegalArgumentException) {
+                throw engineError(EngineErrorCode.UNKNOWN, error.message ?: "Invalid thumbnail request")
+            }
+        }
+
+    override suspend fun exportVideo(request: VideoExportRequest): VideoExportResult {
+        val lut = request.lutRgba
+        if (lut != null && lut.size != GlLutTexture.BYTES) {
+            throw engineError(EngineErrorCode.UNKNOWN, "LUT must be ${GlLutTexture.BYTES} bytes, got ${lut.size}")
+        }
+        val cancelled = AtomicBoolean(false)
+        if (exportCancellations.putIfAbsent(request.jobId, cancelled) != null) {
+            throw engineError(EngineErrorCode.RECORDING_FAILED, "Export ${request.jobId} is already running")
+        }
+        try {
+            return exportMutex.withLock {
+                var lastProgressAt = 0L
+                val result = withContext(Dispatchers.IO) {
+                    videoExporter.export(request.toExportRequest(), cancelled) { progress ->
+                        val now = System.currentTimeMillis()
+                        if (now - lastProgressAt >= PROGRESS_INTERVAL_MILLIS || progress >= 1.0) {
+                            lastProgressAt = now
+                            mainScope.launch { runCatching { events.onVideoExportProgress(request.jobId, progress) } }
+                        }
+                    }
+                }
+                VideoExportResult(
+                    outputPath = result.file.path,
+                    durationMillis = result.durationMillis,
+                    width = result.width.toLong(),
+                    height = result.height.toLong(),
+                    hasAudio = result.hasAudio,
+                )
+            }
+        } catch (error: java.util.concurrent.CancellationException) {
+            if (cancelled.get()) throw engineError(EngineErrorCode.EXPORT_CANCELLED, "Export cancelled")
+            throw error
+        } catch (error: java.io.IOException) {
+            throw engineError(EngineErrorCode.RECORDING_FAILED, error.message ?: "Video export failed")
+        } catch (error: IllegalArgumentException) {
+            throw engineError(EngineErrorCode.RECORDING_FAILED, error.message ?: "Invalid edit")
+        } catch (error: IllegalStateException) {
+            throw engineError(EngineErrorCode.RECORDING_FAILED, error.message ?: "Video codec error")
+        } catch (error: OutOfMemoryError) {
+            throw engineError(EngineErrorCode.RECORDING_FAILED, "Not enough memory to export this video")
+        } catch (error: app.yuz.beauty_engine.gl.GlException) {
+            throw engineError(EngineErrorCode.GPU_INITIALIZATION_FAILED, error.message ?: "GPU error")
+        } finally {
+            exportCancellations.remove(request.jobId)
+        }
+    }
+
+    override fun cancelVideoExport(jobId: String) {
+        exportCancellations[jobId]?.set(true)
+    }
+
+    private fun VideoExportRequest.toExportRequest() = ExportRequest(
+        clips = clips.map { ExportClip(it.path, it.startMillis * 1_000, it.endMillis * 1_000, it.speed) },
+        outputPath = outputPath,
+        settings = parameters.toSettings(),
+        lut = lutRgba,
+        overlays = overlays.map { OverlayWindow(it.imagePath, it.startMillis * 1_000, it.endMillis * 1_000) },
+        musicPath = musicPath,
+        musicVolume = musicVolume.toFloat().coerceIn(0f, 1f),
+        originalVolume = originalVolume.toFloat().coerceIn(0f, 1f),
+        maxLongEdge = maxLongEdge.toInt(),
+        applyBeauty = applyBeauty,
+    )
 
     override suspend fun processImage(request: ImageProcessingRequest): ImageProcessingResult {
         val lut = request.lutRgba
@@ -653,5 +758,6 @@ class BeautyEngineController(
         const val TORCH_SETTLE_MILLIS = 400L
         const val AUTO_FLASH_LUMA_THRESHOLD = 0.18f
         const val JPEG_QUALITY = 95
+        const val PROGRESS_INTERVAL_MILLIS = 100L
     }
 }

@@ -223,5 +223,6 @@
   "videoPlay": "Ijro etish",
   "videoPause": "Pauza",
   "videoEdit": "Videoni tahrirlash",
-  "videoSilent": "Ovozsiz yozilgan"
+  "videoSilent": "Ovozsiz yozilgan",
+  "errorExportCancelled": "Eksport bekor qilindi."
 }

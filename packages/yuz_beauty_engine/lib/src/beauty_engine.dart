@@ -22,6 +22,7 @@ class BeautyEngineException implements Exception {
     'CAPTURE_FAILED': EngineErrorCode.captureFailed,
     'THERMAL_THROTTLING': EngineErrorCode.thermalThrottling,
     'RECORDING_FAILED': EngineErrorCode.recordingFailed,
+    'EXPORT_CANCELLED': EngineErrorCode.exportCancelled,
   };
 
   factory BeautyEngineException.fromPlatform(PlatformException error) =>
@@ -32,6 +33,14 @@ class BeautyEngineException implements Exception {
 
   @override
   String toString() => 'BeautyEngineException(${code.name}): $message';
+}
+
+/// Progress (0..1) of one [BeautyEngine.exportVideo] job.
+class VideoExportProgress {
+  const VideoExportProgress(this.jobId, this.progress);
+
+  final String jobId;
+  final double progress;
 }
 
 /// Dart facade over the Pigeon-generated host API.
@@ -52,6 +61,7 @@ class BeautyEngine implements BeautyEngineEventsApi {
   final _faceStatus = StreamController<FaceTrackingStatus>.broadcast();
   final _performance = StreamController<PerformanceSample>.broadcast();
   final _errors = StreamController<EngineError>.broadcast();
+  final _exportProgress = StreamController<VideoExportProgress>.broadcast();
 
   BeautyParameters? _pendingParameters;
   bool _parametersInFlight = false;
@@ -62,6 +72,9 @@ class BeautyEngine implements BeautyEngineEventsApi {
   Stream<PerformanceSample> get performance => _performance.stream;
 
   Stream<EngineError> get errors => _errors.stream;
+
+  /// Progress of every running [exportVideo] call.
+  Stream<VideoExportProgress> get exportProgress => _exportProgress.stream;
 
   Future<PreviewDescriptor> initialize(EngineConfig config) =>
       _guard(() => _host.initialize(config));
@@ -169,6 +182,58 @@ class BeautyEngine implements BeautyEngineEventsApi {
   /// Finishes the recording and returns the playable file.
   Future<VideoRecordingResult> stopRecording() => _guard(_host.stopRecording);
 
+  Future<VideoMetadata> probeVideo(String path) =>
+      _guard(() => _host.probeVideo(path));
+
+  /// [count] evenly spaced JPEG frames (long edge [maxEdge]) written into
+  /// [outputDirectory], in time order.
+  Future<List<String>> videoThumbnails({
+    required String path,
+    required String outputDirectory,
+    int count = 8,
+    int maxEdge = 160,
+  }) {
+    if (count < 1 || count > 60) {
+      throw ArgumentError.value(count, 'count', 'must be 1..60');
+    }
+    return _guard(
+      () => _host.videoThumbnails(path, count, maxEdge, outputDirectory),
+    );
+  }
+
+  /// Renders an edit to [VideoExportRequest.outputPath]. Listen to
+  /// [exportProgress] for progress; [cancelVideoExport] stops it with
+  /// [EngineErrorCode.exportCancelled].
+  Future<VideoExportResult> exportVideo(VideoExportRequest request) {
+    if (request.clips.isEmpty) {
+      throw ArgumentError.value(request.clips, 'clips', 'must not be empty');
+    }
+    final lut = request.lutRgba;
+    if (lut != null && lut.length != ColorLut.byteLength) {
+      throw ArgumentError.value(
+        lut.length,
+        'lutRgba',
+        'must be ${ColorLut.byteLength} bytes',
+      );
+    }
+    for (final clip in request.clips) {
+      if (clip.speed < 0.25 || clip.speed > 4) {
+        throw ArgumentError.value(clip.speed, 'speed', 'must be 0.25..4');
+      }
+      if (clip.endMillis <= clip.startMillis) {
+        throw ArgumentError.value(
+          clip.endMillis,
+          'endMillis',
+          'must be > startMillis',
+        );
+      }
+    }
+    return _guard(() => _host.exportVideo(request));
+  }
+
+  Future<void> cancelVideoExport(String jobId) =>
+      _guard(() => _host.cancelVideoExport(jobId));
+
   Future<void> pause() => _guard(_host.pause);
 
   Future<void> resume() => _guard(_host.resume);
@@ -188,6 +253,7 @@ class BeautyEngine implements BeautyEngineEventsApi {
         _faceStatus.close(),
         _performance.close(),
         _errors.close(),
+        _exportProgress.close(),
       ]);
     }
   }
@@ -205,6 +271,13 @@ class BeautyEngine implements BeautyEngineEventsApi {
   @override
   void onEngineError(EngineError error) {
     if (!_errors.isClosed) _errors.add(error);
+  }
+
+  @override
+  void onVideoExportProgress(String jobId, double progress) {
+    if (!_exportProgress.isClosed) {
+      _exportProgress.add(VideoExportProgress(jobId, progress.clamp(0, 1)));
+    }
   }
 
   Future<T> _guard<T>(Future<T> Function() call) async {

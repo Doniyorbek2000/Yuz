@@ -100,13 +100,47 @@ class BeautyRenderer(shaders: ShaderLibrary) {
      * makeup); an empty list means tracking works but nobody is visible.
      */
     fun process(cameraTextureId: Int, uvMatrix: FloatArray, settings: BeautySettings, faces: List<TrackedFace>?) {
-        val originalTarget = checkNotNull(original) { "resize() must be called before process()" }
+        uploadExternal(cameraTextureId, uvMatrix)
+        runEffects(settings, faces)
+    }
+
+    /**
+     * First half of [process]: draws an external (camera or decoder) texture
+     * into the original target, so the frame can be read back for face
+     * detection before [runEffects] needs the faces.
+     */
+    fun uploadExternal(textureId: Int, uvMatrix: FloatArray) {
+        val originalTarget = checkNotNull(original) { "resize() must be called before uploadExternal()" }
         originalTarget.bind()
         cameraProgram.use()
         cameraProgram.setMatrix("uTexMatrix", uvMatrix)
-        cameraProgram.bindTexture("uCameraTexture", 0, GLES11Ext.GL_TEXTURE_EXTERNAL_OES, cameraTextureId)
+        cameraProgram.bindTexture("uCameraTexture", 0, GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureId)
         quad.draw()
-        runEffects(originalTarget, settings, faces)
+    }
+
+    /** Second half of [process]: every effect pass on the uploaded original. */
+    fun runEffects(settings: BeautySettings, faces: List<TrackedFace>?) {
+        runEffects(checkNotNull(original) { "resize() must be called before runEffects()" }, settings, faces)
+    }
+
+    /**
+     * Reads the uploaded (un-beautified) frame scaled to [targetWidth]x
+     * [targetHeight] as RGBA rows, top row first (ready for a Bitmap and
+     * the face detector, which is not rotation invariant).
+     */
+    fun readOriginalScaled(targetWidth: Int, targetHeight: Int): ByteBuffer {
+        val originalTarget = checkNotNull(original) { "resize() must be called before readOriginalScaled()" }
+        val target = GlRenderTarget(targetWidth, targetHeight)
+        try {
+            target.bind()
+            copyProgram.use()
+            copyProgram.setMatrix("uTexMatrix", FLIP_VERTICAL)
+            copyProgram.bindTexture("uInput", 0, GLES30.GL_TEXTURE_2D, originalTarget.textureId)
+            quad.draw()
+            return target.readPixels()
+        } finally {
+            target.release()
+        }
     }
 
     /** Same pipeline for a decoded still image held in a regular 2D texture (top row first). */
@@ -154,10 +188,17 @@ class BeautyRenderer(shaders: ShaderLibrary) {
         renderFaceMasks(faces, aspect)
     }
 
-    /** Composites into [framebufferId] (0 = window surface). */
-    fun composite(settings: BeautySettings, framebufferId: Int, viewportWidth: Int, viewportHeight: Int) {
+    /** Composites into [framebufferId] (0 = window surface) at the given viewport. */
+    fun composite(
+        settings: BeautySettings,
+        framebufferId: Int,
+        viewportWidth: Int,
+        viewportHeight: Int,
+        viewportX: Int = 0,
+        viewportY: Int = 0,
+    ) {
         GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, framebufferId)
-        GLES30.glViewport(0, 0, viewportWidth, viewportHeight)
+        GLES30.glViewport(viewportX, viewportY, viewportWidth, viewportHeight)
         val active = settings.compositeActive
         val program = compositeProgram
         program.use()

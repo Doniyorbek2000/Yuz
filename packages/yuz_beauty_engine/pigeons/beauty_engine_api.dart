@@ -54,6 +54,7 @@ enum EngineErrorCode {
   captureFailed,
   thermalThrottling,
   recordingFailed,
+  exportCancelled,
   unknown,
 }
 
@@ -304,6 +305,112 @@ class VideoRecordingResult {
   bool hasAudio;
 }
 
+/// Upright (display-oriented) properties of a video file.
+class VideoMetadata {
+  VideoMetadata({
+    required this.durationMillis,
+    required this.width,
+    required this.height,
+    required this.rotationDegrees,
+    required this.hasAudio,
+  });
+
+  int durationMillis;
+  int width;
+  int height;
+  int rotationDegrees;
+  bool hasAudio;
+}
+
+/// One trimmed clip of an edit. Speeds other than 1 drop the clip's own
+/// sound (no time-stretching); music still plays.
+class VideoClipSpec {
+  VideoClipSpec({
+    required this.path,
+    required this.startMillis,
+    required this.endMillis,
+    required this.speed,
+  });
+
+  String path;
+  int startMillis;
+  int endMillis;
+
+  /// 0.25..4
+  double speed;
+}
+
+/// A transparent PNG at the output size (text, stickers) shown during
+/// [startMillis, endMillis) of the output timeline.
+class VideoOverlaySpec {
+  VideoOverlaySpec({
+    required this.imagePath,
+    required this.startMillis,
+    required this.endMillis,
+  });
+
+  String imagePath;
+  int startMillis;
+  int endMillis;
+}
+
+class VideoExportRequest {
+  VideoExportRequest({
+    required this.jobId,
+    required this.clips,
+    required this.outputPath,
+    required this.parameters,
+    required this.lutRgba,
+    required this.applyBeauty,
+    required this.overlays,
+    required this.musicPath,
+    required this.musicVolume,
+    required this.originalVolume,
+    required this.maxLongEdge,
+  });
+
+  /// Identifies progress events and cancelVideoExport().
+  String jobId;
+  List<VideoClipSpec> clips;
+
+  /// Destination .mp4 (H.264 + AAC), written atomically.
+  String outputPath;
+  BeautyParameters parameters;
+  Uint8List? lutRgba;
+
+  /// false keeps only the colour look (filter LUT, sharpen).
+  bool applyBeauty;
+  List<VideoOverlaySpec> overlays;
+
+  /// Optional background music, looped and faded out at the end.
+  String? musicPath;
+
+  /// 0..1
+  double musicVolume;
+
+  /// 0..1 (clips' own sound)
+  double originalVolume;
+
+  /// Output long edge (the first clip's aspect, letterboxed others), <= 1920.
+  int maxLongEdge;
+}
+
+class VideoExportResult {
+  VideoExportResult({
+    required this.outputPath,
+    required this.durationMillis,
+    required this.width,
+    required this.height,
+    required this.hasAudio,
+  });
+
+  String outputPath;
+  int durationMillis;
+  int width;
+  int height;
+  bool hasAudio;
+}
+
 class FaceTrackingStatus {
   FaceTrackingStatus({
     required this.faceCount,
@@ -378,6 +485,25 @@ abstract class BeautyEngineHostApi {
   @async
   VideoRecordingResult stopRecording();
 
+  @async
+  VideoMetadata probeVideo(String path);
+
+  /// Writes [count] evenly spaced JPEG frames into [outputDirectory].
+  @async
+  List<String> videoThumbnails(
+    String path,
+    int count,
+    int maxEdge,
+    String outputDirectory,
+  );
+
+  /// Renders an edit; progress arrives through onVideoExportProgress.
+  @async
+  VideoExportResult exportVideo(VideoExportRequest request);
+
+  /// The running exportVideo() call then fails with EXPORT_CANCELLED.
+  void cancelVideoExport(String jobId);
+
   /// Independent of the camera session; jobs run one at a time.
   @async
   ImageProcessingResult processImage(ImageProcessingRequest request);
@@ -399,4 +525,7 @@ abstract class BeautyEngineEventsApi {
   void onPerformanceSample(PerformanceSample sample);
 
   void onEngineError(EngineError error);
+
+  /// 0..1, at most ~10 times per second.
+  void onVideoExportProgress(String jobId, double progress);
 }

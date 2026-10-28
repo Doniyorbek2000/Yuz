@@ -704,4 +704,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get videoSilent => 'Записано без звука';
+
+  @override
+  String get errorExportCancelled => 'Экспорт отменён.';
 }

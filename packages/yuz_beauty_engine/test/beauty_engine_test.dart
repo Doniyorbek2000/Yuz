@@ -49,6 +49,23 @@ class FakeHostApi implements BeautyEngineHostApi {
   }
 
   VideoRecordingOptions? lastRecording;
+  VideoExportRequest? lastExport;
+  String? cancelledJob;
+
+  @override
+  Future<VideoExportResult> exportVideo(VideoExportRequest request) async {
+    lastExport = request;
+    return VideoExportResult(
+      outputPath: request.outputPath,
+      durationMillis: 3000,
+      width: 1080,
+      height: 1920,
+      hasAudio: true,
+    );
+  }
+
+  @override
+  Future<void> cancelVideoExport(String jobId) async => cancelledJob = jobId;
 
   @override
   Future<void> startRecording(VideoRecordingOptions options) async =>
@@ -267,5 +284,86 @@ void main() {
       () => engine.startRecording(outputPath: '/v.mp4', videoBitrate: -1),
       throwsArgumentError,
     );
+  });
+
+  test('exportVideo validates the edit and streams progress', () async {
+    final host = FakeHostApi();
+    final engine = BeautyEngine(hostApi: host, registerEventHandlers: false);
+    VideoExportRequest request({List<VideoClipSpec>? clips, Uint8List? lut}) =>
+        VideoExportRequest(
+          jobId: 'job-1',
+          clips:
+              clips ??
+              [
+                VideoClipSpec(
+                  path: '/a.mp4',
+                  startMillis: 0,
+                  endMillis: 1000,
+                  speed: 1,
+                ),
+              ],
+          outputPath: '/out.mp4',
+          parameters: neutralBeautyParameters(),
+          lutRgba: lut,
+          applyBeauty: true,
+          overlays: const [],
+          musicPath: null,
+          musicVolume: 0,
+          originalVolume: 1,
+          maxLongEdge: 1920,
+        );
+
+    expect(
+      () => engine.exportVideo(request(clips: const [])),
+      throwsArgumentError,
+    );
+    expect(
+      () => engine.exportVideo(
+        request(
+          clips: [
+            VideoClipSpec(path: '/a', startMillis: 0, endMillis: 10, speed: 8),
+          ],
+        ),
+      ),
+      throwsArgumentError,
+    );
+    expect(
+      () => engine.exportVideo(
+        request(
+          clips: [
+            VideoClipSpec(
+              path: '/a',
+              startMillis: 500,
+              endMillis: 500,
+              speed: 1,
+            ),
+          ],
+        ),
+      ),
+      throwsArgumentError,
+    );
+    expect(
+      () => engine.exportVideo(request(lut: Uint8List(4))),
+      throwsArgumentError,
+    );
+    expect(host.lastExport, isNull);
+
+    final progress = <double>[];
+    final subscription = engine.exportProgress.listen(
+      (p) => progress.add(p.progress),
+    );
+    engine
+      ..onVideoExportProgress('job-1', 0.5)
+      ..onVideoExportProgress('job-1', 1.4);
+    final result = await engine.exportVideo(request());
+    await Future<void>.delayed(Duration.zero);
+    await subscription.cancel();
+
+    expect(result.durationMillis, 3000);
+    expect(host.lastExport!.jobId, 'job-1');
+    expect(progress, [0.5, 1.0]);
+
+    await engine.cancelVideoExport('job-1');
+    expect(host.cancelledJob, 'job-1');
   });
 }

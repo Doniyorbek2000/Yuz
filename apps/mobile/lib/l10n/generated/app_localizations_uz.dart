@@ -700,4 +700,7 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get videoSilent => 'Ovozsiz yozilgan';
+
+  @override
+  String get errorExportCancelled => 'Eksport bekor qilindi.';
 }

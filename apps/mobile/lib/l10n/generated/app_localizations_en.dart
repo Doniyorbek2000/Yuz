@@ -699,4 +699,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get videoSilent => 'Recorded without sound';
+
+  @override
+  String get errorExportCancelled => 'Export cancelled.';
 }

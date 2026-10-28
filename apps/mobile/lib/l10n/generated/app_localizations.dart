@@ -1436,6 +1436,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recorded without sound'**
   String get videoSilent;
+
+  /// No description provided for @errorExportCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Export cancelled.'**
+  String get errorExportCancelled;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

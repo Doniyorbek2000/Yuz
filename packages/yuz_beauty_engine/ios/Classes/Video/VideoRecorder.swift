@@ -40,21 +40,21 @@ final class VideoRecorder {
   private var finished = false
 
   init(output: URL, width: Int, height: Int, bitrate: Int, withAudio: Bool) throws {
-    self.output = output
-    self.width = width - width % 2
-    self.height = height - height % 2
-    temp = output.deletingLastPathComponent().appendingPathComponent(".\(output.lastPathComponent).part.mp4")
+    // Everything is built in locals and assigned at the end, so no stored
+    // property is read before initialization completes.
+    let evenWidth = width - width % 2
+    let evenHeight = height - height % 2
+    let partial = output.deletingLastPathComponent().appendingPathComponent(".\(output.lastPathComponent).part.mp4")
     try FileManager.default.createDirectory(
       at: output.deletingLastPathComponent(), withIntermediateDirectories: true)
-    try? FileManager.default.removeItem(at: temp)
+    try? FileManager.default.removeItem(at: partial)
 
-    writer = try AVAssetWriter(outputURL: temp, fileType: .mp4)
-    let pixels = self.width * self.height
-    let derivedBitrate = min(max(Int(Double(pixels) * 30 * 0.12), 2_000_000), 20_000_000)
+    let assetWriter = try AVAssetWriter(outputURL: partial, fileType: .mp4)
+    let derivedBitrate = min(max(Int(Double(evenWidth * evenHeight) * 30 * 0.12), 2_000_000), 20_000_000)
     let videoSettings: [String: Any] = [
       AVVideoCodecKey: AVVideoCodecType.h264,
-      AVVideoWidthKey: self.width,
-      AVVideoHeightKey: self.height,
+      AVVideoWidthKey: evenWidth,
+      AVVideoHeightKey: evenHeight,
       AVVideoCompressionPropertiesKey: [
         AVVideoAverageBitRateKey: bitrate > 0 ? min(max(bitrate, 2_000_000), 20_000_000) : derivedBitrate,
         AVVideoExpectedSourceFrameRateKey: 30,
@@ -62,18 +62,19 @@ final class VideoRecorder {
         AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel,
       ],
     ]
-    videoInput = AVAssetWriterInput(mediaType: .video, outputSettings: videoSettings)
-    videoInput.expectsMediaDataInRealTime = true
-    adaptor = AVAssetWriterInputPixelBufferAdaptor(
-      assetWriterInput: videoInput,
+    let video = AVAssetWriterInput(mediaType: .video, outputSettings: videoSettings)
+    video.expectsMediaDataInRealTime = true
+    let pixelAdaptor = AVAssetWriterInputPixelBufferAdaptor(
+      assetWriterInput: video,
       sourcePixelBufferAttributes: [
         kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA,
         kCVPixelBufferWidthKey as String: width,
         kCVPixelBufferHeightKey as String: height,
       ])
-    guard writer.canAdd(videoInput) else { throw VideoRecorderError.writerFailed("cannot add video input") }
-    writer.add(videoInput)
+    guard assetWriter.canAdd(video) else { throw VideoRecorderError.writerFailed("cannot add video input") }
+    assetWriter.add(video)
 
+    var audio: AVAssetWriterInput?
     if withAudio {
       let audioSettings: [String: Any] = [
         AVFormatIDKey: kAudioFormatMPEG4AAC,
@@ -83,18 +84,23 @@ final class VideoRecorder {
       ]
       let input = AVAssetWriterInput(mediaType: .audio, outputSettings: audioSettings)
       input.expectsMediaDataInRealTime = true
-      if writer.canAdd(input) {
-        writer.add(input)
-        audioInput = input
-      } else {
-        audioInput = nil
+      if assetWriter.canAdd(input) {
+        assetWriter.add(input)
+        audio = input
       }
-    } else {
-      audioInput = nil
     }
-    guard writer.startWriting() else {
-      throw VideoRecorderError.writerFailed(writer.error?.localizedDescription ?? "startWriting failed")
+    guard assetWriter.startWriting() else {
+      throw VideoRecorderError.writerFailed(assetWriter.error?.localizedDescription ?? "startWriting failed")
     }
+
+    self.output = output
+    self.width = evenWidth
+    self.height = evenHeight
+    temp = partial
+    writer = assetWriter
+    videoInput = video
+    adaptor = pixelAdaptor
+    audioInput = audio
   }
 
   /// The session starts at the first frame; audio before it is dropped so
