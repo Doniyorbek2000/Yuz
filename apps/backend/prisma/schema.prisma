@@ -1,0 +1,180 @@
+// Yuz API data model. Every user-owned row cascades on account deletion,
+// except purchases, which are kept anonymized for tax/accounting records.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum ConsentKind {
+  /// Photos may be uploaded to and processed by Yuz cloud AI.
+  CLOUD_AI
+}
+
+enum CreditKind {
+  WELCOME
+  PURCHASE
+  SPEND
+  REFUND
+  ADJUSTMENT
+}
+
+enum AiJobType {
+  PHOTOSHOOT
+  HAIRSTYLE
+  MAKEUP
+  BACKGROUND
+}
+
+enum AiJobStatus {
+  QUEUED
+  RUNNING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+}
+
+enum StorePlatform {
+  APP_STORE
+  GOOGLE_PLAY
+}
+
+enum PurchaseStatus {
+  VERIFIED
+  REFUNDED
+}
+
+model User {
+  id            String         @id @default(uuid()) @db.Uuid
+  /// Stored lower-case.
+  email         String         @unique
+  passwordHash  String
+  displayName   String?
+  locale        String         @default("uz")
+  role          Role           @default(USER)
+  /// Cached sum of the credit ledger; only changed together with a ledger entry.
+  creditBalance Int            @default(0)
+  premiumUntil  DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  refreshTokens RefreshToken[]
+  consents      Consent[]
+  credits       CreditEntry[]
+  aiJobs        AiJob[]
+  purchases     Purchase[]
+
+  @@map("users")
+}
+
+/// Rotating refresh tokens; a reused (already rotated) token revokes its family.
+model RefreshToken {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @db.Uuid
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  familyId   String    @db.Uuid
+  /// SHA-256 of the opaque token; the token itself is never stored.
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  replacedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+  @@index([familyId])
+  @@map("refresh_tokens")
+}
+
+model Consent {
+  id        String      @id @default(uuid()) @db.Uuid
+  userId    String      @db.Uuid
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      ConsentKind
+  /// Version of the consent text the user accepted.
+  version   String
+  grantedAt DateTime    @default(now())
+  revokedAt DateTime?
+
+  @@index([userId, kind])
+  @@map("consents")
+}
+
+model CreditEntry {
+  id             String     @id @default(uuid()) @db.Uuid
+  userId         String     @db.Uuid
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Positive grants, negative spends.
+  amount         Int
+  kind           CreditKind
+  /// e.g. AI job id, purchase id, admin note.
+  reference      String?
+  /// Makes retries of the same operation a no-op.
+  idempotencyKey String
+  createdAt      DateTime   @default(now())
+
+  @@unique([userId, idempotencyKey])
+  @@index([userId, createdAt])
+  @@map("credit_entries")
+}
+
+model AiJob {
+  id         String      @id @default(uuid()) @db.Uuid
+  userId     String      @db.Uuid
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type       AiJobType
+  status     AiJobStatus @default(QUEUED)
+  /// Storage keys (relative paths inside the storage root).
+  inputKey   String
+  resultKey  String?
+  params     Json        @default("{}")
+  cost       Int
+  consentId  String      @db.Uuid
+  error      String?
+  createdAt  DateTime    @default(now())
+  startedAt  DateTime?
+  finishedAt DateTime?
+
+  @@index([userId, createdAt])
+  @@index([status])
+  @@map("ai_jobs")
+}
+
+model Purchase {
+  id             String         @id @default(uuid()) @db.Uuid
+  /// Null after the account is deleted (kept for accounting).
+  userId         String?        @db.Uuid
+  user           User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  platform       StorePlatform
+  productId      String
+  /// Store transaction id; one purchase is credited once.
+  transactionId  String         @unique
+  status         PurchaseStatus @default(VERIFIED)
+  creditsGranted Int            @default(0)
+  premiumUntil   DateTime?
+  verifiedAt     DateTime       @default(now())
+
+  @@index([userId])
+  @@map("purchases")
+}
+
+/// Admin actions on user data (who, what, why).
+model AuditLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  actorId   String?  @db.Uuid
+  action    String
+  targetId  String?
+  details   Json     @default("{}")
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@map("audit_logs")
+}

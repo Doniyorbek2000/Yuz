@@ -82,7 +82,9 @@ pixel-tested; nothing is device-tested yet.
 
 | Item | Status |
 |---|---|
-| Backend (NestJS, Prisma, BullMQ), AI worker, admin panel | NOT STARTED (Phase 5–7) |
+| Backend API (NestJS 11, Prisma 7/PostgreSQL 16, BullMQ 6/Redis 7): auth with refresh rotation + reuse detection, profile, data export, account deletion, versioned cloud-AI consent, credit ledger, AI job lifecycle + worker API, retention purge, purchase verification flow, health | TESTED — 25 e2e tests against real Postgres + Redis (local and CI); not deployed |
+| Store purchase verification (App Store Server API / Google Play Developer API) | BLOCKED — needs store credentials from the account owner; the API answers 503 until configured |
+| AI worker, admin panel | NOT STARTED (Phase 6–7) |
 | CI workflow (Flutter, shaders, Android unit/APK/AAB, iOS no-codesign, secrets) | IMPLEMENTED — see PROGRESS.md for run results |
 | Android release signing | BLOCKED — needs upload keystore (secrets) |
 | iOS signing / TestFlight | BLOCKED — needs Apple Developer team, certificates, profiles |

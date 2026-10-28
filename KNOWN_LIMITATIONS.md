@@ -47,6 +47,15 @@
 - Imports: HEIC/HEIF is decoded by the platform (Android 9+/iOS). RAW and animated images are not supported.
 - Stickers are an own vector icon set (Material Icons, Apache-2.0); no downloadable sticker packs yet.
 
+## Backend
+
+- Not deployed anywhere; production deployment, domains and TLS need the owner's approval.
+- Storage is a local/mounted directory shared with the worker; S3-compatible storage needs credentials.
+- Sign in with Apple / Google is not implemented (needs developer credentials); email + password only, no email
+  verification or password reset mail yet (needs an email provider).
+- Rate limits are per API instance (in memory); several instances need a shared (Redis) throttler store.
+- Dev-only tooling (jest) has a low-severity transitive advisory (deepmerge); production dependencies audit clean.
+
 ## Third-party / legal
 
 - `face_landmarker.task` checksum in `tools/models.sha256` was pinned on first download (trust-on-first-use from

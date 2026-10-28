@@ -123,6 +123,20 @@ type-check (with MediaPipe API stubs) OK. CI after the native export commit: all
 build). Found and fixed on the way: iOS `await` inside `??` (CI), studio button row overflow at ≤360 px, concurrent
 project saves sharing one temp file. Not run on a device.
 
+## Phase 5 (backend) — code ✅ / deploy ⏳
+
+`apps/backend`: NestJS 11 API with Prisma 7 (PostgreSQL 16) and BullMQ 6 (Redis 7) — auth (argon2id, short JWTs,
+rotating refresh tokens with reuse detection, rate limiting), profile, JSON data export, password-confirmed account
+deletion (files included, purchases anonymized), versioned cloud-AI consent, credit ledger (atomic, idempotent, no
+overdraw), AI job lifecycle with a token-protected worker API and refunds, retention purge, purchase verification flow
+(store verifiers BLOCKED on credentials), health. Docker image (non-root, health check), compose stack with a
+migration job, CI job with Postgres/Redis services.
+
+Verification (2026-10-28): 25 e2e tests against real Postgres + Redis, stable over repeated runs; typecheck, ESLint
+(type-aware), Prettier, `npm audit --omit=dev` clean; compiled build boots and serves `/health`. Found and fixed:
+NestJS 12 is ESM-only (Jest on Node 22 cannot load it → NestJS 11 LTS line), multer and js-yaml advisories (patched
+via overrides), registration and welcome credits made atomic.
+
 ## Next — continue here
 
 1. Run `apps/mobile/integration_test/camera_flow_test.dart` on one Android and one iOS device; record measured FPS,
@@ -130,5 +144,6 @@ project saves sharing one temp file. Not run on a device.
 2. Metal pixel tests on the macOS runner (same fixtures as tools/shader-tests).
 3. Device pass of the photo flow: EXIF orientations 1–8, a 48 MP photo (downscale path), HEIC, export time, gallery
    permission prompts on Android 9/10/14 and iOS.
-4. Device pass of recording and export (A/V sync, rotation of portrait/landscape sources, HEVC sources, export
+4. Phase 6: AI worker (Python, BullMQ consumer of the worker API) and the app's AI screens with the consent flow.
+5. Device pass of recording and export (A/V sync, rotation of portrait/landscape sources, HEVC sources, export
    speed with face effects); then full-sensor still capture, templates, backend (Phase 5).
