@@ -72,6 +72,7 @@ class CameraViewState {
     this.recordingSeconds = 0,
     this.recordingHasAudio,
     this.lastRecording,
+    this.screenFlash = false,
   });
 
   final CameraPhase phase;
@@ -102,6 +103,18 @@ class CameraViewState {
   /// Whether the running recording captures sound (null when not recording).
   final bool? recordingHasAudio;
   final VideoRecordingResult? lastRecording;
+
+  /// The screen is lit white as the front-camera flash.
+  final bool screenFlash;
+
+  /// Flash modes for the current lens: the front camera uses the screen
+  /// (off/on); a back camera without a flash unit has none.
+  List<FlashMode> get availableFlashModes {
+    if (lens == CameraLens.front) return const [FlashMode.off, FlashMode.on];
+    return (capabilities?.hasFlash ?? false)
+        ? const [FlashMode.off, FlashMode.auto, FlashMode.on, FlashMode.torch]
+        : const [FlashMode.off];
+  }
 
   bool get isReady => phase == CameraPhase.ready && descriptor != null;
 
@@ -134,6 +147,7 @@ class CameraViewState {
     bool? recordingHasAudio,
     bool clearRecordingHasAudio = false,
     VideoRecordingResult? lastRecording,
+    bool? screenFlash,
   }) => CameraViewState(
     phase: phase ?? this.phase,
     lens: lens ?? this.lens,
@@ -156,6 +170,7 @@ class CameraViewState {
     recordingSeconds: recordingSeconds ?? this.recordingSeconds,
     recordingHasAudio: clearRecordingHasAudio ? null : (recordingHasAudio ?? this.recordingHasAudio),
     lastRecording: lastRecording ?? this.lastRecording,
+    screenFlash: screenFlash ?? this.screenFlash,
   );
 }
 
@@ -232,7 +247,8 @@ class BeautyCameraController extends Notifier<CameraViewState> {
       final look = ref.read(beautyEditorProvider).current;
       await engine.setBeautyParameters(look.toEngineParameters());
       await applyFilterLut(look.filter);
-      if (state.flashMode != FlashMode.off) await engine.setFlashMode(state.flashMode);
+      if (!state.availableFlashModes.contains(state.flashMode)) state = state.copyWith(flashMode: FlashMode.off);
+      if (_nativeFlash(state.flashMode) != FlashMode.off) await engine.setFlashMode(_nativeFlash(state.flashMode));
     } on BeautyEngineException catch (error) {
       if (ref.mounted) state = state.copyWith(phase: CameraPhase.error, errorCode: error.code);
     }
@@ -288,19 +304,26 @@ class BeautyCameraController extends Notifier<CameraViewState> {
         zoomRatio: capabilities.minZoomRatio,
         exposureBias: 0,
       );
+      if (!state.availableFlashModes.contains(state.flashMode)) state = state.copyWith(flashMode: FlashMode.off);
+      await _engine.setFlashMode(_nativeFlash(state.flashMode));
     } on BeautyEngineException catch (error) {
       state = state.copyWith(transientError: error.code);
     }
   }
 
   Future<void> cycleFlashMode() async {
-    final hasFlash = state.capabilities?.hasFlash ?? false;
-    if (!hasFlash) return;
-    const order = [FlashMode.off, FlashMode.auto, FlashMode.on, FlashMode.torch];
-    final next = order[(order.indexOf(state.flashMode) + 1) % order.length];
+    final order = state.availableFlashModes;
+    if (order.length < 2 || state.isBusy) return;
+    final index = order.indexOf(state.flashMode);
+    final next = order[(index < 0 ? 0 : index + 1) % order.length];
     state = state.copyWith(flashMode: next);
-    await _engine.setFlashMode(next);
+    await _engine.setFlashMode(_nativeFlash(next));
   }
+
+  /// The front camera's flash is the screen (driven here), never the native flash.
+  FlashMode _nativeFlash(FlashMode mode) => state.lens == CameraLens.front ? FlashMode.off : mode;
+
+  static const _screenFlashSettle = Duration(milliseconds: 400);
 
   void cycleTimer() {
     final index = timerOptions.indexOf(state.timerSeconds);
@@ -332,14 +355,26 @@ class BeautyCameraController extends Notifier<CameraViewState> {
       if (!completed) return null;
     }
     state = state.copyWith(isCapturing: true);
+    final screenFlash = state.lens == CameraLens.front && state.flashMode == FlashMode.on;
     try {
+      if (screenFlash) {
+        state = state.copyWith(screenFlash: true);
+        await _engine.setScreenBrightness(1);
+        // Let auto-exposure adapt to the lit face before the still is taken.
+        await Future<void>.delayed(_screenFlashSettle);
+      }
       final path = await ref.read(capturePathBuilderProvider)();
       final result = await _engine.capturePhoto(path);
-      state = state.copyWith(isCapturing: false, lastCapture: result);
+      if (ref.mounted) state = state.copyWith(isCapturing: false, lastCapture: result);
       return result;
     } on BeautyEngineException catch (error) {
-      state = state.copyWith(isCapturing: false, transientError: error.code);
+      if (ref.mounted) state = state.copyWith(isCapturing: false, transientError: error.code);
       return null;
+    } finally {
+      if (screenFlash) {
+        unawaited(_engine.restoreScreenBrightness().catchError((Object e) => debugPrint('brightness: $e')));
+        if (ref.mounted) state = state.copyWith(screenFlash: false);
+      }
     }
   }
 

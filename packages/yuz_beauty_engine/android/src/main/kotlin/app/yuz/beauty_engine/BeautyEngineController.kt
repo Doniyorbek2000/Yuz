@@ -12,6 +12,8 @@ import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
 import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.resolutionselector.AspectRatioStrategy
@@ -65,16 +67,16 @@ import app.yuz.beauty_engine.video.edit.ExportRequest
 import app.yuz.beauty_engine.video.edit.OverlayWindow
 import app.yuz.beauty_engine.video.edit.VideoExporter
 import app.yuz.beauty_engine.video.edit.VideoProbe
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicBoolean
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import io.flutter.view.TextureRegistry
 import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -83,6 +85,9 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 
@@ -101,6 +106,9 @@ class BeautyEngineController(
     private val mainExecutor = Executor { command -> mainHandler.post(command) }
 
     private var session: Session? = null
+
+    /** Current activity (null in the background); used for the brightness override. */
+    var activity: android.app.Activity? = null
     private var stillProcessor: StillImageProcessor? = null
     private val videoExporter by lazy { VideoExporter(context) }
     private val exportMutex = Mutex()
@@ -129,6 +137,13 @@ class BeautyEngineController(
         var detector: FaceLandmarkDetector? = null
         var cameraProvider: ProcessCameraProvider? = null
         var camera: Camera? = null
+
+        /** Full-sensor stills; null when the device cannot bind it next to preview + analysis. */
+        var imageCapture: ImageCapture? = null
+
+        /** Last LUT uploaded, re-applied to full-resolution stills. */
+        @Volatile
+        var lut: ByteArray? = null
         var lens: CameraLens = config.lens
         var flashMode: FlashMode = FlashMode.OFF
         var outputSize: Pair<Int, Int> = 0 to 0
@@ -254,13 +269,33 @@ class BeautyEngineController(
         if (rgba512 != null && rgba512.size != GlLutTexture.BYTES) {
             throw engineError(EngineErrorCode.UNKNOWN, "LUT must be ${GlLutTexture.BYTES} bytes, got ${rgba512.size}")
         }
-        requireSession().pipeline.setLut(rgba512)
+        val active = requireSession()
+        active.lut = rgba512
+        active.pipeline.setLut(rgba512)
     }
 
     override fun setFlashMode(mode: FlashMode) {
         val active = requireSession()
         active.flashMode = mode
         active.camera?.cameraControl?.enableTorch(mode == FlashMode.TORCH)
+        active.imageCapture?.flashMode = mode.toImageCaptureFlash()
+    }
+
+    override fun setScreenBrightness(brightness: Double) {
+        val window = activity?.window ?: return
+        val attributes = window.attributes
+        attributes.screenBrightness = if (brightness < 0) {
+            android.view.WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+        } else {
+            brightness.toFloat().coerceIn(0f, 1f)
+        }
+        window.attributes = attributes
+    }
+
+    private fun FlashMode.toImageCaptureFlash(): Int = when (this) {
+        FlashMode.ON -> ImageCapture.FLASH_MODE_ON
+        FlashMode.AUTO -> ImageCapture.FLASH_MODE_AUTO
+        FlashMode.OFF, FlashMode.TORCH -> ImageCapture.FLASH_MODE_OFF
     }
 
     override fun setZoomRatio(ratio: Double) {
@@ -286,6 +321,12 @@ class BeautyEngineController(
     override suspend fun capturePhoto(outputFilePath: String): PhotoCaptureResult {
         val active = requireSession()
         val camera = active.camera ?: throw engineError(EngineErrorCode.CAMERA_UNAVAILABLE, "Camera is not bound")
+        if (active.recording) throw engineError(EngineErrorCode.CAPTURE_FAILED, "Cannot take a photo while recording")
+        active.imageCapture?.let { capture ->
+            val result = runCatching { captureFullResolution(active, capture, File(outputFilePath)) }
+            result.getOrNull()?.let { return it }
+            Log.w(TAG, "Full-resolution capture failed; using the processed preview frame", result.exceptionOrNull())
+        }
         val useTorch = camera.cameraInfo.hasFlashUnit() && when (active.flashMode) {
             FlashMode.ON -> true
             FlashMode.AUTO -> active.sceneLuma < AUTO_FLASH_LUMA_THRESHOLD
@@ -454,6 +495,43 @@ class BeautyEngineController(
         applyBeauty = applyBeauty,
     )
 
+    /**
+     * Takes a sensor-resolution JPEG and runs it through the same beauty
+     * pipeline (current look, LUT, faces) as the preview. Front-camera
+     * stills are flipped via EXIF so they match the mirrored preview.
+     */
+    private suspend fun captureFullResolution(active: Session, capture: ImageCapture, output: File): PhotoCaptureResult {
+        val temp = File(context.cacheDir, "yuz_capture_${System.nanoTime()}.jpg")
+        try {
+            val metadata = ImageCapture.Metadata().apply { isReversedHorizontal = active.lens == CameraLens.FRONT }
+            val options = ImageCapture.OutputFileOptions.Builder(temp).setMetadata(metadata).build()
+            suspendCancellableCoroutine { continuation ->
+                capture.takePicture(options, mainExecutor, object : ImageCapture.OnImageSavedCallback {
+                    override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                        continuation.resume(Unit)
+                    }
+
+                    override fun onError(exception: ImageCaptureException) {
+                        continuation.resumeWithException(exception)
+                    }
+                })
+            }
+            val processor = stillProcessor ?: StillImageProcessor(context).also { stillProcessor = it }
+            val processed = processor.process(
+                inputPath = temp.path,
+                outputPath = output.path,
+                maxLongEdge = 0,
+                settings = active.pipeline.settings,
+                lut = active.lut,
+                jpegQuality = JPEG_QUALITY,
+                maxFaces = active.config.maxFaces.toInt(),
+            )
+            return PhotoCaptureResult(output.path, processed.width.toLong(), processed.height.toLong())
+        } finally {
+            temp.delete()
+        }
+    }
+
     override suspend fun processImage(request: ImageProcessingRequest): ImageProcessingResult {
         val lut = request.lutRgba
         if (lut != null && lut.size != GlLutTexture.BYTES) {
@@ -587,8 +665,30 @@ class BeautyEngineController(
         active.camera?.cameraInfo?.cameraState?.let { state ->
             active.cameraStateObserver?.let { state.removeObserver(it) }
         }
+        val capture = ImageCapture.Builder()
+            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+            .setResolutionSelector(
+                ResolutionSelector.Builder()
+                    .setAspectRatioStrategy(aspect)
+                    .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
+                    .build(),
+            )
+            .setFlashMode(active.flashMode.toImageCaptureFlash())
+            .build()
+
         provider.unbindAll()
-        val camera = provider.bindToLifecycle(active.lifecycleOwner, selector, preview, analysis)
+        // Some LIMITED devices cannot stream preview + analysis + still at
+        // once; they keep the processed-preview capture path.
+        val camera = try {
+            provider.bindToLifecycle(active.lifecycleOwner, selector, preview, analysis, capture).also {
+                active.imageCapture = capture
+            }
+        } catch (error: IllegalArgumentException) {
+            Log.w(TAG, "ImageCapture not supported with preview + analysis; using preview-frame stills", error)
+            active.imageCapture = null
+            provider.unbindAll()
+            provider.bindToLifecycle(active.lifecycleOwner, selector, preview, analysis)
+        }
         active.camera = camera
         active.lens = lens
         if (active.flashMode == FlashMode.TORCH) camera.cameraControl.enableTorch(true)

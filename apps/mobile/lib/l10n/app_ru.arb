@@ -257,5 +257,13 @@
   "projectsPhotosTab": "Фото",
   "projectsVideosTab": "Видео",
   "projectsNewVideo": "Новое видео",
-  "projectsVideoEmptyBody": "Импортируйте видео или снимите его камерой. Оригинал не изменяется."
+  "projectsVideoEmptyBody": "Импортируйте видео или снимите его камерой. Оригинал не изменяется.",
+  "templatesTitle": "Шаблоны",
+  "templatesSave": "Сохранить",
+  "templatesSlotHint": "Перетащите фото, щипком — масштаб.",
+  "templatesReplace": "Заменить",
+  "templatesBackground": "Фон",
+  "templatesSpacing": "Отступы",
+  "templatesCorners": "Скругление",
+  "templatesCaptionHint": "Подпись (необязательно)"
 }

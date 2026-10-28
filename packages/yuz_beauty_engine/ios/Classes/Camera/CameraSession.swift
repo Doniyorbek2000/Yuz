@@ -36,6 +36,9 @@ final class CameraSession: NSObject {
   private let session = AVCaptureSession()
   private let videoOutput = AVCaptureVideoDataOutput()
   private let audioOutput = AVCaptureAudioDataOutput()
+
+  /// Full-resolution stills; nil when the session could not add it.
+  private(set) var photoOutput: AVCapturePhotoOutput?
   private var audioInput: AVCaptureDeviceInput?
   private var input: AVCaptureDeviceInput?
   private(set) var device: AVCaptureDevice?
@@ -117,8 +120,41 @@ final class CameraSession: NSObject {
 
     session.sessionPreset = .inputPriority
     try applyFormat(device: device, request: request)
+    configurePhotoOutput(device: device, lens: lens)
 
     if let connection = videoOutput.connection(with: .video) {
+      if #available(iOS 17.0, *) {
+        if connection.isVideoRotationAngleSupported(90) { connection.videoRotationAngle = 90 }
+      } else if connection.isVideoOrientationSupported {
+        connection.videoOrientation = .portrait
+      }
+      if connection.isVideoMirroringSupported {
+        connection.automaticallyAdjustsVideoMirroring = false
+        connection.isVideoMirrored = lens == .front
+      }
+    }
+  }
+
+  /// Adds (once) and orients the photo output: upright, mirrored for the
+  /// front camera like the preview, at the format's largest still size.
+  private func configurePhotoOutput(device: AVCaptureDevice, lens: CameraLens) {
+    if photoOutput == nil {
+      let output = AVCapturePhotoOutput()
+      guard session.canAddOutput(output) else { return }
+      session.addOutput(output)
+      photoOutput = output
+    }
+    guard let output = photoOutput else { return }
+    if #available(iOS 16.0, *) {
+      if let largest = device.activeFormat.supportedMaxPhotoDimensions.max(by: {
+        Int($0.width) * Int($0.height) < Int($1.width) * Int($1.height)
+      }) {
+        output.maxPhotoDimensions = largest
+      }
+    } else {
+      output.isHighResolutionCaptureEnabled = true
+    }
+    if let connection = output.connection(with: .video) {
       if #available(iOS 17.0, *) {
         if connection.isVideoRotationAngleSupported(90) { connection.videoRotationAngle = 90 }
       } else if connection.isVideoOrientationSupported {
@@ -148,6 +184,7 @@ final class CameraSession: NSObject {
     videoOutput.setSampleBufferDelegate(nil, queue: nil)
     audioOutput.setSampleBufferDelegate(nil, queue: nil)
     audioInput = nil
+    photoOutput = nil
     input = nil
     device = nil
   }

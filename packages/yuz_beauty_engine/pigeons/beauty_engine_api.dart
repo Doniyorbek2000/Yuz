@@ -473,6 +473,10 @@ abstract class BeautyEngineHostApi {
 
   void setExposureBias(double ev);
 
+  /// 0..1 overrides the screen brightness (front-camera screen flash);
+  /// a negative value restores the system brightness.
+  void setScreenBrightness(double brightness);
+
   @async
   PhotoCaptureResult capturePhoto(String outputFilePath);
 

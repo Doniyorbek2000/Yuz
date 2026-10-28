@@ -315,5 +315,13 @@
   "projectsPhotosTab": "Photos",
   "projectsVideosTab": "Videos",
   "projectsNewVideo": "New video",
-  "projectsVideoEmptyBody": "Import a video or record one with the camera. Your original is never changed."
+  "projectsVideoEmptyBody": "Import a video or record one with the camera. Your original is never changed.",
+  "templatesTitle": "Templates",
+  "templatesSave": "Save",
+  "templatesSlotHint": "Drag to move the photo, pinch to zoom.",
+  "templatesReplace": "Replace",
+  "templatesBackground": "Background",
+  "templatesSpacing": "Spacing",
+  "templatesCorners": "Corners",
+  "templatesCaptionHint": "Caption (optional)"
 }

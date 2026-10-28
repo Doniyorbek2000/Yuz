@@ -78,6 +78,9 @@ class FakeEngineHost implements BeautyEngineHostApi {
   Future<void> setExposureBias(double ev) async => calls.add('exposure:$ev');
 
   @override
+  Future<void> setScreenBrightness(double brightness) async => calls.add('brightness:$brightness');
+
+  @override
   Future<PhotoCaptureResult> capturePhoto(String outputFilePath) async {
     calls.add('capture:$outputFilePath');
     if (captureFailure != null) throw _platformError(captureFailure!);

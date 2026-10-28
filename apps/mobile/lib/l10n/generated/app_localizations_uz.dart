@@ -805,4 +805,28 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get projectsVideoEmptyBody => 'Video import qiling yoki kamerada yozing. Asl fayl hech qachon oʻzgarmaydi.';
+
+  @override
+  String get templatesTitle => 'Shablonlar';
+
+  @override
+  String get templatesSave => 'Saqlash';
+
+  @override
+  String get templatesSlotHint => 'Rasmni surish uchun torting, kattalashtirish uchun ikki barmoq bilan ishlating.';
+
+  @override
+  String get templatesReplace => 'Almashtirish';
+
+  @override
+  String get templatesBackground => 'Fon';
+
+  @override
+  String get templatesSpacing => 'Oraliq';
+
+  @override
+  String get templatesCorners => 'Burchaklar';
+
+  @override
+  String get templatesCaptionHint => 'Izoh (ixtiyoriy)';
 }

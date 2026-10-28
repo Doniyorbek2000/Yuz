@@ -803,4 +803,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get projectsVideoEmptyBody => 'Import a video or record one with the camera. Your original is never changed.';
+
+  @override
+  String get templatesTitle => 'Templates';
+
+  @override
+  String get templatesSave => 'Save';
+
+  @override
+  String get templatesSlotHint => 'Drag to move the photo, pinch to zoom.';
+
+  @override
+  String get templatesReplace => 'Replace';
+
+  @override
+  String get templatesBackground => 'Background';
+
+  @override
+  String get templatesSpacing => 'Spacing';
+
+  @override
+  String get templatesCorners => 'Corners';
+
+  @override
+  String get templatesCaptionHint => 'Caption (optional)';
 }

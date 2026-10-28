@@ -808,4 +808,28 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get projectsVideoEmptyBody => 'Импортируйте видео или снимите его камерой. Оригинал не изменяется.';
+
+  @override
+  String get templatesTitle => 'Шаблоны';
+
+  @override
+  String get templatesSave => 'Сохранить';
+
+  @override
+  String get templatesSlotHint => 'Перетащите фото, щипком — масштаб.';
+
+  @override
+  String get templatesReplace => 'Заменить';
+
+  @override
+  String get templatesBackground => 'Фон';
+
+  @override
+  String get templatesSpacing => 'Отступы';
+
+  @override
+  String get templatesCorners => 'Скругление';
+
+  @override
+  String get templatesCaptionHint => 'Подпись (необязательно)';
 }

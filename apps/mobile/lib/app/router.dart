@@ -15,6 +15,7 @@ import '../features/projects/presentation/photo_retouch_screen.dart';
 import '../features/projects/presentation/projects_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/splash/splash_screen.dart';
+import '../features/templates/presentation/template_editor_screen.dart';
 import '../features/video/presentation/video_editor_screen.dart';
 import '../features/video/presentation/video_result_screen.dart';
 
@@ -69,6 +70,7 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
       path: '/video-editor/:id',
       builder: (_, state) => VideoEditorScreen(projectId: state.pathParameters['id']!),
     ),
+    GoRoute(path: '/templates', builder: (_, _) => const TemplateEditorScreen()),
     GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
     GoRoute(path: '/privacy', builder: (_, _) => const PrivacyScreen()),
     GoRoute(

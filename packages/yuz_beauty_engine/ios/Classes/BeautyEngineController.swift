@@ -2,6 +2,7 @@ import AVFoundation
 import CoreImage
 import Flutter
 import Foundation
+import UIKit
 import os
 
 /// Implements the Pigeon host API on iOS. Camera configuration runs on the
@@ -44,6 +45,9 @@ final class BeautyEngineController: NSObject, BeautyEngineHostApi,
   private var thermalLevel = 0
   private var stillProcessor: StillImageProcessor?
   private var recorder: VideoRecorder?
+
+  /// Last LUT uploaded, re-applied to full-resolution stills.
+  private var lutData: Data?
   private lazy var videoExporter = VideoExporter()
   private var exportCancellations: [String: LockedValue<Bool>] = [:]
   private var exportRunning = false
@@ -158,6 +162,7 @@ final class BeautyEngineController: NSObject, BeautyEngineHostApi,
     guard let session else { throw Self.error(.cameraUnavailable, "Engine is not initialized") }
     let (camera, renderer) = session
     let data = rgba512?.data
+    withState { lutData = data }
     // Upload on the video queue so it never races a frame being encoded.
     camera.videoQueue.async { renderer.setLut(data) }
   }
@@ -183,9 +188,36 @@ final class BeautyEngineController: NSObject, BeautyEngineHostApi,
     device.setExposureTargetBias(bias, completionHandler: nil)
   }
 
+  /// Brightness before the first override, restored by a negative value.
+  private var savedBrightness: CGFloat?
+
+  func setScreenBrightness(brightness: Double) throws {
+    let apply = { [weak self] in
+      guard let self else { return }
+      if brightness < 0 {
+        if let saved = self.savedBrightness { UIScreen.main.brightness = saved }
+        self.savedBrightness = nil
+      } else {
+        if self.savedBrightness == nil { self.savedBrightness = UIScreen.main.brightness }
+        UIScreen.main.brightness = CGFloat(min(max(brightness, 0), 1))
+      }
+    }
+    if Thread.isMainThread { apply() } else { DispatchQueue.main.async(execute: apply) }
+  }
+
   func capturePhoto(outputFilePath: String) async throws -> PhotoCaptureResult {
     let (device, mode, luma) = withState { (camera?.device, flashMode, sceneLuma) }
     guard device != nil else { throw Self.error(.cameraUnavailable, "Camera is not running") }
+    if withState({ recorder != nil }) {
+      throw Self.error(.captureFailed, "Cannot take a photo while recording")
+    }
+    if let photoOutput = withState({ camera?.photoOutput }) {
+      do {
+        return try await captureFullResolution(photoOutput, flashMode: mode, outputPath: outputFilePath)
+      } catch {
+        Self.log.warning("Full-resolution capture failed, using the processed preview frame: \(error.localizedDescription)")
+      }
+    }
     let useTorch =
       (device?.hasTorch ?? false)
       && (mode == .on || (mode == .auto && luma < Self.autoFlashLumaThreshold))
@@ -308,6 +340,42 @@ final class BeautyEngineController: NSObject, BeautyEngineHostApi,
 
   func cancelVideoExport(jobId: String) throws {
     if let flag = withState({ exportCancellations[jobId] }) { flag.value = true }
+  }
+
+  /// Sensor-resolution still through the same beauty pipeline (look, LUT,
+  /// faces) as the preview. The photo connection is already upright and
+  /// mirrored for the front camera.
+  private func captureFullResolution(
+    _ output: AVCapturePhotoOutput, flashMode: FlashMode, outputPath: String
+  ) async throws -> PhotoCaptureResult {
+    let photoSettings = AVCapturePhotoSettings()
+    let wanted: AVCaptureDevice.FlashMode =
+      switch flashMode {
+      case .on: .on
+      case .auto: .auto
+      case .off, .torch: .off
+      }
+    if output.supportedFlashModes.contains(wanted) { photoSettings.flashMode = wanted }
+    if #available(iOS 16.0, *) {
+      photoSettings.maxPhotoDimensions = output.maxPhotoDimensions
+    } else {
+      photoSettings.isHighResolutionPhotoEnabled = output.isHighResolutionCaptureEnabled
+    }
+    let data = try await PhotoCaptureDelegate.capture(with: output, settings: photoSettings)
+    let temp = FileManager.default.temporaryDirectory.appendingPathComponent("yuz_capture_\(UUID().uuidString).jpg")
+    try data.write(to: temp, options: .atomic)
+    defer { try? FileManager.default.removeItem(at: temp) }
+    let (look, lut, maxFaces) = withState { (settings, lutData, 4) }
+    let processor = withState { () -> StillImageProcessor in
+      if let existing = stillProcessor { return existing }
+      let created = StillImageProcessor()
+      stillProcessor = created
+      return created
+    }
+    let processed = try await processor.process(
+      inputPath: temp.path, outputPath: outputPath, maxLongEdge: 0, settings: look, lut: lut, jpegQuality: 95,
+      maxFaces: maxFaces)
+    return PhotoCaptureResult(filePath: outputPath, width: Int64(processed.width), height: Int64(processed.height))
   }
 
   func processImage(request: ImageProcessingRequest) async throws -> ImageProcessingResult {

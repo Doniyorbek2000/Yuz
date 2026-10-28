@@ -1640,6 +1640,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Import a video or record one with the camera. Your original is never changed.'**
   String get projectsVideoEmptyBody;
+
+  /// No description provided for @templatesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Templates'**
+  String get templatesTitle;
+
+  /// No description provided for @templatesSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get templatesSave;
+
+  /// No description provided for @templatesSlotHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to move the photo, pinch to zoom.'**
+  String get templatesSlotHint;
+
+  /// No description provided for @templatesReplace.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get templatesReplace;
+
+  /// No description provided for @templatesBackground.
+  ///
+  /// In en, this message translates to:
+  /// **'Background'**
+  String get templatesBackground;
+
+  /// No description provided for @templatesSpacing.
+  ///
+  /// In en, this message translates to:
+  /// **'Spacing'**
+  String get templatesSpacing;
+
+  /// No description provided for @templatesCorners.
+  ///
+  /// In en, this message translates to:
+  /// **'Corners'**
+  String get templatesCorners;
+
+  /// No description provided for @templatesCaptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Caption (optional)'**
+  String get templatesCaptionHint;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

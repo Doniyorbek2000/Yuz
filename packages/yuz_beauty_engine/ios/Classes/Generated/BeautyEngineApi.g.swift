@@ -1538,6 +1538,9 @@ protocol BeautyEngineHostApi {
   func setFlashMode(mode: FlashMode) throws
   func setZoomRatio(ratio: Double) throws
   func setExposureBias(ev: Double) throws
+  /// 0..1 overrides the screen brightness (front-camera screen flash);
+  /// a negative value restores the system brightness.
+  func setScreenBrightness(brightness: Double) throws
   func capturePhoto(outputFilePath: String) async throws -> PhotoCaptureResult
   /// Records the processed (beautified) preview. Lens switches are rejected
   /// while recording; pause() finishes the recording, and the next
@@ -1687,6 +1690,23 @@ class BeautyEngineHostApiSetup {
       }
     } else {
       setExposureBiasChannel.setMessageHandler(nil)
+    }
+    /// 0..1 overrides the screen brightness (front-camera screen flash);
+    /// a negative value restores the system brightness.
+    let setScreenBrightnessChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.setScreenBrightness\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      setScreenBrightnessChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let brightnessArg = args[0] as! Double
+        do {
+          try api.setScreenBrightness(brightness: brightnessArg)
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      setScreenBrightnessChannel.setMessageHandler(nil)
     }
     let capturePhotoChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.capturePhoto\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {

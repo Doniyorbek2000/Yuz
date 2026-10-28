@@ -89,14 +89,46 @@ void main() {
     expect(host.calls, containsAll(['switchLens:back', 'flash:auto', 'zoom:4.0', 'exposure:-2.0']));
   });
 
-  test('flash cycling is disabled without a flash unit', () async {
+  test('back camera flash cycling is disabled without a flash unit', () async {
     final host = FakeEngineHost(hasFlash: false);
     final container = await createContainer(host: host);
     final subscription = container.listen(beautyCameraControllerProvider, (_, _) {});
     addTearDown(subscription.close);
     final controller = container.read(beautyCameraControllerProvider.notifier);
     await controller.start();
+    await controller.switchLens();
     await controller.cycleFlashMode();
+    expect(container.read(beautyCameraControllerProvider).flashMode, FlashMode.off);
+  });
+
+  test('front camera offers a screen flash and never fires the native flash', () async {
+    final host = FakeEngineHost(hasFlash: false);
+    final container = await createContainer(host: host);
+    final subscription = container.listen(beautyCameraControllerProvider, (_, _) {});
+    addTearDown(subscription.close);
+    final controller = container.read(beautyCameraControllerProvider.notifier);
+    await controller.start();
+
+    expect(container.read(beautyCameraControllerProvider).availableFlashModes, [FlashMode.off, FlashMode.on]);
+    await controller.cycleFlashMode();
+    expect(container.read(beautyCameraControllerProvider).flashMode, FlashMode.on);
+    expect(host.calls.last, 'flash:off', reason: 'the screen is the front flash');
+
+    fakeAsync((async) {
+      PhotoCaptureResult? result;
+      unawaited(controller.capture().then((value) => result = value));
+      async.flushMicrotasks();
+      expect(container.read(beautyCameraControllerProvider).screenFlash, isTrue);
+      expect(host.calls, contains('brightness:1.0'));
+      async.elapse(const Duration(milliseconds: 400));
+      async.flushMicrotasks();
+      expect(result, isNotNull);
+      expect(container.read(beautyCameraControllerProvider).screenFlash, isFalse);
+      expect(host.calls.last, 'brightness:-1.0');
+    });
+
+    // Switching to a back camera without a flash unit drops the screen flash.
+    await controller.switchLens();
     expect(container.read(beautyCameraControllerProvider).flashMode, FlashMode.off);
   });
 

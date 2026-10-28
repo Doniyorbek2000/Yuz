@@ -1747,6 +1747,26 @@ class BeautyEngineHostApi {
     ;
   }
 
+  /// 0..1 overrides the screen brightness (front-camera screen flash);
+  /// a negative value restores the system brightness.
+  Future<void> setScreenBrightness(double brightness) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.setScreenBrightness$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[brightness]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
   Future<PhotoCaptureResult> capturePhoto(String outputFilePath) async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.capturePhoto$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(

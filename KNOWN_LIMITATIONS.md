@@ -34,6 +34,9 @@
   than real time on mid-range phones (not measured yet). The editor's look preview is one beautified frame, not a
   live preview.
 - Recording is capped at 3 minutes per take; the front camera recording is saved mirrored, as previewed.
+- Full-resolution photos take ~1 s or more to process on device (not measured); devices that cannot bind preview +
+  analysis + still capture fall back to preview-resolution (≤1080p) stills.
+- Templates are not saved as editable projects (one-shot export); slot photos are prepared at ≤2048 px.
 - Camera captures are stored in app-private storage; only photo-editor exports are saved to the system gallery.
 - Photo editor: the beauty look is baked into a full-resolution render first; changing the look after editing keeps
   the editor layers (re-imported from history) but crop/tune are re-applied by pro_image_editor, which recalculates

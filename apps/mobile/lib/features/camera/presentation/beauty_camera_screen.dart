@@ -82,6 +82,10 @@ class _BeautyCameraScreenState extends ConsumerState<BeautyCameraScreen> {
             children: [
               _PreviewLayer(state: state),
               if (state.countdown != null) _CountdownOverlay(seconds: state.countdown!),
+              if (state.screenFlash)
+                const IgnorePointer(
+                  child: ColoredBox(key: ValueKey('screen-flash'), color: Colors.white),
+                ),
               SafeArea(
                 child: Column(
                   children: [
@@ -174,7 +178,7 @@ class _TopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final hasFlash = state.capabilities?.hasFlash ?? false;
+    final hasFlash = state.availableFlashModes.length > 1;
     final (flashIcon, flashLabel) = switch (state.flashMode) {
       FlashMode.off => (Icons.flash_off_rounded, l10n.cameraFlashOff),
       FlashMode.auto => (Icons.flash_auto_rounded, l10n.cameraFlashAuto),
@@ -194,7 +198,12 @@ class _TopBar extends StatelessWidget {
                 : () => context.canPop() ? context.pop() : context.go('/home'),
           ),
           const Spacer(),
-          if (hasFlash) _GlassIconButton(icon: flashIcon, tooltip: flashLabel, onPressed: controller.cycleFlashMode),
+          if (hasFlash)
+            _GlassIconButton(
+              icon: flashIcon,
+              tooltip: flashLabel,
+              onPressed: state.isBusy ? null : controller.cycleFlashMode,
+            ),
           _GlassIconButton(
             icon: state.timerSeconds == 0 ? Icons.timer_off_outlined : Icons.timer_outlined,
             tooltip: timerLabel,

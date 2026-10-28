@@ -15,10 +15,10 @@ Last update: 2026-10-28 (Phase 4 video recording and editor).
 | Typed Flutter ⇄ native API (Pigeon 29) | IMPLEMENTED | IMPLEMENTED | generated code; Dart facade unit tests (6) |
 | Camera preview into Flutter texture (no PlatformView, no frame copies over channels) | PARTIAL | PARTIAL | CameraX→SurfaceTexture→EGL→SurfaceProducer / AVFoundation→Metal→FlutterTexture; **not yet run on a device** |
 | Front/back switch with resource release | PARTIAL | PARTIAL | new SurfaceTexture per binding / session reconfigure; device test pending |
-| Flash (off/auto/on/torch) | PARTIAL | PARTIAL | torch-assisted capture; front "screen flash" NOT STARTED |
+| Flash (off/auto/on/torch); front camera screen flash (white screen + brightness boost) | PARTIAL | PARTIAL | ImageCapture/AVCapturePhoto flash; screen flash TESTED (Dart); native brightness not device-tested |
 | Zoom, exposure compensation | PARTIAL | PARTIAL | clamped to device ranges |
 | Timer (3 s / 10 s, cancellable) | TESTED (Dart) | TESTED (Dart) | `beauty_camera_controller_test.dart` |
-| Photo capture (processed frame, JPEG) | PARTIAL | PARTIAL | captured at preview resolution (≤1080p); full-sensor capture NOT STARTED |
+| Photo capture at sensor resolution through the beauty pipeline (CameraX ImageCapture / AVCapturePhotoOutput → still processor), preview-frame fallback | PARTIAL | PARTIAL | front stills mirrored like the preview (EXIF flip / mirrored connection); CI builds; **not run on a device** |
 | Still-image beauty processing (`processImage`: EXIF-upright decode, IMAGE-mode face detection, same shaders, original or capped resolution, atomic JPEG) | PARTIAL | PARTIAL | Kotlin geometry/EXIF planner TESTED (7 JUnit); Android type-checked + CI build; iOS CI build; **not run on a device** |
 | Video recording with live beauty (H.264 + AAC MP4, processed frames, mic optional) | PARTIAL | PARTIAL | Android MediaCodec/MediaMuxer, iOS AVAssetWriter; timeline/encoder JUnit (7); CI builds; **not run on a device** |
 | Video export engine (trim, speed 0.25–4×, multi-clip letterbox, beauty with VIDEO-mode face tracking, LUT, timed overlays, music loop + fade, volume mix) | PARTIAL | PARTIAL | edit plan, letterbox, resampler, mixer, FIFO JUnit (14); Android type-checked; iOS CI build; **not run on a device** |
@@ -74,7 +74,8 @@ pixel-tested; nothing is device-tested yet.
 | Camera video mode (timer, elapsed time, no-sound hint, 3 min cap, lens/back locked while recording, finish on background) | TESTED (unit + widget, fake engine) |
 | Video result (looped playback, save to gallery, open in editor) | TESTED (widget, fake player) |
 | Video editor: clips (add, reorder, remove), trim, speed, look (studio + one-frame look preview, beauty on/off), text and stickers (drag, pinch, rotate, colour, time window), music (loop, fade, volumes), export with progress and cancel; non-destructive project storage | PARTIAL — TESTED with fake engine (domain, repository, controller, widget at 320 px); native export not run on a device |
-| AI Photoshoot/Hairstyle/Makeup/Background, Templates, Premium, Credits, Profile, Help, Account deletion | NOT STARTED — shown as "Planned" and routed to an honest "not available" screen |
+| Templates (7 collage layouts, per-slot pan/zoom, background, spacing, corners, caption, 1920 px PNG to gallery) | TESTED (unit + widget) |
+| AI Photoshoot/Hairstyle/Makeup/Background, Premium, Credits, Profile, Help, Account deletion | NOT STARTED — shown as "Planned" and routed to an honest "not available" screen |
 | Localization uz / ru / en | TESTED |
 
 ## Platform / infrastructure

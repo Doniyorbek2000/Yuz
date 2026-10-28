@@ -49,8 +49,8 @@ void main() {
 
   testWidgets('a planned feature opens the honest unavailable screen', (tester) async {
     await pumpRoute(tester, '/home');
-    await tester.scrollUntilVisible(find.text('Templates'), 200);
-    await tester.tap(find.text('Templates'));
+    await tester.scrollUntilVisible(find.text('AI photoshoot'), 200);
+    await tester.tap(find.text('AI photoshoot'));
     await tester.pumpAndSettle();
     expect(find.text('Not available yet'), findsOneWidget);
     expect(find.textContaining('phase 6'), findsOneWidget);

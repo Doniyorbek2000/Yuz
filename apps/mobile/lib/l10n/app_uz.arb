@@ -257,5 +257,13 @@
   "projectsPhotosTab": "Fotolar",
   "projectsVideosTab": "Videolar",
   "projectsNewVideo": "Yangi video",
-  "projectsVideoEmptyBody": "Video import qiling yoki kamerada yozing. Asl fayl hech qachon oʻzgarmaydi."
+  "projectsVideoEmptyBody": "Video import qiling yoki kamerada yozing. Asl fayl hech qachon oʻzgarmaydi.",
+  "templatesTitle": "Shablonlar",
+  "templatesSave": "Saqlash",
+  "templatesSlotHint": "Rasmni surish uchun torting, kattalashtirish uchun ikki barmoq bilan ishlating.",
+  "templatesReplace": "Almashtirish",
+  "templatesBackground": "Fon",
+  "templatesSpacing": "Oraliq",
+  "templatesCorners": "Burchaklar",
+  "templatesCaptionHint": "Izoh (ixtiyoriy)"
 }

@@ -182,6 +182,14 @@ class BeautyEngine implements BeautyEngineEventsApi {
   /// Finishes the recording and returns the playable file.
   Future<VideoRecordingResult> stopRecording() => _guard(_host.stopRecording);
 
+  /// Overrides the screen brightness (0..1) for the front-camera screen
+  /// flash; [restoreScreenBrightness] gives control back to the system.
+  Future<void> setScreenBrightness(double brightness) =>
+      _guard(() => _host.setScreenBrightness(brightness.clamp(0, 1)));
+
+  Future<void> restoreScreenBrightness() =>
+      _guard(() => _host.setScreenBrightness(-1));
+
   Future<VideoMetadata> probeVideo(String path) =>
       _guard(() => _host.probeVideo(path));
 

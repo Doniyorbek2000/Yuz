@@ -1598,6 +1598,11 @@ interface BeautyEngineHostApi {
   fun setFlashMode(mode: FlashMode)
   fun setZoomRatio(ratio: Double)
   fun setExposureBias(ev: Double)
+  /**
+   * 0..1 overrides the screen brightness (front-camera screen flash);
+   * a negative value restores the system brightness.
+   */
+  fun setScreenBrightness(brightness: Double)
   suspend fun capturePhoto(outputFilePath: String): PhotoCaptureResult
   /**
    * Records the processed (beautified) preview. Lens switches are rejected
@@ -1761,6 +1766,24 @@ interface BeautyEngineHostApi {
             val evArg = args[0] as Double
             val wrapped: List<Any?> = try {
               api.setExposureBias(evArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              BeautyEngineApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.setScreenBrightness$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val brightnessArg = args[0] as Double
+            val wrapped: List<Any?> = try {
+              api.setScreenBrightness(brightnessArg)
               listOf(null)
             } catch (exception: Throwable) {
               BeautyEngineApiPigeonUtils.wrapError(exception)
