@@ -92,7 +92,7 @@ pro_image_editor: crop/rotate/flip/ratio, tune, blur, draw, text, emoji, own sti
   Full-resolution render is cached per look. Writes are atomic; corrupt projects are skipped.
 - Gallery: `gal` (Android MediaStore, legacy write permission only ≤ API 29; iOS add-only photo permission).
 
-Verification (2026-10-28, local):
+Verification (2026-10-28):
 
 | Check | Result |
 |---|---|
@@ -102,7 +102,7 @@ Verification (2026-10-28, local):
 | Kotlin JUnit (incl. 7 still-image geometry/EXIF tests) | ✅ 40/40 |
 | Android sources type-check vs Android 16 framework | ✅ |
 | `flutter analyze` (app + engine) | ✅ no issues |
-| CI (Android APK/AAB, iOS build, Metal compile) | see commit CI run |
+| CI: Android unit tests + APK + AAB, iOS build + Metal compile, Flutter, GLSL, secret scan | ✅ all 5 jobs green — https://github.com/Doniyorbek2000/Yuz/actions/runs/40736691438 |
 | On device | ❌ not run |
 
 ## Next — continue here
