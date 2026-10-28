@@ -70,7 +70,10 @@ Verification (2026-10-28):
 | Engine Dart (LUT generator, API facade) | local + CI | ✅ 15/15 |
 | App (unit, widget, golden) | local + CI | ✅ 60/60 |
 | Android debug APK + release AAB | CI | ✅ (AAB unsigned) |
-| iOS build | CI (macOS) | see CI run below |
+| Metal kernels compiled with `xcrun metal -std=ios-metal2.4 -Werror` | CI (macOS) | ✅ (new step: runtime-compiled kernels were previously unchecked) |
+| iOS debug + release build (no codesign) | CI (macOS) | ✅ Runner.app 77.8 MB |
+
+All 5 CI jobs green: https://github.com/Doniyorbek2000/Yuz/actions/runs/40730273854
 | On device | — | ❌ not run |
 
 ## Next — continue here
