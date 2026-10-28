@@ -22,3 +22,21 @@ class CameraPermissionService {
 }
 
 final cameraPermissionServiceProvider = Provider<CameraPermissionService>((ref) => const CameraPermissionService());
+
+/// Microphone access for video sound. Video recording never depends on it:
+/// without permission, videos are recorded silently.
+class MicrophonePermissionService {
+  const MicrophonePermissionService();
+
+  /// Asks once when needed; returns whether sound can be recorded.
+  Future<bool> ensureGranted() async {
+    final status = await Permission.microphone.status;
+    if (status.isGranted) return true;
+    if (status.isPermanentlyDenied || status.isRestricted) return false;
+    return (await Permission.microphone.request()).isGranted;
+  }
+}
+
+final microphonePermissionServiceProvider = Provider<MicrophonePermissionService>(
+  (ref) => const MicrophonePermissionService(),
+);

@@ -12,6 +12,7 @@ extension EngineErrorText on EngineErrorCode {
     EngineErrorCode.faceModelUnavailable => l10n.cameraTrackingUnavailable,
     EngineErrorCode.captureFailed => l10n.errorCaptureFailed,
     EngineErrorCode.thermalThrottling => l10n.errorThermal,
+    EngineErrorCode.recordingFailed => l10n.errorRecordingFailed,
     EngineErrorCode.unknown => l10n.errorUnknown,
   };
 }

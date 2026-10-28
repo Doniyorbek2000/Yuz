@@ -207,5 +207,21 @@
   "editorColor": "Rang",
   "editorSearch": "Qidirish",
   "editorAlign": "Matnni tekislash",
-  "editorRotateScale": "Burish va oʼlcham"
+  "editorRotateScale": "Burish va oʼlcham",
+  "cameraModePhoto": "Foto",
+  "cameraModeVideo": "Video",
+  "cameraRecordStart": "Yozishni boshlash",
+  "cameraRecordStop": "Yozishni toʻxtatish",
+  "cameraRecording": "Yozilmoqda",
+  "cameraRecordingNoSound": "Ovozsiz: mikrofonga ruxsat berilmagan",
+  "errorRecordingFailed": "Videoni yozib boʻlmadi.",
+  "videoResultTitle": "Video",
+  "videoSaveToGallery": "Galereyaga saqlash",
+  "videoSavedToGallery": "Galereyaga saqlandi",
+  "videoSaveFailed": "Galereyaga saqlab boʻlmadi. Sozlamalarda rasmlarga ruxsatni tekshiring.",
+  "videoNotFound": "Bu video endi mavjud emas.",
+  "videoPlay": "Ijro etish",
+  "videoPause": "Pauza",
+  "videoEdit": "Videoni tahrirlash",
+  "videoSilent": "Ovozsiz yozilgan"
 }

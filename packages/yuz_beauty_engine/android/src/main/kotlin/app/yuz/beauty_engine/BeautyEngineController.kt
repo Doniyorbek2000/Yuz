@@ -43,6 +43,8 @@ import app.yuz.beauty_engine.generated.PerformanceSample
 import app.yuz.beauty_engine.generated.PhotoCaptureResult
 import app.yuz.beauty_engine.generated.PreviewDescriptor
 import app.yuz.beauty_engine.generated.PreviewQuality
+import app.yuz.beauty_engine.generated.VideoRecordingOptions
+import app.yuz.beauty_engine.generated.VideoRecordingResult
 import app.yuz.beauty_engine.gl.GlLutTexture
 import app.yuz.beauty_engine.gl.ShaderLibrary
 import app.yuz.beauty_engine.perf.PerformanceTracker
@@ -52,6 +54,9 @@ import app.yuz.beauty_engine.render.PreviewPipeline
 import app.yuz.beauty_engine.render.toSettings
 import app.yuz.beauty_engine.still.JpegWriter
 import app.yuz.beauty_engine.still.StillImageProcessor
+import app.yuz.beauty_engine.video.RecordingException
+import app.yuz.beauty_engine.video.RecordingResult
+import app.yuz.beauty_engine.video.VideoRecorder
 import io.flutter.view.TextureRegistry
 import java.io.File
 import java.util.concurrent.Executor
@@ -120,6 +125,11 @@ class BeautyEngineController(
 
         @Volatile
         var sceneLuma = 0.5f
+
+        var recording = false
+
+        /** A recording finished by pause(); handed out by the next stopRecording(). */
+        var finishedRecording: Result<RecordingResult>? = null
     }
 
     private val performanceReporter = object : Runnable {
@@ -190,6 +200,7 @@ class BeautyEngineController(
 
     override suspend fun switchLens(lens: CameraLens): PreviewDescriptor {
         val active = requireSession()
+        if (active.recording) throw engineError(EngineErrorCode.RECORDING_FAILED, "Cannot switch cameras while recording")
         active.tracker.reset()
         active.latestFaces.set(FaceTrackingSnapshot.EMPTY)
         active.firstSurface = CompletableDeferred()
@@ -284,6 +295,60 @@ class BeautyEngineController(
         }
     }
 
+    override suspend fun startRecording(options: VideoRecordingOptions) {
+        val active = requireSession()
+        if (active.recording) throw engineError(EngineErrorCode.RECORDING_FAILED, "Already recording")
+        val (width, height) = active.pipeline.outputSize()
+        if (width == 0 || height == 0) throw engineError(EngineErrorCode.CAMERA_UNAVAILABLE, "No camera frame rendered yet")
+        val withAudio = options.recordAudio &&
+            context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+        active.finishedRecording = null
+        active.recording = true
+        try {
+            val recorder = withContext(Dispatchers.IO) {
+                VideoRecorder.start(File(options.outputFilePath), width, height, options.videoBitrate.toInt(), withAudio)
+            }
+            try {
+                active.pipeline.startRecording(recorder)
+            } catch (error: Throwable) {
+                withContext(Dispatchers.IO) { recorder.cancel() }
+                throw error
+            }
+        } catch (error: Throwable) {
+            active.recording = false
+            throw recordingError(error)
+        }
+    }
+
+    override suspend fun stopRecording(): VideoRecordingResult {
+        val active = requireSession()
+        val result = active.finishedRecording?.also { active.finishedRecording = null } ?: finishRecording(active)
+            ?: throw engineError(EngineErrorCode.RECORDING_FAILED, "Not recording")
+        val recording = result.getOrElse { throw recordingError(it) }
+        return VideoRecordingResult(
+            filePath = recording.file.path,
+            durationMillis = recording.durationMillis,
+            width = recording.width.toLong(),
+            height = recording.height.toLong(),
+            hasAudio = recording.hasAudio,
+        )
+    }
+
+    /** Stops feeding frames and finishes the file; null when not recording. */
+    private suspend fun finishRecording(active: Session): Result<RecordingResult>? {
+        if (!active.recording) return null
+        active.recording = false
+        val recorder = runCatching { active.pipeline.stopRecording() }.getOrElse { return Result.failure(it) }
+            ?: return null
+        return withContext(Dispatchers.IO) { runCatching { recorder.stop() } }
+    }
+
+    private fun recordingError(error: Throwable): Throwable = when (error) {
+        is BeautyEngineFlutterError -> error
+        is RecordingException -> engineError(EngineErrorCode.RECORDING_FAILED, error.message ?: "Recording failed")
+        else -> engineError(EngineErrorCode.RECORDING_FAILED, error.message ?: error.javaClass.simpleName)
+    }
+
     override suspend fun processImage(request: ImageProcessingRequest): ImageProcessingResult {
         val lut = request.lutRgba
         if (lut != null && lut.size != GlLutTexture.BYTES) {
@@ -319,6 +384,7 @@ class BeautyEngineController(
     }
 
     override suspend fun pause() {
+        session?.let { active -> finishRecording(active)?.let { active.finishedRecording = it } }
         session?.lifecycleOwner?.stop()
         mainHandler.removeCallbacks(performanceReporter)
     }

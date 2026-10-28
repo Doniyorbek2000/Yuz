@@ -53,6 +53,7 @@ enum EngineErrorCode {
   faceModelUnavailable,
   captureFailed,
   thermalThrottling,
+  recordingFailed,
   unknown,
 }
 
@@ -269,6 +270,40 @@ class PhotoCaptureResult {
   int height;
 }
 
+class VideoRecordingOptions {
+  VideoRecordingOptions({
+    required this.outputFilePath,
+    required this.recordAudio,
+    required this.videoBitrate,
+  });
+
+  /// Destination .mp4 (H.264 + AAC). Written atomically when recording stops.
+  String outputFilePath;
+
+  /// Records the microphone when permission is granted; silently falls back
+  /// to video only otherwise (see [VideoRecordingResult.hasAudio]).
+  bool recordAudio;
+
+  /// Bits per second; 0 = derived from the frame size.
+  int videoBitrate;
+}
+
+class VideoRecordingResult {
+  VideoRecordingResult({
+    required this.filePath,
+    required this.durationMillis,
+    required this.width,
+    required this.height,
+    required this.hasAudio,
+  });
+
+  String filePath;
+  int durationMillis;
+  int width;
+  int height;
+  bool hasAudio;
+}
+
 class FaceTrackingStatus {
   FaceTrackingStatus({
     required this.faceCount,
@@ -333,6 +368,15 @@ abstract class BeautyEngineHostApi {
 
   @async
   PhotoCaptureResult capturePhoto(String outputFilePath);
+
+  /// Records the processed (beautified) preview. Lens switches are rejected
+  /// while recording; pause() finishes the recording, and the next
+  /// stopRecording() returns it.
+  @async
+  void startRecording(VideoRecordingOptions options);
+
+  @async
+  VideoRecordingResult stopRecording();
 
   /// Independent of the camera session; jobs run one at a time.
   @async

@@ -150,6 +150,7 @@ enum EngineErrorCode {
   faceModelUnavailable,
   captureFailed,
   thermalThrottling,
+  recordingFailed,
   unknown;
 }
 
@@ -782,6 +783,130 @@ class PhotoCaptureResult {
   }
 }
 
+class VideoRecordingOptions {
+  VideoRecordingOptions({
+    required this.outputFilePath,
+    required this.recordAudio,
+    required this.videoBitrate,
+  });
+
+  /// Destination .mp4 (H.264 + AAC). Written atomically when recording stops.
+  String outputFilePath;
+
+  /// Records the microphone when permission is granted; silently falls back
+  /// to video only otherwise (see [VideoRecordingResult.hasAudio]).
+  bool recordAudio;
+
+  /// Bits per second; 0 = derived from the frame size.
+  int videoBitrate;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      outputFilePath,
+      recordAudio,
+      videoBitrate,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static VideoRecordingOptions decode(Object result) {
+    result as List<Object?>;
+    return VideoRecordingOptions(
+      outputFilePath: result[0]! as String,
+      recordAudio: result[1]! as bool,
+      videoBitrate: result[2]! as int,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! VideoRecordingOptions || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(outputFilePath, other.outputFilePath) && _deepEquals(recordAudio, other.recordAudio) && _deepEquals(videoBitrate, other.videoBitrate);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'VideoRecordingOptions(outputFilePath: $outputFilePath, recordAudio: $recordAudio, videoBitrate: $videoBitrate)';
+  }
+}
+
+class VideoRecordingResult {
+  VideoRecordingResult({
+    required this.filePath,
+    required this.durationMillis,
+    required this.width,
+    required this.height,
+    required this.hasAudio,
+  });
+
+  String filePath;
+
+  int durationMillis;
+
+  int width;
+
+  int height;
+
+  bool hasAudio;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      filePath,
+      durationMillis,
+      width,
+      height,
+      hasAudio,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static VideoRecordingResult decode(Object result) {
+    result as List<Object?>;
+    return VideoRecordingResult(
+      filePath: result[0]! as String,
+      durationMillis: result[1]! as int,
+      width: result[2]! as int,
+      height: result[3]! as int,
+      hasAudio: result[4]! as bool,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! VideoRecordingResult || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(filePath, other.filePath) && _deepEquals(durationMillis, other.durationMillis) && _deepEquals(width, other.width) && _deepEquals(height, other.height) && _deepEquals(hasAudio, other.hasAudio);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'VideoRecordingResult(filePath: $filePath, durationMillis: $durationMillis, width: $width, height: $height, hasAudio: $hasAudio)';
+  }
+}
+
 class FaceTrackingStatus {
   FaceTrackingStatus({
     required this.faceCount,
@@ -1006,14 +1131,20 @@ class _PigeonCodec extends StandardMessageCodec {
     }    else if (value is PhotoCaptureResult) {
       buffer.putUint8(141);
       writeValue(buffer, value.encode());
-    }    else if (value is FaceTrackingStatus) {
+    }    else if (value is VideoRecordingOptions) {
       buffer.putUint8(142);
       writeValue(buffer, value.encode());
-    }    else if (value is PerformanceSample) {
+    }    else if (value is VideoRecordingResult) {
       buffer.putUint8(143);
       writeValue(buffer, value.encode());
-    }    else if (value is EngineError) {
+    }    else if (value is FaceTrackingStatus) {
       buffer.putUint8(144);
+      writeValue(buffer, value.encode());
+    }    else if (value is PerformanceSample) {
+      buffer.putUint8(145);
+      writeValue(buffer, value.encode());
+    }    else if (value is EngineError) {
+      buffer.putUint8(146);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -1056,10 +1187,14 @@ class _PigeonCodec extends StandardMessageCodec {
       case 141:
         return PhotoCaptureResult.decode(readValue(buffer)!);
       case 142:
-        return FaceTrackingStatus.decode(readValue(buffer)!);
+        return VideoRecordingOptions.decode(readValue(buffer)!);
       case 143:
-        return PerformanceSample.decode(readValue(buffer)!);
+        return VideoRecordingResult.decode(readValue(buffer)!);
       case 144:
+        return FaceTrackingStatus.decode(readValue(buffer)!);
+      case 145:
+        return PerformanceSample.decode(readValue(buffer)!);
+      case 146:
         return EngineError.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -1250,6 +1385,46 @@ class BeautyEngineHostApi {
     )
     ;
     return pigeonVar_replyValue! as PhotoCaptureResult;
+  }
+
+  /// Records the processed (beautified) preview. Lens switches are rejected
+  /// while recording; pause() finishes the recording, and the next
+  /// stopRecording() returns it.
+  Future<void> startRecording(VideoRecordingOptions options) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.startRecording$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[options]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  Future<VideoRecordingResult> stopRecording() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.stopRecording$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as VideoRecordingResult;
   }
 
   /// Independent of the camera session; jobs run one at a time.

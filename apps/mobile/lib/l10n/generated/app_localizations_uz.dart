@@ -652,4 +652,52 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get editorRotateScale => 'Burish va oʼlcham';
+
+  @override
+  String get cameraModePhoto => 'Foto';
+
+  @override
+  String get cameraModeVideo => 'Video';
+
+  @override
+  String get cameraRecordStart => 'Yozishni boshlash';
+
+  @override
+  String get cameraRecordStop => 'Yozishni toʻxtatish';
+
+  @override
+  String get cameraRecording => 'Yozilmoqda';
+
+  @override
+  String get cameraRecordingNoSound => 'Ovozsiz: mikrofonga ruxsat berilmagan';
+
+  @override
+  String get errorRecordingFailed => 'Videoni yozib boʻlmadi.';
+
+  @override
+  String get videoResultTitle => 'Video';
+
+  @override
+  String get videoSaveToGallery => 'Galereyaga saqlash';
+
+  @override
+  String get videoSavedToGallery => 'Galereyaga saqlandi';
+
+  @override
+  String get videoSaveFailed => 'Galereyaga saqlab boʻlmadi. Sozlamalarda rasmlarga ruxsatni tekshiring.';
+
+  @override
+  String get videoNotFound => 'Bu video endi mavjud emas.';
+
+  @override
+  String get videoPlay => 'Ijro etish';
+
+  @override
+  String get videoPause => 'Pauza';
+
+  @override
+  String get videoEdit => 'Videoni tahrirlash';
+
+  @override
+  String get videoSilent => 'Ovozsiz yozilgan';
 }

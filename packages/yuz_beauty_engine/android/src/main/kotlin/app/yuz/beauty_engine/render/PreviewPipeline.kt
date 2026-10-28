@@ -9,6 +9,7 @@ import app.yuz.beauty_engine.gl.EglCore
 import app.yuz.beauty_engine.gl.GlUtil
 import app.yuz.beauty_engine.gl.ShaderLibrary
 import app.yuz.beauty_engine.perf.PerformanceTracker
+import app.yuz.beauty_engine.video.VideoRecorder
 import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -32,6 +33,8 @@ class PreviewPipeline(
     private var cameraTextureId = 0
     private val surfaceTextureMatrix = FloatArray(16)
     private val renderPending = AtomicBoolean(false)
+    private var recorder: VideoRecorder? = null
+    private var recorderSurface: EGLSurface? = null
 
     var surfaceTexture: SurfaceTexture? = null
         private set
@@ -118,7 +121,40 @@ class PreviewPipeline(
         CapturedFrame(activeRenderer.renderToPixels(settings), activeRenderer.width, activeRenderer.height)
     }
 
+    /** Current rendered (upright) frame size; (0, 0) before the first configure. */
+    suspend fun outputSize(): Pair<Int, Int> = glThread.run {
+        val active = renderer
+        if (active == null) 0 to 0 else active.width to active.height
+    }
+
+    /** Starts feeding every rendered frame to [videoRecorder] as well. */
+    suspend fun startRecording(videoRecorder: VideoRecorder) = glThread.run {
+        val core = checkNotNull(egl) { "pipeline not started" }
+        check(recorder == null) { "already recording" }
+        recorderSurface = core.createWindowSurface(videoRecorder.inputSurface)
+        recorder = videoRecorder
+        makeAnySurfaceCurrent()
+    }
+
+    /**
+     * Stops feeding frames and returns the recorder (null if none). The
+     * recorder's EGL surface is released before the encoder is finished.
+     */
+    suspend fun stopRecording(): VideoRecorder? = glThread.run { detachRecorder() }
+
+    private fun detachRecorder(): VideoRecorder? {
+        val active = recorder ?: return null
+        recorder = null
+        recorderSurface?.let { surface ->
+            egl?.releaseSurface(surface)
+            makeAnySurfaceCurrent()
+        }
+        recorderSurface = null
+        return active
+    }
+
     suspend fun release() = glThread.run {
+        detachRecorder()?.cancel()
         makeAnySurfaceCurrent()
         renderer?.release()
         renderer = null
@@ -148,10 +184,11 @@ class PreviewPipeline(
         val activeRenderer = renderer ?: return
         val startNanos = System.nanoTime()
         val window = windowSurface
+        val encoderSurface = recorderSurface
         try {
-            core.makeCurrent(window ?: offscreenSurface!!)
+            core.makeCurrent(window ?: encoderSurface ?: offscreenSurface!!)
             texture.updateTexImage()
-            if (window == null || activeRenderer.width == 0) return
+            if ((window == null && encoderSurface == null) || activeRenderer.width == 0) return
             texture.getTransformMatrix(surfaceTextureMatrix)
             val uvMatrix = CameraTextureTransform.multiply(
                 surfaceTextureMatrix,
@@ -159,13 +196,15 @@ class PreviewPipeline(
             )
             val currentSettings = settings
             activeRenderer.process(cameraTextureId, uvMatrix, currentSettings, faceProvider())
-            activeRenderer.composite(currentSettings, 0, activeRenderer.width, activeRenderer.height)
-            core.setPresentationTime(window, texture.timestamp)
-            if (!core.swapBuffers(window)) {
-                Log.w(TAG, "eglSwapBuffers failed; dropping output surface until Flutter provides a new one")
-                releaseWindowSurface()
-                return
+            if (window != null) {
+                activeRenderer.composite(currentSettings, 0, activeRenderer.width, activeRenderer.height)
+                core.setPresentationTime(window, texture.timestamp)
+                if (!core.swapBuffers(window)) {
+                    Log.w(TAG, "eglSwapBuffers failed; dropping output surface until Flutter provides a new one")
+                    releaseWindowSurface()
+                }
             }
+            if (encoderSurface != null) encodeFrame(core, encoderSurface, activeRenderer, currentSettings, texture.timestamp)
             performance.onFrameRendered(System.nanoTime() - startNanos)
         } catch (error: RuntimeException) {
             performance.onFrameDropped()
@@ -173,9 +212,19 @@ class PreviewPipeline(
         }
     }
 
+    /** Renders the already processed frame once more, scaled into the encoder surface. */
+    private fun encodeFrame(core: EglCore, surface: EGLSurface, activeRenderer: BeautyRenderer, currentSettings: BeautySettings, frameNanos: Long) {
+        val active = recorder ?: return
+        val ptsUs = active.timeline.videoPresentationUs(frameNanos, System.nanoTime()) ?: return
+        core.makeCurrent(surface)
+        activeRenderer.composite(currentSettings, 0, active.spec.width, active.spec.height)
+        core.setPresentationTime(surface, ptsUs * 1_000)
+        if (!core.swapBuffers(surface)) Log.w(TAG, "Encoder surface swap failed; frame dropped")
+    }
+
     private fun makeAnySurfaceCurrent() {
         val core = egl ?: return
-        core.makeCurrent(windowSurface ?: offscreenSurface ?: return)
+        core.makeCurrent(windowSurface ?: recorderSurface ?: offscreenSurface ?: return)
     }
 
     private fun releaseCameraTexture() {

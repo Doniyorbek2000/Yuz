@@ -8,7 +8,7 @@ import os
 /// session queue, frames on the video queue, GPU work on Metal's queues.
 /// Mutable state shared between them is guarded by `stateLock`.
 final class BeautyEngineController: NSObject, BeautyEngineHostApi,
-  AVCaptureVideoDataOutputSampleBufferDelegate
+  AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate
 {
   private static let log = Logger(subsystem: "app.yuz.beauty_engine", category: "Controller")
   private static let firstFrameTimeout: TimeInterval = 5
@@ -43,6 +43,10 @@ final class BeautyEngineController: NSObject, BeautyEngineHostApi,
   private var notificationTokens: [NSObjectProtocol] = []
   private var thermalLevel = 0
   private var stillProcessor: StillImageProcessor?
+  private var recorder: VideoRecorder?
+
+  /// A recording finished by pause(); handed out by the next stopRecording().
+  private var finishedRecording: Result<VideoRecordingOutput, Error>?
 
   init(registry: FlutterTextureRegistry, events: BeautyEngineEventsApi) {
     self.registry = registry
@@ -66,6 +70,7 @@ final class BeautyEngineController: NSObject, BeautyEngineHostApi,
     }
     let camera = CameraSession()
     camera.sampleBufferDelegate = self
+    camera.audioSampleBufferDelegate = self
     let detector = config.enableFaceTracking ? FaceLandmarkDetector.make(maxFaces: Int(config.maxFaces)) : nil
     let tracker = FaceTracker(
       maxFaces: min(max(Int(config.maxFaces), 1), 4),
@@ -103,6 +108,9 @@ final class BeautyEngineController: NSObject, BeautyEngineHostApi,
   func switchLens(lens: CameraLens) async throws -> PreviewDescriptor {
     guard let camera = withState({ self.camera }) else {
       throw Self.error(.cameraUnavailable, "Engine is not initialized")
+    }
+    if withState({ recorder != nil }) {
+      throw Self.error(.recordingFailed, "Cannot switch cameras while recording")
     }
     withState {
       tracker?.reset()
@@ -236,7 +244,84 @@ final class BeautyEngineController: NSObject, BeautyEngineHostApi,
     }
   }
 
+  func startRecording(options: VideoRecordingOptions) async throws {
+    guard let camera = withState({ self.camera }) else {
+      throw Self.error(.cameraUnavailable, "Engine is not initialized")
+    }
+    guard withState({ recorder == nil }) else { throw Self.error(.recordingFailed, "Already recording") }
+    guard let frame = previewTexture.latestPixelBuffer() else {
+      throw Self.error(.cameraUnavailable, "No camera frame rendered yet")
+    }
+    let withAudio: Bool
+    if options.recordAudio {
+      withAudio = await withCheckedContinuation { continuation in
+        camera.sessionQueue.async { continuation.resume(returning: camera.setAudioEnabled(true)) }
+      }
+    } else {
+      withAudio = false
+    }
+    do {
+      let created = try VideoRecorder(
+        output: URL(fileURLWithPath: options.outputFilePath), width: CVPixelBufferGetWidth(frame),
+        height: CVPixelBufferGetHeight(frame), bitrate: Int(options.videoBitrate), withAudio: withAudio)
+      withState {
+        recorder = created
+        finishedRecording = nil
+      }
+    } catch {
+      await setAudio(camera: camera, enabled: false)
+      throw Self.error(.recordingFailed, "Recording could not start: \(error)")
+    }
+  }
+
+  func stopRecording() async throws -> VideoRecordingResult {
+    let stashed = withState { () -> Result<VideoRecordingOutput, Error>? in
+      let value = finishedRecording
+      finishedRecording = nil
+      return value
+    }
+    guard let result = stashed ?? (await finishRecording()) else {
+      throw Self.error(.recordingFailed, "Not recording")
+    }
+    switch result {
+    case .success(let output):
+      return VideoRecordingResult(
+        filePath: output.url.path, durationMillis: Int64(output.durationMillis), width: Int64(output.width),
+        height: Int64(output.height), hasAudio: output.hasAudio)
+    case .failure(VideoRecorderError.tooShort):
+      throw Self.error(.recordingFailed, "Recording is too short")
+    case .failure(let error):
+      throw Self.error(.recordingFailed, "Recording failed: \(error)")
+    }
+  }
+
+  /// Stops appending and finishes the file; nil when not recording.
+  private func finishRecording() async -> Result<VideoRecordingOutput, Error>? {
+    let (active, camera) = withState { () -> (VideoRecorder?, CameraSession?) in
+      let value = recorder
+      recorder = nil
+      return (value, self.camera)
+    }
+    guard let active else { return nil }
+    if let camera { await setAudio(camera: camera, enabled: false) }
+    do {
+      return .success(try await active.finish())
+    } catch {
+      return .failure(error)
+    }
+  }
+
+  private func setAudio(camera: CameraSession, enabled: Bool) async {
+    await withCheckedContinuation { continuation in
+      camera.sessionQueue.async {
+        camera.setAudioEnabled(enabled)
+        continuation.resume()
+      }
+    }
+  }
+
   func pause() async throws {
+    if let finished = await finishRecording() { withState { finishedRecording = finished } }
     guard let camera = withState({ self.camera }) else { return }
     stopPerformanceReporting()
     await withCheckedContinuation { continuation in
@@ -268,8 +353,13 @@ final class BeautyEngineController: NSObject, BeautyEngineHostApi,
     _ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer,
     from connection: AVCaptureConnection
   ) {
+    if output is AVCaptureAudioDataOutput {
+      withState { recorder }?.appendAudio(sampleBuffer)
+      return
+    }
     guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
     performance.onCameraFrame()
+    let presentationTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
 
     let snapshot = withState {
       () -> (MetalBeautyRenderer?, FaceLandmarkDetector?, BeautySettings, FaceTrackingSnapshot, Int, Int, Int64, FirstFrameWaiter?) in
@@ -309,6 +399,7 @@ final class BeautyEngineController: NSObject, BeautyEngineHostApi,
       [weak self] (processed: CVPixelBuffer) in
       guard let self else { return }
       self.previewTexture.update(processed)
+      self.withState { self.recorder }?.appendVideo(processed, at: presentationTime)
       self.performance.onFrameRendered(gpuSeconds: ProcessInfo.processInfo.systemUptime - start)
       DispatchQueue.main.async { [registry = self.registry] in
         registry.textureFrameAvailable(textureId)
@@ -320,6 +411,7 @@ final class BeautyEngineController: NSObject, BeautyEngineHostApi,
   func captureOutput(
     _ output: AVCaptureOutput, didDrop sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection
   ) {
+    if output is AVCaptureAudioDataOutput { return }
     performance.onFrameDropped()
   }
 
@@ -449,6 +541,9 @@ final class BeautyEngineController: NSObject, BeautyEngineHostApi,
       self.tracker = nil
       self.textureId = -1
       self.performanceTimer = nil
+      self.recorder?.cancel()
+      self.recorder = nil
+      self.finishedRecording = nil
       self.firstFrameWaiter?.fail(Self.error(.cameraUnavailable, "Engine disposed"))
       self.firstFrameWaiter = nil
       return values
@@ -551,6 +646,7 @@ extension EngineErrorCode {
     case .faceModelUnavailable: return "FACE_MODEL_UNAVAILABLE"
     case .captureFailed: return "CAPTURE_FAILED"
     case .thermalThrottling: return "THERMAL_THROTTLING"
+    case .recordingFailed: return "RECORDING_FAILED"
     case .unknown: return "UNKNOWN"
     }
   }

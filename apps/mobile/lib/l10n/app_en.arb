@@ -258,5 +258,21 @@
   "editorColor": "Color",
   "editorSearch": "Search",
   "editorAlign": "Align text",
-  "editorRotateScale": "Rotate and scale"
+  "editorRotateScale": "Rotate and scale",
+  "cameraModePhoto": "Photo",
+  "cameraModeVideo": "Video",
+  "cameraRecordStart": "Start recording",
+  "cameraRecordStop": "Stop recording",
+  "cameraRecording": "Recording",
+  "cameraRecordingNoSound": "No sound: microphone access is off",
+  "errorRecordingFailed": "The video could not be recorded.",
+  "videoResultTitle": "Video",
+  "videoSaveToGallery": "Save to gallery",
+  "videoSavedToGallery": "Saved to your gallery",
+  "videoSaveFailed": "Could not save to the gallery. Check photo access in Settings.",
+  "videoNotFound": "This video is no longer available.",
+  "videoPlay": "Play",
+  "videoPause": "Pause",
+  "videoEdit": "Edit video",
+  "videoSilent": "Recorded without sound"
 }

@@ -651,4 +651,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editorRotateScale => 'Rotate and scale';
+
+  @override
+  String get cameraModePhoto => 'Photo';
+
+  @override
+  String get cameraModeVideo => 'Video';
+
+  @override
+  String get cameraRecordStart => 'Start recording';
+
+  @override
+  String get cameraRecordStop => 'Stop recording';
+
+  @override
+  String get cameraRecording => 'Recording';
+
+  @override
+  String get cameraRecordingNoSound => 'No sound: microphone access is off';
+
+  @override
+  String get errorRecordingFailed => 'The video could not be recorded.';
+
+  @override
+  String get videoResultTitle => 'Video';
+
+  @override
+  String get videoSaveToGallery => 'Save to gallery';
+
+  @override
+  String get videoSavedToGallery => 'Saved to your gallery';
+
+  @override
+  String get videoSaveFailed => 'Could not save to the gallery. Check photo access in Settings.';
+
+  @override
+  String get videoNotFound => 'This video is no longer available.';
+
+  @override
+  String get videoPlay => 'Play';
+
+  @override
+  String get videoPause => 'Pause';
+
+  @override
+  String get videoEdit => 'Edit video';
+
+  @override
+  String get videoSilent => 'Recorded without sound';
 }

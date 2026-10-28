@@ -72,38 +72,43 @@ class _BeautyCameraScreenState extends ConsumerState<BeautyCameraScreen> {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
-      child: Scaffold(
-        backgroundColor: Colors.black,
-        body: Stack(
-          fit: StackFit.expand,
-          children: [
-            _PreviewLayer(state: state),
-            if (state.countdown != null) _CountdownOverlay(seconds: state.countdown!),
-            SafeArea(
-              child: Column(
-                children: [
-                  _TopBar(state: state, controller: _controller),
-                  if (state.isReady) _FaceStatusChip(state: state),
-                  if (showPerformance && state.performance != null) _PerformanceText(sample: state.performance!),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: state.isReady
-                          ? SingleChildScrollView(
-                              child: _BottomPanel(
-                                state: state,
-                                tab: _tab,
-                                onTabChanged: (tab) => setState(() => _tab = tab),
-                                controller: _controller,
-                              ),
-                            )
-                          : const SizedBox.shrink(),
+      child: PopScope(
+        // Leaving would discard the running recording; stop it first.
+        canPop: !state.isRecording && !state.isFinishingRecording,
+        child: Scaffold(
+          backgroundColor: Colors.black,
+          body: Stack(
+            fit: StackFit.expand,
+            children: [
+              _PreviewLayer(state: state),
+              if (state.countdown != null) _CountdownOverlay(seconds: state.countdown!),
+              SafeArea(
+                child: Column(
+                  children: [
+                    _TopBar(state: state, controller: _controller),
+                    if (state.isRecording) _RecordingIndicator(state: state),
+                    if (state.isReady && !state.isRecording) _FaceStatusChip(state: state),
+                    if (showPerformance && state.performance != null) _PerformanceText(sample: state.performance!),
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: state.isReady
+                            ? SingleChildScrollView(
+                                child: _BottomPanel(
+                                  state: state,
+                                  tab: _tab,
+                                  onTabChanged: (tab) => setState(() => _tab = tab),
+                                  controller: _controller,
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -184,7 +189,9 @@ class _TopBar extends StatelessWidget {
           _GlassIconButton(
             icon: Icons.arrow_back_rounded,
             tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-            onPressed: () => context.canPop() ? context.pop() : context.go('/home'),
+            onPressed: state.isRecording || state.isFinishingRecording
+                ? null
+                : () => context.canPop() ? context.pop() : context.go('/home'),
           ),
           const Spacer(),
           if (hasFlash) _GlassIconButton(icon: flashIcon, tooltip: flashLabel, onPressed: controller.cycleFlashMode),
@@ -192,13 +199,14 @@ class _TopBar extends StatelessWidget {
             icon: state.timerSeconds == 0 ? Icons.timer_off_outlined : Icons.timer_outlined,
             tooltip: timerLabel,
             badge: state.timerSeconds == 0 ? null : '${state.timerSeconds}',
-            onPressed: state.isReady ? controller.cycleTimer : null,
+            onPressed: state.isReady && !state.isBusy ? controller.cycleTimer : null,
           ),
           _GlassIconButton(
             icon: Icons.cameraswitch_outlined,
             tooltip: l10n.cameraSwitch,
             onPressed:
                 state.isReady &&
+                    !state.isBusy &&
                     (state.capabilities?.hasBackCamera ?? false) &&
                     (state.capabilities?.hasFrontCamera ?? false)
                 ? controller.switchLens
@@ -350,6 +358,8 @@ class _BottomPanel extends StatelessWidget {
               },
             ),
             const SizedBox(height: AppSpacing.sm),
+            _ModeSelector(state: state, controller: controller),
+            const SizedBox(height: AppSpacing.xs),
             Row(
               children: [
                 Expanded(
@@ -460,8 +470,8 @@ class _LabeledSlider extends StatelessWidget {
   }
 }
 
-class _ShutterButton extends StatelessWidget {
-  const _ShutterButton({required this.state, required this.controller});
+class _ModeSelector extends StatelessWidget {
+  const _ModeSelector({required this.state, required this.controller});
 
   final CameraViewState state;
   final BeautyCameraController controller;
@@ -469,22 +479,129 @@ class _ShutterButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final busy = state.isCapturing || state.countdown != null;
+    Widget option(CaptureMode mode, String label) {
+      final selected = state.mode == mode;
+      return Semantics(
+        selected: selected,
+        button: true,
+        child: TextButton(
+          key: ValueKey('mode-${mode.name}'),
+          onPressed: state.isBusy ? null : () => controller.setMode(mode),
+          style: TextButton.styleFrom(
+            foregroundColor: selected ? AppColors.accent : AppColors.textSecondary,
+            textStyle: Theme.of(context).textTheme.labelLarge
+                ?.copyWith(fontWeight: selected ? FontWeight.w700 : FontWeight.w500),
+          ),
+          child: Text(label),
+        ),
+      );
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        option(CaptureMode.photo, l10n.cameraModePhoto),
+        const SizedBox(width: AppSpacing.md),
+        option(CaptureMode.video, l10n.cameraModeVideo),
+      ],
+    );
+  }
+}
+
+class _RecordingIndicator extends StatelessWidget {
+  const _RecordingIndicator({required this.state});
+
+  final CameraViewState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final seconds = state.recordingSeconds;
+    final text = '${(seconds ~/ 60).toString().padLeft(2, '0')}:${(seconds % 60).toString().padLeft(2, '0')}';
+    final silent = state.recordingHasAudio == false;
+    return Semantics(
+      liveRegion: true,
+      label: '${l10n.cameraRecording} $text${silent ? ', ${l10n.cameraRecordingNoSound}' : ''}',
+      child: Container(
+        key: const ValueKey('recording-indicator'),
+        margin: const EdgeInsets.only(top: AppSpacing.xs),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xxs),
+        decoration: const BoxDecoration(color: AppColors.scrim, borderRadius: BorderRadius.all(AppRadii.pill)),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const DecoratedBox(
+              decoration: BoxDecoration(color: AppColors.danger, shape: BoxShape.circle),
+              child: SizedBox.square(dimension: 8),
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            Text(
+              text,
+              style: Theme.of(context).textTheme.labelLarge
+                  ?.copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
+            ),
+            if (silent) ...[
+              const SizedBox(width: AppSpacing.xs),
+              Tooltip(
+                message: l10n.cameraRecordingNoSound,
+                child: const Icon(Icons.mic_off_rounded, size: 16, color: AppColors.warning),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ShutterButton extends StatelessWidget {
+  const _ShutterButton({required this.state, required this.controller});
+
+  final CameraViewState state;
+  final BeautyCameraController controller;
+
+  Future<void> _onTap(BuildContext context) async {
+    if (state.countdown != null) {
+      controller.cancelCountdown();
+      return;
+    }
+    if (state.mode == CaptureMode.video) {
+      if (state.isRecording) {
+        final result = await controller.stopRecording();
+        if (result != null && context.mounted) {
+          unawaited(HapticFeedback.mediumImpact());
+          await context.push('/video?path=${Uri.encodeComponent(result.filePath)}&audio=${result.hasAudio ? 1 : 0}');
+        }
+      } else if (await controller.startRecording()) {
+        unawaited(HapticFeedback.mediumImpact());
+      }
+      return;
+    }
+    final result = await controller.capture();
+    if (result != null && context.mounted) {
+      unawaited(HapticFeedback.lightImpact());
+      await context.push('/capture?path=${Uri.encodeComponent(result.filePath)}');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final video = state.mode == CaptureMode.video;
+    final busy = state.isCapturing || state.countdown != null || state.isFinishingRecording;
+    final label = !video
+        ? l10n.cameraCapture
+        : state.isRecording
+        ? l10n.cameraRecordStop
+        : l10n.cameraRecordStart;
+    final Color fill = video ? AppColors.danger : (busy ? AppColors.accent : AppColors.textPrimary);
+    final recording = video && state.isRecording;
     return Semantics(
       button: true,
-      label: l10n.cameraCapture,
+      label: label,
       child: GestureDetector(
-        onTap: () async {
-          if (state.countdown != null) {
-            controller.cancelCountdown();
-            return;
-          }
-          final result = await controller.capture();
-          if (result != null && context.mounted) {
-            unawaited(HapticFeedback.lightImpact());
-            await context.push('/capture?path=${Uri.encodeComponent(result.filePath)}');
-          }
-        },
+        key: const ValueKey('shutter'),
+        onTap: state.isFinishingRecording ? null : () => _onTap(context),
         child: AnimatedContainer(
           duration: AppDurations.fast,
           width: 76,
@@ -493,11 +610,14 @@ class _ShutterButton extends StatelessWidget {
             shape: BoxShape.circle,
             border: Border.all(color: AppColors.textPrimary, width: 4),
           ),
-          padding: const EdgeInsets.all(5),
+          padding: EdgeInsets.all(recording ? 20 : 5),
           child: AnimatedContainer(
             duration: AppDurations.fast,
-            decoration: BoxDecoration(shape: BoxShape.circle, color: busy ? AppColors.accent : AppColors.textPrimary),
-            child: state.isCapturing
+            decoration: BoxDecoration(
+              color: fill,
+              borderRadius: BorderRadius.all(recording ? AppRadii.sm : const Radius.circular(40)),
+            ),
+            child: state.isCapturing || state.isFinishingRecording
                 ? const Padding(
                     padding: EdgeInsets.all(18),
                     child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.onAccent),

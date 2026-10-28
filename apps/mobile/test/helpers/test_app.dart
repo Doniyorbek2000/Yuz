@@ -83,6 +83,34 @@ class FakeEngineHost implements BeautyEngineHostApi {
     return PhotoCaptureResult(filePath: outputFilePath, width: 1080, height: 1920);
   }
 
+  final List<VideoRecordingOptions> recordings = [];
+  bool recordingActive = false;
+  EngineErrorCode? recordingFailure;
+
+  @override
+  Future<void> startRecording(VideoRecordingOptions options) async {
+    if (recordingFailure != null) throw _platformError(recordingFailure!);
+    if (recordingActive) throw _platformError(EngineErrorCode.recordingFailed);
+    calls.add('startRecording');
+    recordings.add(options);
+    recordingActive = true;
+  }
+
+  @override
+  Future<VideoRecordingResult> stopRecording() async {
+    if (!recordingActive) throw _platformError(EngineErrorCode.recordingFailed);
+    calls.add('stopRecording');
+    recordingActive = false;
+    final options = recordings.last;
+    return VideoRecordingResult(
+      filePath: options.outputFilePath,
+      durationMillis: 4200,
+      width: 1080,
+      height: 1920,
+      hasAudio: options.recordAudio,
+    );
+  }
+
   /// Every still-image request, in order.
   final List<ImageProcessingRequest> imageRequests = [];
   EngineErrorCode? processImageFailure;
@@ -137,6 +165,7 @@ class FakeEngineHost implements BeautyEngineHostApi {
       EngineErrorCode.cameraInUse: 'CAMERA_IN_USE',
       EngineErrorCode.captureFailed: 'CAPTURE_FAILED',
       EngineErrorCode.gpuInitializationFailed: 'GPU_INITIALIZATION_FAILED',
+      EngineErrorCode.recordingFailed: 'RECORDING_FAILED',
     };
     return PlatformException(code: names[code] ?? 'UNKNOWN', message: code.name);
   }
@@ -156,6 +185,12 @@ class FakeGallerySaver implements GallerySaver {
     saved.add(path);
     return accept;
   }
+
+  @override
+  Future<bool> saveVideo(String path) async {
+    saved.add(path);
+    return accept;
+  }
 }
 
 /// A valid 1×1 PNG, enough for Image.file and file-copy tests.
@@ -168,6 +203,19 @@ Future<void> settleIo(WidgetTester tester, {int rounds = 25}) async {
   for (var i = 0; i < rounds; i++) {
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
     await tester.pump();
+  }
+}
+
+class FakeMicrophonePermission implements MicrophonePermissionService {
+  FakeMicrophonePermission({this.granted = true});
+
+  bool granted;
+  int requests = 0;
+
+  @override
+  Future<bool> ensureGranted() async {
+    requests++;
+    return granted;
   }
 }
 
@@ -202,6 +250,7 @@ Future<ProviderContainer> createContainer({
   Directory? projectsRoot,
   GallerySaver? gallerySaver,
   List<Override> extraOverrides = const [],
+  FakeMicrophonePermission? microphone,
 }) async {
   final prefs = await mockPreferences(preferences);
   final engineHost = host ?? FakeEngineHost();
@@ -211,6 +260,8 @@ Future<ProviderContainer> createContainer({
       sharedPreferencesProvider.overrideWithValue(prefs),
       beautyEngineProvider.overrideWithValue(BeautyEngine(hostApi: engineHost, registerEventHandlers: false)),
       capturePathBuilderProvider.overrideWithValue(() async => '/tmp/yuz_test_capture.jpg'),
+      videoPathBuilderProvider.overrideWithValue(() async => '/tmp/yuz_test_video.mp4'),
+      microphonePermissionServiceProvider.overrideWithValue(microphone ?? FakeMicrophonePermission()),
       cameraPermissionServiceProvider.overrideWithValue(FakePermissionService(permission)),
       projectRepositoryProvider.overrideWithValue(
         ProjectRepository(root: () async => projectsRoot ?? Directory('${Directory.systemTemp.path}/yuz_no_projects')),

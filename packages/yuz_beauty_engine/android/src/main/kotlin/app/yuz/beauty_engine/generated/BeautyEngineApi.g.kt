@@ -278,7 +278,8 @@ enum class EngineErrorCode(val raw: Int) {
   FACE_MODEL_UNAVAILABLE(5),
   CAPTURE_FAILED(6),
   THERMAL_THROTTLING(7),
-  UNKNOWN(8);
+  RECORDING_FAILED(8),
+  UNKNOWN(9);
 
   companion object {
     fun ofRaw(raw: Int): EngineErrorCode? {
@@ -812,6 +813,110 @@ data class PhotoCaptureResult (
 }
 
 /** Generated class from Pigeon that represents data sent in messages. */
+data class VideoRecordingOptions (
+  /** Destination .mp4 (H.264 + AAC). Written atomically when recording stops. */
+  val outputFilePath: String,
+  /**
+   * Records the microphone when permission is granted; silently falls back
+   * to video only otherwise (see [VideoRecordingResult.hasAudio]).
+   */
+  val recordAudio: Boolean,
+  /** Bits per second; 0 = derived from the frame size. */
+  val videoBitrate: Long
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): VideoRecordingOptions {
+      val outputFilePath = pigeonVar_list[0] as String
+      val recordAudio = pigeonVar_list[1] as Boolean
+      val videoBitrate = pigeonVar_list[2] as Long
+      return VideoRecordingOptions(outputFilePath, recordAudio, videoBitrate)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      outputFilePath,
+      recordAudio,
+      videoBitrate,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as VideoRecordingOptions
+    return BeautyEngineApiPigeonUtils.deepEquals(this.outputFilePath, other.outputFilePath) && BeautyEngineApiPigeonUtils.deepEquals(this.recordAudio, other.recordAudio) && BeautyEngineApiPigeonUtils.deepEquals(this.videoBitrate, other.videoBitrate)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.outputFilePath)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.recordAudio)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.videoBitrate)
+    return result
+  }
+  override fun toString(): String {
+    return "VideoRecordingOptions(outputFilePath=$outputFilePath, recordAudio=$recordAudio, videoBitrate=$videoBitrate)"
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class VideoRecordingResult (
+  val filePath: String,
+  val durationMillis: Long,
+  val width: Long,
+  val height: Long,
+  val hasAudio: Boolean
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): VideoRecordingResult {
+      val filePath = pigeonVar_list[0] as String
+      val durationMillis = pigeonVar_list[1] as Long
+      val width = pigeonVar_list[2] as Long
+      val height = pigeonVar_list[3] as Long
+      val hasAudio = pigeonVar_list[4] as Boolean
+      return VideoRecordingResult(filePath, durationMillis, width, height, hasAudio)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      filePath,
+      durationMillis,
+      width,
+      height,
+      hasAudio,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as VideoRecordingResult
+    return BeautyEngineApiPigeonUtils.deepEquals(this.filePath, other.filePath) && BeautyEngineApiPigeonUtils.deepEquals(this.durationMillis, other.durationMillis) && BeautyEngineApiPigeonUtils.deepEquals(this.width, other.width) && BeautyEngineApiPigeonUtils.deepEquals(this.height, other.height) && BeautyEngineApiPigeonUtils.deepEquals(this.hasAudio, other.hasAudio)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.filePath)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.durationMillis)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.width)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.height)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.hasAudio)
+    return result
+  }
+  override fun toString(): String {
+    return "VideoRecordingResult(filePath=$filePath, durationMillis=$durationMillis, width=$width, height=$height, hasAudio=$hasAudio)"
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
 data class FaceTrackingStatus (
   val faceCount: Long,
   val beautifiedFaceCount: Long,
@@ -1028,15 +1133,25 @@ private open class BeautyEngineApiPigeonCodec : StandardMessageCodec() {
       }
       142.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          FaceTrackingStatus.fromList(it)
+          VideoRecordingOptions.fromList(it)
         }
       }
       143.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          PerformanceSample.fromList(it)
+          VideoRecordingResult.fromList(it)
         }
       }
       144.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          FaceTrackingStatus.fromList(it)
+        }
+      }
+      145.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          PerformanceSample.fromList(it)
+        }
+      }
+      146.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
           EngineError.fromList(it)
         }
@@ -1098,16 +1213,24 @@ private open class BeautyEngineApiPigeonCodec : StandardMessageCodec() {
         stream.write(141)
         writeValue(stream, value.toList())
       }
-      is FaceTrackingStatus -> {
+      is VideoRecordingOptions -> {
         stream.write(142)
         writeValue(stream, value.toList())
       }
-      is PerformanceSample -> {
+      is VideoRecordingResult -> {
         stream.write(143)
         writeValue(stream, value.toList())
       }
-      is EngineError -> {
+      is FaceTrackingStatus -> {
         stream.write(144)
+        writeValue(stream, value.toList())
+      }
+      is PerformanceSample -> {
+        stream.write(145)
+        writeValue(stream, value.toList())
+      }
+      is EngineError -> {
+        stream.write(146)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
@@ -1131,6 +1254,13 @@ interface BeautyEngineHostApi {
   fun setZoomRatio(ratio: Double)
   fun setExposureBias(ev: Double)
   suspend fun capturePhoto(outputFilePath: String): PhotoCaptureResult
+  /**
+   * Records the processed (beautified) preview. Lens switches are rejected
+   * while recording; pause() finishes the recording, and the next
+   * stopRecording() returns it.
+   */
+  suspend fun startRecording(options: VideoRecordingOptions)
+  suspend fun stopRecording(): VideoRecordingResult
   /** Independent of the camera session; jobs run one at a time. */
   suspend fun processImage(request: ImageProcessingRequest): ImageProcessingResult
   suspend fun pause()
@@ -1298,6 +1428,43 @@ interface BeautyEngineHostApi {
             CoroutineScope(Dispatchers.Main).launch {
               val wrapped: List<Any?> = try {
                 listOf(api.capturePhoto(outputFilePathArg))
+              } catch (exception: Throwable) {
+                BeautyEngineApiPigeonUtils.wrapError(exception)
+              }
+              reply.reply(wrapped)
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.startRecording$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val optionsArg = args[0] as VideoRecordingOptions
+            CoroutineScope(Dispatchers.Main).launch {
+              val wrapped: List<Any?> = try {
+                api.startRecording(optionsArg)
+                listOf(null)
+              } catch (exception: Throwable) {
+                BeautyEngineApiPigeonUtils.wrapError(exception)
+              }
+              reply.reply(wrapped)
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.stopRecording$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            CoroutineScope(Dispatchers.Main).launch {
+              val wrapped: List<Any?> = try {
+                listOf(api.stopRecording())
               } catch (exception: Throwable) {
                 BeautyEngineApiPigeonUtils.wrapError(exception)
               }

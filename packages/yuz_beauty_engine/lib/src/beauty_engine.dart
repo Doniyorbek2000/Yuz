@@ -21,6 +21,7 @@ class BeautyEngineException implements Exception {
     'FACE_MODEL_UNAVAILABLE': EngineErrorCode.faceModelUnavailable,
     'CAPTURE_FAILED': EngineErrorCode.captureFailed,
     'THERMAL_THROTTLING': EngineErrorCode.thermalThrottling,
+    'RECORDING_FAILED': EngineErrorCode.recordingFailed,
   };
 
   factory BeautyEngineException.fromPlatform(PlatformException error) =>
@@ -144,6 +145,29 @@ class BeautyEngine implements BeautyEngineEventsApi {
 
   Future<PhotoCaptureResult> capturePhoto(String outputFilePath) =>
       _guard(() => _host.capturePhoto(outputFilePath));
+
+  /// Starts recording the processed preview into [outputPath] (.mp4).
+  Future<void> startRecording({
+    required String outputPath,
+    bool recordAudio = true,
+    int videoBitrate = 0,
+  }) {
+    if (videoBitrate < 0) {
+      throw ArgumentError.value(videoBitrate, 'videoBitrate', 'must be >= 0');
+    }
+    return _guard(
+      () => _host.startRecording(
+        VideoRecordingOptions(
+          outputFilePath: outputPath,
+          recordAudio: recordAudio,
+          videoBitrate: videoBitrate,
+        ),
+      ),
+    );
+  }
+
+  /// Finishes the recording and returns the playable file.
+  Future<VideoRecordingResult> stopRecording() => _guard(_host.stopRecording);
 
   Future<void> pause() => _guard(_host.pause);
 

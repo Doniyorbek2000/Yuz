@@ -71,16 +71,26 @@ class PhotoProjectState {
 abstract interface class GallerySaver {
   /// Returns false when access was denied or saving failed.
   Future<bool> saveImage(String path);
+
+  /// Same contract as [saveImage] for an .mp4 file.
+  Future<bool> saveVideo(String path);
 }
 
 class GalGallerySaver implements GallerySaver {
   const GalGallerySaver();
 
+  static const album = 'Yuz';
+
   @override
-  Future<bool> saveImage(String path) async {
+  Future<bool> saveImage(String path) => _save(() => Gal.putImage(path, album: album));
+
+  @override
+  Future<bool> saveVideo(String path) => _save(() => Gal.putVideo(path, album: album));
+
+  Future<bool> _save(Future<void> Function() put) async {
     try {
       if (!await Gal.hasAccess(toAlbum: true) && !await Gal.requestAccess(toAlbum: true)) return false;
-      await Gal.putImage(path, album: 'Yuz');
+      await put();
       return true;
     } on GalException catch (error) {
       debugPrint('Gallery save failed: ${error.type}');

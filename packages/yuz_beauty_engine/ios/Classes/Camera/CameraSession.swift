@@ -31,14 +31,48 @@ struct CameraFormatRequest {
 final class CameraSession: NSObject {
   let sessionQueue = DispatchQueue(label: "app.yuz.beauty_engine.session")
   let videoQueue = DispatchQueue(label: "app.yuz.beauty_engine.video", qos: .userInteractive)
+  let audioQueue = DispatchQueue(label: "app.yuz.beauty_engine.audio", qos: .userInitiated)
 
   private let session = AVCaptureSession()
   private let videoOutput = AVCaptureVideoDataOutput()
+  private let audioOutput = AVCaptureAudioDataOutput()
+  private var audioInput: AVCaptureDeviceInput?
   private var input: AVCaptureDeviceInput?
   private(set) var device: AVCaptureDevice?
   private(set) var lens: CameraLens = .front
 
   weak var sampleBufferDelegate: AVCaptureVideoDataOutputSampleBufferDelegate?
+  weak var audioSampleBufferDelegate: AVCaptureAudioDataOutputSampleBufferDelegate?
+
+  /// Adds the microphone only while recording: an always-attached mic would
+  /// interrupt other apps' audio whenever the camera is open. Must be called
+  /// on `sessionQueue`. Returns false when the microphone is unavailable.
+  @discardableResult
+  func setAudioEnabled(_ enabled: Bool) -> Bool {
+    if !enabled {
+      guard audioInput != nil || session.outputs.contains(audioOutput) else { return true }
+      session.beginConfiguration()
+      if let audioInput { session.removeInput(audioInput) }
+      if session.outputs.contains(audioOutput) { session.removeOutput(audioOutput) }
+      session.commitConfiguration()
+      audioOutput.setSampleBufferDelegate(nil, queue: nil)
+      audioInput = nil
+      return true
+    }
+    guard audioInput == nil else { return true }
+    guard AVCaptureDevice.authorizationStatus(for: .audio) == .authorized,
+      let microphone = AVCaptureDevice.default(for: .audio),
+      let input = try? AVCaptureDeviceInput(device: microphone)
+    else { return false }
+    session.beginConfiguration()
+    defer { session.commitConfiguration() }
+    guard session.canAddInput(input), session.canAddOutput(audioOutput) else { return false }
+    session.addInput(input)
+    session.addOutput(audioOutput)
+    audioOutput.setSampleBufferDelegate(audioSampleBufferDelegate, queue: audioQueue)
+    audioInput = input
+    return true
+  }
 
   var isRunning: Bool { session.isRunning }
 
@@ -71,7 +105,7 @@ final class CameraSession: NSObject {
     self.device = device
     self.lens = lens
 
-    if session.outputs.isEmpty {
+    if !session.outputs.contains(videoOutput) {
       videoOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA]
       videoOutput.alwaysDiscardsLateVideoFrames = true
       guard session.canAddOutput(videoOutput) else {
@@ -112,6 +146,8 @@ final class CameraSession: NSObject {
     session.outputs.forEach { session.removeOutput($0) }
     session.commitConfiguration()
     videoOutput.setSampleBufferDelegate(nil, queue: nil)
+    audioOutput.setSampleBufferDelegate(nil, queue: nil)
+    audioInput = nil
     input = nil
     device = nil
   }

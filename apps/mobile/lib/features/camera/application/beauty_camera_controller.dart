@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:yuz_beauty_engine/yuz_beauty_engine.dart';
 
+import '../../permissions/camera_permission_service.dart';
 import '../data/beauty_preset_repository.dart';
 import '../data/filter_lut_repository.dart';
 import '../domain/beauty_adjustments.dart';
@@ -32,7 +33,20 @@ final capturePathBuilderProvider = Provider<CapturePathBuilder>((ref) {
   };
 });
 
+/// Returns the absolute path for a new video recording.
+final videoPathBuilderProvider = Provider<CapturePathBuilder>((ref) {
+  return () async {
+    final documents = await getApplicationDocumentsDirectory();
+    final directory = Directory('${documents.path}/captures');
+    await directory.create(recursive: true);
+    final stamp = DateTime.now().toIso8601String().replaceAll(RegExp(r'[^0-9]'), '').substring(0, 14);
+    return '${directory.path}/YUZ_$stamp.mp4';
+  };
+});
+
 enum CameraPhase { idle, initializing, ready, error }
+
+enum CaptureMode { photo, video }
 
 @immutable
 class CameraViewState {
@@ -52,6 +66,12 @@ class CameraViewState {
     this.isCapturing = false,
     this.lastCapture,
     this.transientError,
+    this.mode = CaptureMode.photo,
+    this.isRecording = false,
+    this.isFinishingRecording = false,
+    this.recordingSeconds = 0,
+    this.recordingHasAudio,
+    this.lastRecording,
   });
 
   final CameraPhase phase;
@@ -72,7 +92,21 @@ class CameraViewState {
   /// Non-fatal engine notifications (e.g. thermal throttling) for a snackbar.
   final EngineErrorCode? transientError;
 
+  final CaptureMode mode;
+  final bool isRecording;
+
+  /// stopRecording() is finishing the file.
+  final bool isFinishingRecording;
+  final int recordingSeconds;
+
+  /// Whether the running recording captures sound (null when not recording).
+  final bool? recordingHasAudio;
+  final VideoRecordingResult? lastRecording;
+
   bool get isReady => phase == CameraPhase.ready && descriptor != null;
+
+  /// Lens, mode and settings changes are blocked while a recording runs.
+  bool get isBusy => isCapturing || isRecording || isFinishingRecording || countdown != null;
 
   CameraViewState copyWith({
     CameraPhase? phase,
@@ -93,6 +127,13 @@ class CameraViewState {
     PhotoCaptureResult? lastCapture,
     EngineErrorCode? transientError,
     bool clearTransientError = false,
+    CaptureMode? mode,
+    bool? isRecording,
+    bool? isFinishingRecording,
+    int? recordingSeconds,
+    bool? recordingHasAudio,
+    bool clearRecordingHasAudio = false,
+    VideoRecordingResult? lastRecording,
   }) => CameraViewState(
     phase: phase ?? this.phase,
     lens: lens ?? this.lens,
@@ -109,6 +150,12 @@ class CameraViewState {
     isCapturing: isCapturing ?? this.isCapturing,
     lastCapture: lastCapture ?? this.lastCapture,
     transientError: clearTransientError ? null : (transientError ?? this.transientError),
+    mode: mode ?? this.mode,
+    isRecording: isRecording ?? this.isRecording,
+    isFinishingRecording: isFinishingRecording ?? this.isFinishingRecording,
+    recordingSeconds: recordingSeconds ?? this.recordingSeconds,
+    recordingHasAudio: clearRecordingHasAudio ? null : (recordingHasAudio ?? this.recordingHasAudio),
+    lastRecording: lastRecording ?? this.lastRecording,
   );
 }
 
@@ -116,6 +163,10 @@ class CameraViewState {
 /// flash, zoom, exposure, timer and capture.
 class BeautyCameraController extends Notifier<CameraViewState> {
   static const timerOptions = [0, 3, 10];
+
+  /// Recordings stop automatically after this long (keeps files shareable).
+  static const maxRecordingSeconds = 180;
+  Timer? _recordingTimer;
 
   final List<StreamSubscription<Object?>> _subscriptions = [];
   Timer? _countdownTimer;
@@ -138,6 +189,8 @@ class BeautyCameraController extends Notifier<CameraViewState> {
       _subscriptions.clear();
       _countdownTimer?.cancel();
       _countdownTimer = null;
+      _recordingTimer?.cancel();
+      _recordingTimer = null;
       final pending = _countdownCompleter;
       if (pending != null && !pending.isCompleted) pending.complete();
       // Leaving the camera releases the native camera, GPU and detector.
@@ -211,6 +264,8 @@ class BeautyCameraController extends Notifier<CameraViewState> {
     if (!state.isReady || _paused) return;
     _paused = true;
     _cancelCountdown();
+    // Finish (not discard) a running recording before the camera stops.
+    if (state.isRecording) await stopRecording();
     await _engine.pause();
   }
 
@@ -221,7 +276,7 @@ class BeautyCameraController extends Notifier<CameraViewState> {
   }
 
   Future<void> switchLens() async {
-    if (!state.isReady || state.isCapturing) return;
+    if (!state.isReady || state.isBusy) return;
     final next = state.lens == CameraLens.front ? CameraLens.back : CameraLens.front;
     try {
       final descriptor = await _engine.switchLens(next);
@@ -271,7 +326,7 @@ class BeautyCameraController extends Notifier<CameraViewState> {
   /// Runs the countdown (if any) and captures. Returns null when cancelled
   /// or failed (failure is reported through [CameraViewState.transientError]).
   Future<PhotoCaptureResult?> capture() async {
-    if (!state.isReady || state.isCapturing || state.countdown != null) return null;
+    if (!state.isReady || state.isBusy) return null;
     if (state.timerSeconds > 0) {
       final completed = await _runCountdown(state.timerSeconds);
       if (!completed) return null;
@@ -284,6 +339,68 @@ class BeautyCameraController extends Notifier<CameraViewState> {
       return result;
     } on BeautyEngineException catch (error) {
       state = state.copyWith(isCapturing: false, transientError: error.code);
+      return null;
+    }
+  }
+
+  void setMode(CaptureMode mode) {
+    if (state.isBusy || state.mode == mode) return;
+    state = state.copyWith(mode: mode);
+  }
+
+  /// Starts recording (after the countdown, if any). Sound is recorded when
+  /// microphone access is granted; otherwise the video is silent.
+  Future<bool> startRecording() async {
+    if (!state.isReady || state.isBusy) return false;
+    if (state.timerSeconds > 0) {
+      final completed = await _runCountdown(state.timerSeconds);
+      if (!completed || !ref.mounted) return false;
+    }
+    final withAudio = await ref.read(microphonePermissionServiceProvider).ensureGranted();
+    if (!ref.mounted || !state.isReady || state.isBusy) return false;
+    try {
+      final path = await ref.read(videoPathBuilderProvider)();
+      await _engine.startRecording(outputPath: path, recordAudio: withAudio);
+    } on BeautyEngineException catch (error) {
+      if (ref.mounted) state = state.copyWith(transientError: error.code);
+      return false;
+    }
+    if (!ref.mounted) return false;
+    state = state.copyWith(isRecording: true, recordingSeconds: 0, recordingHasAudio: withAudio);
+    _recordingTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      final seconds = state.recordingSeconds + 1;
+      state = state.copyWith(recordingSeconds: seconds);
+      if (seconds >= maxRecordingSeconds) unawaited(stopRecording());
+    });
+    return true;
+  }
+
+  /// Finishes the running recording; null when nothing was recorded.
+  Future<VideoRecordingResult?> stopRecording() async {
+    if (!state.isRecording || state.isFinishingRecording) return null;
+    _recordingTimer?.cancel();
+    _recordingTimer = null;
+    state = state.copyWith(isFinishingRecording: true);
+    try {
+      final result = await _engine.stopRecording();
+      if (ref.mounted) {
+        state = state.copyWith(
+          isRecording: false,
+          isFinishingRecording: false,
+          lastRecording: result,
+          clearRecordingHasAudio: true,
+        );
+      }
+      return result;
+    } on BeautyEngineException catch (error) {
+      if (ref.mounted) {
+        state = state.copyWith(
+          isRecording: false,
+          isFinishingRecording: false,
+          transientError: error.code,
+          clearRecordingHasAudio: true,
+        );
+      }
       return null;
     }
   }

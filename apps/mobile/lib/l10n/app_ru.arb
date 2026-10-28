@@ -207,5 +207,21 @@
   "editorColor": "Цвет",
   "editorSearch": "Поиск",
   "editorAlign": "Выравнивание",
-  "editorRotateScale": "Поворот и масштаб"
+  "editorRotateScale": "Поворот и масштаб",
+  "cameraModePhoto": "Фото",
+  "cameraModeVideo": "Видео",
+  "cameraRecordStart": "Начать запись",
+  "cameraRecordStop": "Остановить запись",
+  "cameraRecording": "Идёт запись",
+  "cameraRecordingNoSound": "Без звука: нет доступа к микрофону",
+  "errorRecordingFailed": "Не удалось записать видео.",
+  "videoResultTitle": "Видео",
+  "videoSaveToGallery": "Сохранить в галерею",
+  "videoSavedToGallery": "Сохранено в галерею",
+  "videoSaveFailed": "Не удалось сохранить в галерею. Проверьте доступ к фото в настройках.",
+  "videoNotFound": "Это видео больше недоступно.",
+  "videoPlay": "Воспроизвести",
+  "videoPause": "Пауза",
+  "videoEdit": "Редактировать видео",
+  "videoSilent": "Записано без звука"
 }

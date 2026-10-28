@@ -656,4 +656,52 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get editorRotateScale => 'Поворот и масштаб';
+
+  @override
+  String get cameraModePhoto => 'Фото';
+
+  @override
+  String get cameraModeVideo => 'Видео';
+
+  @override
+  String get cameraRecordStart => 'Начать запись';
+
+  @override
+  String get cameraRecordStop => 'Остановить запись';
+
+  @override
+  String get cameraRecording => 'Идёт запись';
+
+  @override
+  String get cameraRecordingNoSound => 'Без звука: нет доступа к микрофону';
+
+  @override
+  String get errorRecordingFailed => 'Не удалось записать видео.';
+
+  @override
+  String get videoResultTitle => 'Видео';
+
+  @override
+  String get videoSaveToGallery => 'Сохранить в галерею';
+
+  @override
+  String get videoSavedToGallery => 'Сохранено в галерею';
+
+  @override
+  String get videoSaveFailed => 'Не удалось сохранить в галерею. Проверьте доступ к фото в настройках.';
+
+  @override
+  String get videoNotFound => 'Это видео больше недоступно.';
+
+  @override
+  String get videoPlay => 'Воспроизвести';
+
+  @override
+  String get videoPause => 'Пауза';
+
+  @override
+  String get videoEdit => 'Редактировать видео';
+
+  @override
+  String get videoSilent => 'Записано без звука';
 }

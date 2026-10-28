@@ -48,6 +48,30 @@ class FakeHostApi implements BeautyEngineHostApi {
     );
   }
 
+  VideoRecordingOptions? lastRecording;
+
+  @override
+  Future<void> startRecording(VideoRecordingOptions options) async =>
+      lastRecording = options;
+
+  @override
+  Future<VideoRecordingResult> stopRecording() async {
+    final options = lastRecording;
+    if (options == null) {
+      throw PlatformException(
+        code: 'RECORDING_FAILED',
+        message: 'Not recording',
+      );
+    }
+    return VideoRecordingResult(
+      filePath: options.outputFilePath,
+      durationMillis: 1500,
+      width: 1080,
+      height: 1920,
+      hasAudio: options.recordAudio,
+    );
+  }
+
   Uint8List? lut;
   int lutCalls = 0;
 
@@ -215,4 +239,33 @@ void main() {
       );
     },
   );
+
+  test('recording forwards options and maps recording errors', () async {
+    final host = FakeHostApi();
+    final engine = BeautyEngine(hostApi: host, registerEventHandlers: false);
+
+    await expectLater(
+      engine.stopRecording(),
+      throwsA(
+        isA<BeautyEngineException>().having(
+          (e) => e.code,
+          'code',
+          EngineErrorCode.recordingFailed,
+        ),
+      ),
+    );
+
+    await engine.startRecording(outputPath: '/v.mp4', recordAudio: false);
+    expect(host.lastRecording!.outputFilePath, '/v.mp4');
+    expect(host.lastRecording!.recordAudio, isFalse);
+    expect(host.lastRecording!.videoBitrate, 0);
+
+    final result = await engine.stopRecording();
+    expect(result.durationMillis, 1500);
+    expect(result.hasAudio, isFalse);
+    expect(
+      () => engine.startRecording(outputPath: '/v.mp4', videoBitrate: -1),
+      throwsArgumentError,
+    );
+  });
 }

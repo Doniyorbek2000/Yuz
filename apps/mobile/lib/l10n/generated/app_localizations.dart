@@ -1340,6 +1340,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rotate and scale'**
   String get editorRotateScale;
+
+  /// No description provided for @cameraModePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get cameraModePhoto;
+
+  /// No description provided for @cameraModeVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get cameraModeVideo;
+
+  /// No description provided for @cameraRecordStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start recording'**
+  String get cameraRecordStart;
+
+  /// No description provided for @cameraRecordStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop recording'**
+  String get cameraRecordStop;
+
+  /// No description provided for @cameraRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording'**
+  String get cameraRecording;
+
+  /// No description provided for @cameraRecordingNoSound.
+  ///
+  /// In en, this message translates to:
+  /// **'No sound: microphone access is off'**
+  String get cameraRecordingNoSound;
+
+  /// No description provided for @errorRecordingFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The video could not be recorded.'**
+  String get errorRecordingFailed;
+
+  /// No description provided for @videoResultTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get videoResultTitle;
+
+  /// No description provided for @videoSaveToGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to gallery'**
+  String get videoSaveToGallery;
+
+  /// No description provided for @videoSavedToGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to your gallery'**
+  String get videoSavedToGallery;
+
+  /// No description provided for @videoSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save to the gallery. Check photo access in Settings.'**
+  String get videoSaveFailed;
+
+  /// No description provided for @videoNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This video is no longer available.'**
+  String get videoNotFound;
+
+  /// No description provided for @videoPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get videoPlay;
+
+  /// No description provided for @videoPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get videoPause;
+
+  /// No description provided for @videoEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit video'**
+  String get videoEdit;
+
+  /// No description provided for @videoSilent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded without sound'**
+  String get videoSilent;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

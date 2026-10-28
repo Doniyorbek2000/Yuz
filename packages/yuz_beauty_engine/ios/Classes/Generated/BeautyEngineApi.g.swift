@@ -231,7 +231,8 @@ enum EngineErrorCode: Int, CaseIterable {
   case faceModelUnavailable = 5
   case captureFailed = 6
   case thermalThrottling = 7
-  case unknown = 8
+  case recordingFailed = 8
+  case unknown = 9
 }
 
 /// Generated class from Pigeon that represents data sent in messages.
@@ -796,6 +797,110 @@ struct PhotoCaptureResult: Hashable, CustomStringConvertible {
 }
 
 /// Generated class from Pigeon that represents data sent in messages.
+struct VideoRecordingOptions: Hashable, CustomStringConvertible {
+  /// Destination .mp4 (H.264 + AAC). Written atomically when recording stops.
+  var outputFilePath: String
+  /// Records the microphone when permission is granted; silently falls back
+  /// to video only otherwise (see [VideoRecordingResult.hasAudio]).
+  var recordAudio: Bool
+  /// Bits per second; 0 = derived from the frame size.
+  var videoBitrate: Int64
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> VideoRecordingOptions? {
+    let outputFilePath = pigeonVar_list[0] as! String
+    let recordAudio = pigeonVar_list[1] as! Bool
+    let videoBitrate = pigeonVar_list[2] as! Int64
+
+    return VideoRecordingOptions(
+      outputFilePath: outputFilePath,
+      recordAudio: recordAudio,
+      videoBitrate: videoBitrate
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      outputFilePath,
+      recordAudio,
+      videoBitrate,
+    ]
+  }
+  static func == (lhs: VideoRecordingOptions, rhs: VideoRecordingOptions) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return BeautyEngineApiPigeonInternal.deepEquals(lhs.outputFilePath, rhs.outputFilePath) && BeautyEngineApiPigeonInternal.deepEquals(lhs.recordAudio, rhs.recordAudio) && BeautyEngineApiPigeonInternal.deepEquals(lhs.videoBitrate, rhs.videoBitrate)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("VideoRecordingOptions")
+    BeautyEngineApiPigeonInternal.deepHash(value: outputFilePath, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: recordAudio, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: videoBitrate, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "VideoRecordingOptions(outputFilePath: \(String(describing: outputFilePath)), recordAudio: \(String(describing: recordAudio)), videoBitrate: \(String(describing: videoBitrate)))"
+  }
+}
+
+/// Generated class from Pigeon that represents data sent in messages.
+struct VideoRecordingResult: Hashable, CustomStringConvertible {
+  var filePath: String
+  var durationMillis: Int64
+  var width: Int64
+  var height: Int64
+  var hasAudio: Bool
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> VideoRecordingResult? {
+    let filePath = pigeonVar_list[0] as! String
+    let durationMillis = pigeonVar_list[1] as! Int64
+    let width = pigeonVar_list[2] as! Int64
+    let height = pigeonVar_list[3] as! Int64
+    let hasAudio = pigeonVar_list[4] as! Bool
+
+    return VideoRecordingResult(
+      filePath: filePath,
+      durationMillis: durationMillis,
+      width: width,
+      height: height,
+      hasAudio: hasAudio
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      filePath,
+      durationMillis,
+      width,
+      height,
+      hasAudio,
+    ]
+  }
+  static func == (lhs: VideoRecordingResult, rhs: VideoRecordingResult) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return BeautyEngineApiPigeonInternal.deepEquals(lhs.filePath, rhs.filePath) && BeautyEngineApiPigeonInternal.deepEquals(lhs.durationMillis, rhs.durationMillis) && BeautyEngineApiPigeonInternal.deepEquals(lhs.width, rhs.width) && BeautyEngineApiPigeonInternal.deepEquals(lhs.height, rhs.height) && BeautyEngineApiPigeonInternal.deepEquals(lhs.hasAudio, rhs.hasAudio)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("VideoRecordingResult")
+    BeautyEngineApiPigeonInternal.deepHash(value: filePath, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: durationMillis, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: width, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: height, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: hasAudio, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "VideoRecordingResult(filePath: \(String(describing: filePath)), durationMillis: \(String(describing: durationMillis)), width: \(String(describing: width)), height: \(String(describing: height)), hasAudio: \(String(describing: hasAudio)))"
+  }
+}
+
+/// Generated class from Pigeon that represents data sent in messages.
 struct FaceTrackingStatus: Hashable, CustomStringConvertible {
   var faceCount: Int64
   var beautifiedFaceCount: Int64
@@ -997,10 +1102,14 @@ private class BeautyEngineApiPigeonCodecReader: FlutterStandardReader {
     case 141:
       return PhotoCaptureResult.fromList(self.readValue() as! [Any?])
     case 142:
-      return FaceTrackingStatus.fromList(self.readValue() as! [Any?])
+      return VideoRecordingOptions.fromList(self.readValue() as! [Any?])
     case 143:
-      return PerformanceSample.fromList(self.readValue() as! [Any?])
+      return VideoRecordingResult.fromList(self.readValue() as! [Any?])
     case 144:
+      return FaceTrackingStatus.fromList(self.readValue() as! [Any?])
+    case 145:
+      return PerformanceSample.fromList(self.readValue() as! [Any?])
+    case 146:
       return EngineError.fromList(self.readValue() as! [Any?])
     default:
       return super.readValue(ofType: type)
@@ -1049,14 +1158,20 @@ private class BeautyEngineApiPigeonCodecWriter: FlutterStandardWriter {
     } else if let value = value as? PhotoCaptureResult {
       super.writeByte(141)
       super.writeValue(value.toList())
-    } else if let value = value as? FaceTrackingStatus {
+    } else if let value = value as? VideoRecordingOptions {
       super.writeByte(142)
       super.writeValue(value.toList())
-    } else if let value = value as? PerformanceSample {
+    } else if let value = value as? VideoRecordingResult {
       super.writeByte(143)
       super.writeValue(value.toList())
-    } else if let value = value as? EngineError {
+    } else if let value = value as? FaceTrackingStatus {
       super.writeByte(144)
+      super.writeValue(value.toList())
+    } else if let value = value as? PerformanceSample {
+      super.writeByte(145)
+      super.writeValue(value.toList())
+    } else if let value = value as? EngineError {
+      super.writeByte(146)
       super.writeValue(value.toList())
     } else {
       super.writeValue(value)
@@ -1092,6 +1207,11 @@ protocol BeautyEngineHostApi {
   func setZoomRatio(ratio: Double) throws
   func setExposureBias(ev: Double) throws
   func capturePhoto(outputFilePath: String) async throws -> PhotoCaptureResult
+  /// Records the processed (beautified) preview. Lens switches are rejected
+  /// while recording; pause() finishes the recording, and the next
+  /// stopRecording() returns it.
+  func startRecording(options: VideoRecordingOptions) async throws
+  func stopRecording() async throws -> VideoRecordingResult
   /// Independent of the camera session; jobs run one at a time.
   func processImage(request: ImageProcessingRequest) async throws -> ImageProcessingResult
   func pause() async throws
@@ -1245,6 +1365,41 @@ class BeautyEngineHostApiSetup {
       }
     } else {
       capturePhotoChannel.setMessageHandler(nil)
+    }
+    /// Records the processed (beautified) preview. Lens switches are rejected
+    /// while recording; pause() finishes the recording, and the next
+    /// stopRecording() returns it.
+    let startRecordingChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.startRecording\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      startRecordingChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let optionsArg = args[0] as! VideoRecordingOptions
+        Task { @MainActor in
+          do {
+            try await api.startRecording(options: optionsArg)
+            reply(wrapResult(nil))
+          } catch {
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      startRecordingChannel.setMessageHandler(nil)
+    }
+    let stopRecordingChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.stopRecording\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      stopRecordingChannel.setMessageHandler { _, reply in
+        Task { @MainActor in
+          do {
+            let result = try await api.stopRecording()
+            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      stopRecordingChannel.setMessageHandler(nil)
     }
     /// Independent of the camera session; jobs run one at a time.
     let processImageChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.processImage\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)

@@ -4,6 +4,8 @@
 <dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Yuz uses the camera to show a live beauty preview and take photos. Frames are processed on this device and are not uploaded.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Yuz records sound with your videos. Without access, videos are recorded silently.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Yuz opens a photo you choose to retouch it or to import it as a colour filter (LUT). The image stays on this device.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>

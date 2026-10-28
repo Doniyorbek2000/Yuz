@@ -15,6 +15,7 @@ import '../features/projects/presentation/photo_retouch_screen.dart';
 import '../features/projects/presentation/projects_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/splash/splash_screen.dart';
+import '../features/video/presentation/video_result_screen.dart';
 
 /// Allowed continuation targets for the permission flow (prevents arbitrary
 /// deep-link redirects through the `next` query parameter).
@@ -48,6 +49,13 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
           builder: (_, state) => PhotoEditScreen(projectId: state.pathParameters['id']!),
         ),
       ],
+    ),
+    GoRoute(
+      path: '/video',
+      builder: (_, state) => VideoResultScreen(
+        filePath: state.uri.queryParameters['path'] ?? '',
+        hasAudio: state.uri.queryParameters['audio'] != '0',
+      ),
     ),
     GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
     GoRoute(path: '/privacy', builder: (_, _) => const PrivacyScreen()),
