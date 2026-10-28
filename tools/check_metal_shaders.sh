@@ -18,6 +18,6 @@ if [[ ! -s "${work_dir}/BeautyShaders.metal" ]]; then
   exit 1
 fi
 
-xcrun -sdk iphoneos metal -std=metal2.4 -Werror -c "${work_dir}/BeautyShaders.metal" -o "${work_dir}/BeautyShaders.air"
+xcrun -sdk iphoneos metal -std=ios-metal2.4 -Werror -c "${work_dir}/BeautyShaders.metal" -o "${work_dir}/BeautyShaders.air"
 xcrun -sdk iphoneos metallib "${work_dir}/BeautyShaders.air" -o "${work_dir}/BeautyShaders.metallib"
 echo "Metal kernels compiled: $(wc -l < "${work_dir}/BeautyShaders.metal") lines"
