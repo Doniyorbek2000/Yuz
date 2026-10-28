@@ -158,18 +158,6 @@ class AppLocalizationsUz extends AppLocalizations {
   }
 
   @override
-  String get beautyPanelTitle => 'Goʻzallik';
-
-  @override
-  String get beautySkinSmoothing => 'Silliqlash';
-
-  @override
-  String get beautyTexturePreservation => 'Tekstura';
-
-  @override
-  String get beautySkinBrightening => 'Yorqinlik';
-
-  @override
   String get beautyReset => 'Tiklash';
 
   @override
@@ -351,4 +339,154 @@ class AppLocalizationsUz extends AppLocalizations {
   @override
   String get privacyDeletionBody =>
       'Ilovani oʻchirish lokal saqlangan barcha suratlar, presetlar va sozlamalarni oʻchiradi.';
+
+  @override
+  String get tabLooks => 'Obrazlar';
+
+  @override
+  String get tabFilters => 'Filtrlar';
+
+  @override
+  String get tabSkin => 'Teri';
+
+  @override
+  String get tabFace => 'Yuz';
+
+  @override
+  String get tabReshape => 'Shakl';
+
+  @override
+  String get tabMakeup => 'Makiyaj';
+
+  @override
+  String get tabCamera => 'Kamera';
+
+  @override
+  String get effectSkinSmoothing => 'Silliqlash';
+
+  @override
+  String get effectTexturePreservation => 'Tekstura';
+
+  @override
+  String get effectSkinBrightening => 'Yorqinlik';
+
+  @override
+  String get effectSkinTone => 'Tekis rang';
+
+  @override
+  String get effectBlemishReduction => 'Dogʼlar';
+
+  @override
+  String get effectShineReduction => 'Matlik';
+
+  @override
+  String get effectGlow => 'Nur';
+
+  @override
+  String get effectEyeBrightening => 'Koʼz yorqinligi';
+
+  @override
+  String get effectTeethWhitening => 'Tishlar';
+
+  @override
+  String get effectDarkCircles => 'Koʼz osti';
+
+  @override
+  String get effectFaceSlim => 'Ingichka yuz';
+
+  @override
+  String get effectJawline => 'Jagʼ chizigʼi';
+
+  @override
+  String get effectChin => 'Iyak';
+
+  @override
+  String get effectEyeEnlarge => 'Katta koʼzlar';
+
+  @override
+  String get effectNoseSlim => 'Burun';
+
+  @override
+  String get effectLips => 'Toʼliq lablar';
+
+  @override
+  String get effectForehead => 'Peshona';
+
+  @override
+  String get effectLipstick => 'Lab boʼyogʼi';
+
+  @override
+  String get effectBlush => 'Qizillik';
+
+  @override
+  String get effectEyebrows => 'Qoshlar';
+
+  @override
+  String get effectEyeshadow => 'Koʼz soyasi';
+
+  @override
+  String get effectEyeliner => 'Koʼz chizigʼi';
+
+  @override
+  String get effectMakeupIntensity => 'Makiyaj kuchi';
+
+  @override
+  String get effectFilterIntensity => 'Kuch';
+
+  @override
+  String get filterNone => 'Asl';
+
+  @override
+  String get filterNatural => 'Tabiiy';
+
+  @override
+  String get filterSoft => 'Yumshoq';
+
+  @override
+  String get filterGlow => 'Nur';
+
+  @override
+  String get filterPortrait => 'Portret';
+
+  @override
+  String get filterCinematic => 'Kino';
+
+  @override
+  String get filterWarm => 'Iliq';
+
+  @override
+  String get filterCool => 'Salqin';
+
+  @override
+  String get filterVintage => 'Vintaj';
+
+  @override
+  String get filterBlackWhite => 'Oq-qora';
+
+  @override
+  String get filterCustom => 'Mening LUT';
+
+  @override
+  String get filterImport => 'LUT yuklash';
+
+  @override
+  String get lutImported => 'LUT yuklandi';
+
+  @override
+  String get lutImportWrongSize => 'LUT rasmi 512×512 piksel boʼlishi kerak.';
+
+  @override
+  String get lutImportUnreadable => 'Bu rasmni oʼqib boʼlmadi.';
+
+  @override
+  String get beautyPresetEverydayMakeup => 'Kundalik';
+
+  @override
+  String get beautyPresetEveningMakeup => 'Kechki';
+
+  @override
+  String get requiresFaceTracking => 'Yuz kuzatuvi kerak — kameraga qarang';
+
+  @override
+  String get makeupShade => 'Rang';
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
+import 'color_lut.dart';
 import 'generated/beauty_engine_api.g.dart';
 
 /// Typed error raised by the native engine.
@@ -82,6 +83,18 @@ class BeautyEngine implements BeautyEngineEventsApi {
     } finally {
       _parametersInFlight = false;
     }
+  }
+
+  /// Sets a 512x512 RGBA colour LUT (see [ColorLut]) or clears it with null.
+  Future<void> setColorLut(Uint8List? rgba512) {
+    if (rgba512 != null && rgba512.length != ColorLut.byteLength) {
+      throw ArgumentError.value(
+        rgba512.length,
+        'rgba512',
+        'must be ${ColorLut.byteLength} bytes',
+      );
+    }
+    return _guard(() => _host.setColorLut(rgba512));
   }
 
   Future<void> setFlashMode(FlashMode mode) =>

@@ -7,8 +7,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:yuz_beauty_engine/yuz_beauty_engine.dart';
 
 import '../data/beauty_preset_repository.dart';
+import '../data/filter_lut_repository.dart';
 import '../domain/beauty_adjustments.dart';
 import '../domain/beauty_preset.dart';
+import '../domain/color_filters.dart';
 
 final beautyEngineProvider = Provider<BeautyEngine>((ref) {
   final engine = BeautyEngine();
@@ -173,10 +175,34 @@ class BeautyCameraController extends Notifier<CameraViewState> {
         zoomRatio: capabilities.minZoomRatio,
         exposureBias: 0,
       );
-      await _engine.setBeautyParameters(ref.read(beautyEditorProvider).current.toEngineParameters());
-      if (state.flashMode != FlashMode.off) await _engine.setFlashMode(state.flashMode);
+      final look = ref.read(beautyEditorProvider).current;
+      await engine.setBeautyParameters(look.toEngineParameters());
+      await applyFilterLut(look.filter);
+      if (state.flashMode != FlashMode.off) await engine.setFlashMode(state.flashMode);
     } on BeautyEngineException catch (error) {
       if (ref.mounted) state = state.copyWith(phase: CameraPhase.error, errorCode: error.code);
+    }
+  }
+
+  int _lutRequest = 0;
+
+  /// Uploads the LUT for [filter] (generated off the UI thread). Only the
+  /// most recent request is applied when filters are switched quickly.
+  Future<void> applyFilterLut(FilterId filter) async {
+    final request = ++_lutRequest;
+    final engine = _engine;
+    final Uint8List? lut;
+    try {
+      lut = await ref.read(filterLutRepositoryProvider).lutFor(filter);
+    } on Exception catch (error) {
+      debugPrint('LUT generation failed: $error');
+      return;
+    }
+    if (!ref.mounted || request != _lutRequest || !state.isReady) return;
+    try {
+      await engine.setColorLut(lut);
+    } on BeautyEngineException catch (error) {
+      state = state.copyWith(transientError: error.code);
     }
   }
 
@@ -335,27 +361,42 @@ class BeautyEditorNotifier extends Notifier<BeautyEditorState> {
     return _repository.saveLastAdjustments(state.current);
   }
 
-  void applyPreset(BeautyPreset preset) {
-    state = state.commit(preset.adjustments);
-    _push();
-    unawaited(_repository.saveLastAdjustments(state.current));
-  }
+  void applyPreset(BeautyPreset preset) => _commit(preset.adjustments);
+
+  void selectFilter(FilterId filter) => _commit(state.current.withFilter(filter));
+
+  void selectColor(MakeupItem item, int color) => _commit(state.current.withColor(item, color));
 
   void undo() {
     state = state.undo();
-    _push();
-    unawaited(_repository.saveLastAdjustments(state.current));
+    _afterDiscreteChange();
   }
 
   void reset() {
     state = state.reset();
+    _afterDiscreteChange();
+  }
+
+  void _commit(BeautyAdjustments next) {
+    state = state.commit(next);
+    _afterDiscreteChange();
+  }
+
+  void _afterDiscreteChange() {
     _push();
     unawaited(_repository.saveLastAdjustments(state.current));
   }
 
+  FilterId? _pushedFilter;
+
   void _push() {
     final camera = ref.read(beautyCameraControllerProvider);
     if (!camera.isReady) return;
+    final filter = state.current.filter;
+    if (filter != _pushedFilter) {
+      _pushedFilter = filter;
+      unawaited(ref.read(beautyCameraControllerProvider.notifier).applyFilterLut(filter));
+    }
     unawaited(
       ref
           .read(beautyEngineProvider)

@@ -79,18 +79,23 @@ function pageRuntime() {
     return true;
   };
 
-  // pass = { program, inputs: {uniformName: textureName}, uniforms: {...}, output, width, height, blendMax, clear }
+  // pass = { program, inputs: {uniformName: textureName}, uniforms: {...},
+  //          output | outputs: [names], width, height, blendMax, clear }
   window.__runPass = (pass) => {
     const program = programs.get(pass.program);
     gl.useProgram(program);
-    let target = textures.get(pass.output);
-    if (!target || target.width !== pass.width || target.height !== pass.height) {
-      target = { texture: createTexture(pass.width, pass.height, null), width: pass.width, height: pass.height };
-      textures.set(pass.output, target);
-    }
+    const outputNames = pass.outputs ?? [pass.output];
     const fbo = gl.createFramebuffer();
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, target.texture, 0);
+    outputNames.forEach((name, index) => {
+      let target = textures.get(name);
+      if (!target || target.width !== pass.width || target.height !== pass.height) {
+        target = { texture: createTexture(pass.width, pass.height, null), width: pass.width, height: pass.height };
+        textures.set(name, target);
+      }
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0 + index, gl.TEXTURE_2D, target.texture, 0);
+    });
+    gl.drawBuffers(outputNames.map((_, index) => gl.COLOR_ATTACHMENT0 + index));
     gl.viewport(0, 0, pass.width, pass.height);
     if (pass.clear) {
       gl.clearColor(...pass.clear);
@@ -117,7 +122,10 @@ function pageRuntime() {
       if (location === null) throw new Error(`missing uniform ${uniformName}`);
       if (typeof value === 'number') gl.uniform1f(location, value);
       else if (value.vec2Array) gl.uniform2fv(location, new Float32Array(value.vec2Array));
+      else if (value.vec4Array) gl.uniform4fv(location, new Float32Array(value.vec4Array));
       else if (value.length === 2) gl.uniform2f(location, value[0], value[1]);
+      else if (value.length === 3) gl.uniform3f(location, value[0], value[1], value[2]);
+      else if (value.length === 4) gl.uniform4f(location, value[0], value[1], value[2], value[3]);
       else throw new Error(`unsupported uniform ${uniformName}`);
     }
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

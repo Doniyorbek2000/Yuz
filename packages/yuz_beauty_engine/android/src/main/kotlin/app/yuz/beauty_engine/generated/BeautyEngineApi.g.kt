@@ -408,14 +408,42 @@ data class PreviewDescriptor (
 }
 
 /**
- * All values are normalized to 0..1 (the UI maps 0..100 sliders).
+ * All values are normalized to 0..1 (the UI maps 0..100 sliders). Every
+ * effect is off at 0; texturePreservation only matters while smoothing.
  *
  * Generated class from Pigeon that represents data sent in messages.
  */
 data class BeautyParameters (
   val skinSmoothing: Double,
   val texturePreservation: Double,
-  val skinBrightening: Double
+  val skinBrightening: Double,
+  val skinTone: Double,
+  val blemishReduction: Double,
+  val shineReduction: Double,
+  val glow: Double,
+  val eyeBrightening: Double,
+  val teethWhitening: Double,
+  val darkCircles: Double,
+  val faceSlim: Double,
+  val jawline: Double,
+  val chin: Double,
+  val eyeEnlarge: Double,
+  val noseSlim: Double,
+  val lips: Double,
+  val forehead: Double,
+  val lipstick: Double,
+  val blush: Double,
+  val eyebrows: Double,
+  val eyeshadow: Double,
+  val eyeliner: Double,
+  val makeupIntensity: Double,
+  val lipstickColor: Long,
+  val blushColor: Long,
+  val eyebrowColor: Long,
+  val eyeshadowColor: Long,
+  val eyelinerColor: Long,
+  /** Strength of the colour LUT set with setColorLut (0 = off). */
+  val filterIntensity: Double
 )
  {
   companion object {
@@ -423,7 +451,33 @@ data class BeautyParameters (
       val skinSmoothing = pigeonVar_list[0] as Double
       val texturePreservation = pigeonVar_list[1] as Double
       val skinBrightening = pigeonVar_list[2] as Double
-      return BeautyParameters(skinSmoothing, texturePreservation, skinBrightening)
+      val skinTone = pigeonVar_list[3] as Double
+      val blemishReduction = pigeonVar_list[4] as Double
+      val shineReduction = pigeonVar_list[5] as Double
+      val glow = pigeonVar_list[6] as Double
+      val eyeBrightening = pigeonVar_list[7] as Double
+      val teethWhitening = pigeonVar_list[8] as Double
+      val darkCircles = pigeonVar_list[9] as Double
+      val faceSlim = pigeonVar_list[10] as Double
+      val jawline = pigeonVar_list[11] as Double
+      val chin = pigeonVar_list[12] as Double
+      val eyeEnlarge = pigeonVar_list[13] as Double
+      val noseSlim = pigeonVar_list[14] as Double
+      val lips = pigeonVar_list[15] as Double
+      val forehead = pigeonVar_list[16] as Double
+      val lipstick = pigeonVar_list[17] as Double
+      val blush = pigeonVar_list[18] as Double
+      val eyebrows = pigeonVar_list[19] as Double
+      val eyeshadow = pigeonVar_list[20] as Double
+      val eyeliner = pigeonVar_list[21] as Double
+      val makeupIntensity = pigeonVar_list[22] as Double
+      val lipstickColor = pigeonVar_list[23] as Long
+      val blushColor = pigeonVar_list[24] as Long
+      val eyebrowColor = pigeonVar_list[25] as Long
+      val eyeshadowColor = pigeonVar_list[26] as Long
+      val eyelinerColor = pigeonVar_list[27] as Long
+      val filterIntensity = pigeonVar_list[28] as Double
+      return BeautyParameters(skinSmoothing, texturePreservation, skinBrightening, skinTone, blemishReduction, shineReduction, glow, eyeBrightening, teethWhitening, darkCircles, faceSlim, jawline, chin, eyeEnlarge, noseSlim, lips, forehead, lipstick, blush, eyebrows, eyeshadow, eyeliner, makeupIntensity, lipstickColor, blushColor, eyebrowColor, eyeshadowColor, eyelinerColor, filterIntensity)
     }
   }
   fun toList(): List<Any?> {
@@ -431,6 +485,32 @@ data class BeautyParameters (
       skinSmoothing,
       texturePreservation,
       skinBrightening,
+      skinTone,
+      blemishReduction,
+      shineReduction,
+      glow,
+      eyeBrightening,
+      teethWhitening,
+      darkCircles,
+      faceSlim,
+      jawline,
+      chin,
+      eyeEnlarge,
+      noseSlim,
+      lips,
+      forehead,
+      lipstick,
+      blush,
+      eyebrows,
+      eyeshadow,
+      eyeliner,
+      makeupIntensity,
+      lipstickColor,
+      blushColor,
+      eyebrowColor,
+      eyeshadowColor,
+      eyelinerColor,
+      filterIntensity,
     )
   }
   override fun equals(other: Any?): Boolean {
@@ -441,7 +521,7 @@ data class BeautyParameters (
       return true
     }
     val other = other as BeautyParameters
-    return BeautyEngineApiPigeonUtils.deepEquals(this.skinSmoothing, other.skinSmoothing) && BeautyEngineApiPigeonUtils.deepEquals(this.texturePreservation, other.texturePreservation) && BeautyEngineApiPigeonUtils.deepEquals(this.skinBrightening, other.skinBrightening)
+    return BeautyEngineApiPigeonUtils.deepEquals(this.skinSmoothing, other.skinSmoothing) && BeautyEngineApiPigeonUtils.deepEquals(this.texturePreservation, other.texturePreservation) && BeautyEngineApiPigeonUtils.deepEquals(this.skinBrightening, other.skinBrightening) && BeautyEngineApiPigeonUtils.deepEquals(this.skinTone, other.skinTone) && BeautyEngineApiPigeonUtils.deepEquals(this.blemishReduction, other.blemishReduction) && BeautyEngineApiPigeonUtils.deepEquals(this.shineReduction, other.shineReduction) && BeautyEngineApiPigeonUtils.deepEquals(this.glow, other.glow) && BeautyEngineApiPigeonUtils.deepEquals(this.eyeBrightening, other.eyeBrightening) && BeautyEngineApiPigeonUtils.deepEquals(this.teethWhitening, other.teethWhitening) && BeautyEngineApiPigeonUtils.deepEquals(this.darkCircles, other.darkCircles) && BeautyEngineApiPigeonUtils.deepEquals(this.faceSlim, other.faceSlim) && BeautyEngineApiPigeonUtils.deepEquals(this.jawline, other.jawline) && BeautyEngineApiPigeonUtils.deepEquals(this.chin, other.chin) && BeautyEngineApiPigeonUtils.deepEquals(this.eyeEnlarge, other.eyeEnlarge) && BeautyEngineApiPigeonUtils.deepEquals(this.noseSlim, other.noseSlim) && BeautyEngineApiPigeonUtils.deepEquals(this.lips, other.lips) && BeautyEngineApiPigeonUtils.deepEquals(this.forehead, other.forehead) && BeautyEngineApiPigeonUtils.deepEquals(this.lipstick, other.lipstick) && BeautyEngineApiPigeonUtils.deepEquals(this.blush, other.blush) && BeautyEngineApiPigeonUtils.deepEquals(this.eyebrows, other.eyebrows) && BeautyEngineApiPigeonUtils.deepEquals(this.eyeshadow, other.eyeshadow) && BeautyEngineApiPigeonUtils.deepEquals(this.eyeliner, other.eyeliner) && BeautyEngineApiPigeonUtils.deepEquals(this.makeupIntensity, other.makeupIntensity) && BeautyEngineApiPigeonUtils.deepEquals(this.lipstickColor, other.lipstickColor) && BeautyEngineApiPigeonUtils.deepEquals(this.blushColor, other.blushColor) && BeautyEngineApiPigeonUtils.deepEquals(this.eyebrowColor, other.eyebrowColor) && BeautyEngineApiPigeonUtils.deepEquals(this.eyeshadowColor, other.eyeshadowColor) && BeautyEngineApiPigeonUtils.deepEquals(this.eyelinerColor, other.eyelinerColor) && BeautyEngineApiPigeonUtils.deepEquals(this.filterIntensity, other.filterIntensity)
   }
 
   override fun hashCode(): Int {
@@ -449,10 +529,36 @@ data class BeautyParameters (
     result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.skinSmoothing)
     result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.texturePreservation)
     result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.skinBrightening)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.skinTone)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.blemishReduction)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.shineReduction)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.glow)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.eyeBrightening)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.teethWhitening)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.darkCircles)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.faceSlim)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.jawline)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.chin)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.eyeEnlarge)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.noseSlim)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.lips)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.forehead)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.lipstick)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.blush)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.eyebrows)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.eyeshadow)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.eyeliner)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.makeupIntensity)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.lipstickColor)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.blushColor)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.eyebrowColor)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.eyeshadowColor)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.eyelinerColor)
+    result = 31 * result + BeautyEngineApiPigeonUtils.deepHash(this.filterIntensity)
     return result
   }
   override fun toString(): String {
-    return "BeautyParameters(skinSmoothing=$skinSmoothing, texturePreservation=$texturePreservation, skinBrightening=$skinBrightening)"
+    return "BeautyParameters(skinSmoothing=$skinSmoothing, texturePreservation=$texturePreservation, skinBrightening=$skinBrightening, skinTone=$skinTone, blemishReduction=$blemishReduction, shineReduction=$shineReduction, glow=$glow, eyeBrightening=$eyeBrightening, teethWhitening=$teethWhitening, darkCircles=$darkCircles, faceSlim=$faceSlim, jawline=$jawline, chin=$chin, eyeEnlarge=$eyeEnlarge, noseSlim=$noseSlim, lips=$lips, forehead=$forehead, lipstick=$lipstick, blush=$blush, eyebrows=$eyebrows, eyeshadow=$eyeshadow, eyeliner=$eyeliner, makeupIntensity=$makeupIntensity, lipstickColor=$lipstickColor, blushColor=$blushColor, eyebrowColor=$eyebrowColor, eyeshadowColor=$eyeshadowColor, eyelinerColor=$eyelinerColor, filterIntensity=$filterIntensity)"
   }
 }
 
@@ -856,6 +962,11 @@ interface BeautyEngineHostApi {
   suspend fun switchLens(lens: CameraLens): PreviewDescriptor
   fun getCapabilities(): CameraCapabilities
   fun setBeautyParameters(parameters: BeautyParameters)
+  /**
+   * Sets a 512x512 RGBA lookup table (8x8 tiles of 64^3, first row = top),
+   * i.e. exactly 1048576 bytes. null removes the filter.
+   */
+  fun setColorLut(rgba512: ByteArray?)
   fun setFlashMode(mode: FlashMode)
   fun setZoomRatio(ratio: Double)
   fun setExposureBias(ev: Double)
@@ -934,6 +1045,24 @@ interface BeautyEngineHostApi {
             val parametersArg = args[0] as BeautyParameters
             val wrapped: List<Any?> = try {
               api.setBeautyParameters(parametersArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              BeautyEngineApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.setColorLut$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val rgba512Arg = args[0] as ByteArray?
+            val wrapped: List<Any?> = try {
+              api.setColorLut(rgba512Arg)
               listOf(null)
             } catch (exception: Throwable) {
               BeautyEngineApiPigeonUtils.wrapError(exception)

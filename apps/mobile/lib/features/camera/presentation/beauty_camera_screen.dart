@@ -21,7 +21,7 @@ class BeautyCameraScreen extends ConsumerStatefulWidget {
   ConsumerState<BeautyCameraScreen> createState() => _BeautyCameraScreenState();
 }
 
-enum _PanelTab { beauty, camera }
+enum _PanelTab { beauty, camera, hidden }
 
 class _BeautyCameraScreenState extends ConsumerState<BeautyCameraScreen> {
   late final BeautyCameraController _controller;
@@ -334,24 +334,47 @@ class _BottomPanel extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SegmentedButton<_PanelTab>(
-              showSelectedIcon: false,
-              segments: [
-                ButtonSegment(value: _PanelTab.beauty, label: Text(l10n.beautyPanelTitle)),
-                ButtonSegment(value: _PanelTab.camera, label: Text(l10n.homeSectionCamera)),
-              ],
-              selected: {tab},
-              onSelectionChanged: (selection) => onTabChanged(selection.first),
-            ),
-            const SizedBox(height: AppSpacing.xs),
             AnimatedSize(
               duration: AppDurations.medium,
-              child: tab == _PanelTab.beauty
-                  ? const BeautyControlsPanel()
-                  : _CameraAdjustments(state: state, controller: controller),
+              alignment: Alignment.bottomCenter,
+              child: switch (tab) {
+                _PanelTab.beauty => BeautyStudioPanel(
+                  faceTrackingAvailable: state.descriptor?.faceTrackingAvailable ?? false,
+                ),
+                _PanelTab.camera => _CameraAdjustments(state: state, controller: controller),
+                _PanelTab.hidden => const SizedBox(width: double.infinity),
+              },
             ),
             const SizedBox(height: AppSpacing.sm),
-            _ShutterButton(state: state, controller: controller),
+            Row(
+              children: [
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
+                      key: const ValueKey('toggle-camera-adjustments'),
+                      tooltip: l10n.tabCamera,
+                      isSelected: tab == _PanelTab.camera,
+                      icon: const Icon(Icons.tune_rounded),
+                      selectedIcon: const Icon(Icons.face_retouching_natural),
+                      onPressed: () => onTabChanged(tab == _PanelTab.camera ? _PanelTab.beauty : _PanelTab.camera),
+                    ),
+                  ),
+                ),
+                _ShutterButton(state: state, controller: controller),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                      key: const ValueKey('toggle-panel'),
+                      tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+                      icon: Icon(tab == _PanelTab.hidden ? Icons.expand_less_rounded : Icons.expand_more_rounded),
+                      onPressed: () => onTabChanged(tab == _PanelTab.hidden ? _PanelTab.beauty : _PanelTab.hidden),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),

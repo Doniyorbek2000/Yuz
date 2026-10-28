@@ -1,13 +1,18 @@
 package app.yuz.beauty_engine.face
 
+import kotlin.math.max
+import kotlin.math.min
+
 /**
- * Builds the polygons consumed by `face_mask.frag` from MediaPipe Face Mesh
+ * Builds the uniforms consumed by `face_mask.frag` from MediaPipe Face Mesh
  * landmarks. Index loops follow the public MediaPipe face mesh topology
- * (FACEMESH_FACE_OVAL, *_EYE, *_EYEBROW, LIPS outer contour) ordered as
- * closed rings.
+ * (FACE_OVAL, eyes, eyebrows, outer and inner lip contours) as closed rings.
  *
- * Output coordinates are GL texture UVs: u = x, v = 1 - y (GL origin is
- * bottom-left, landmarks are top-left).
+ * Rings are packed two points per vec4 in this order (point counts):
+ * oval 36, left eye 16, right eye 16, left brow 10, right brow 10, outer lips
+ * 20, inner mouth 20 = 128 points. Coordinates are normalized; with
+ * [flipVertical] they are converted from landmark space (origin top-left) to
+ * OpenGL texture space (origin bottom-left).
  */
 object FaceMaskGeometry {
     val FACE_OVAL = intArrayOf(
@@ -27,62 +32,100 @@ object FaceMaskGeometry {
         61, 146, 91, 181, 84, 17, 314, 405, 321, 375,
         291, 409, 270, 269, 267, 0, 37, 39, 40, 185,
     )
-
-    /** Every landmark index referenced by the mask; only these are stabilized. */
-    val REFERENCED_INDICES: IntArray =
-        (FACE_OVAL + LEFT_EYE + RIGHT_EYE + LEFT_BROW + RIGHT_BROW + LIPS_OUTER).distinct().sorted().toIntArray()
+    val MOUTH_INNER = intArrayOf(
+        78, 95, 88, 178, 87, 14, 317, 402, 318, 324,
+        308, 415, 310, 311, 312, 13, 82, 81, 80, 191,
+    )
+    const val LEFT_CHEEK = 205
+    const val RIGHT_CHEEK = 425
 
     const val MESH_LANDMARK_COUNT = 468
+    const val PACKED_POINTS = 128
 
-    // Dilation factors around each region's centroid. Eyes are dilated to
-    // cover lashes and lids, lips slightly to protect the lip line.
-    private const val EYE_DILATION = 1.45f
-    private const val BROW_DILATION = 1.25f
-    private const val LIP_DILATION = 1.12f
     private const val OVAL_SCALE = 0.98f
+    private const val BROW_DILATION = 1.25f
+    private const val CHEEK_RADIUS_X = 0.13f
+    private const val CHEEK_RADIUS_Y = 0.10f
+    private const val BOUNDS_MARGIN = 0.15f
 
-    class MaskPolygons(
-        val faceOval: FloatArray,
-        val leftEye: FloatArray,
-        val rightEye: FloatArray,
-        val leftBrow: FloatArray,
-        val rightBrow: FloatArray,
-        val lips: FloatArray,
+    /** Every landmark index used by masks; the tracker stabilizes these. */
+    val REFERENCED_INDICES: IntArray =
+        (FACE_OVAL + LEFT_EYE + RIGHT_EYE + LEFT_BROW + RIGHT_BROW + LIPS_OUTER + MOUTH_INNER +
+            intArrayOf(LEFT_CHEEK, RIGHT_CHEEK)).distinct().sorted().toIntArray()
+
+    /** Uniform payload for one face. Boxes are (centre.x, centre.y, halfWidth, halfHeight). */
+    class MaskUniforms(
+        val packedPoints: FloatArray,
+        val leftEyeBox: FloatArray,
+        val rightEyeBox: FloatArray,
+        val mouthBox: FloatArray,
+        val leftCheek: FloatArray,
+        val rightCheek: FloatArray,
+        val faceBounds: FloatArray,
     )
 
-    fun build(landmarks: List<NormalizedPoint>): MaskPolygons {
+    /**
+     * @param aspect frame width / height, used to keep cheek ellipses round in pixels.
+     */
+    fun build(landmarks: List<NormalizedPoint>, aspect: Float, flipVertical: Boolean): MaskUniforms {
         require(landmarks.size >= MESH_LANDMARK_COUNT) {
             "expected at least $MESH_LANDMARK_COUNT landmarks, got ${landmarks.size}"
         }
-        return MaskPolygons(
-            faceOval = ring(landmarks, FACE_OVAL, OVAL_SCALE),
-            leftEye = ring(landmarks, LEFT_EYE, EYE_DILATION),
-            rightEye = ring(landmarks, RIGHT_EYE, EYE_DILATION),
-            leftBrow = ring(landmarks, LEFT_BROW, BROW_DILATION),
-            rightBrow = ring(landmarks, RIGHT_BROW, BROW_DILATION),
-            lips = ring(landmarks, LIPS_OUTER, LIP_DILATION),
+        fun y(value: Float) = if (flipVertical) 1f - value else value
+
+        val packed = FloatArray(PACKED_POINTS * 2)
+        var cursor = 0
+        fun append(indices: IntArray, scale: Float) {
+            val (cx, cy) = centroid(landmarks, indices)
+            for (index in indices) {
+                val point = landmarks[index]
+                packed[cursor++] = cx + (point.x - cx) * scale
+                packed[cursor++] = y(cy + (point.y - cy) * scale)
+            }
+        }
+        append(FACE_OVAL, OVAL_SCALE)
+        append(LEFT_EYE, 1f)
+        append(RIGHT_EYE, 1f)
+        append(LEFT_BROW, BROW_DILATION)
+        append(RIGHT_BROW, BROW_DILATION)
+        append(LIPS_OUTER, 1f)
+        append(MOUTH_INNER, 1f)
+        check(cursor == packed.size)
+
+        fun box(indices: IntArray): FloatArray {
+            val rect = NormalizedRect.bounding(indices.map { landmarks[it] })
+            return floatArrayOf(rect.centerX, y(rect.centerY), rect.width / 2f, rect.height / 2f)
+        }
+
+        val oval = NormalizedRect.bounding(FACE_OVAL.map { landmarks[it] })
+        val cheekRx = oval.width * CHEEK_RADIUS_X
+        val cheekRy = oval.width * CHEEK_RADIUS_Y * aspect
+        fun cheek(index: Int) = floatArrayOf(landmarks[index].x, y(landmarks[index].y), cheekRx, cheekRy)
+
+        val marginX = oval.width * BOUNDS_MARGIN
+        val marginY = oval.height * BOUNDS_MARGIN
+        val top = y(oval.top - marginY)
+        val bottom = y(oval.bottom + marginY)
+        val bounds = floatArrayOf(oval.left - marginX, min(top, bottom), oval.right + marginX, max(top, bottom))
+
+        return MaskUniforms(
+            packedPoints = packed,
+            leftEyeBox = box(LEFT_EYE),
+            rightEyeBox = box(RIGHT_EYE),
+            mouthBox = box(LIPS_OUTER),
+            leftCheek = cheek(LEFT_CHEEK),
+            rightCheek = cheek(RIGHT_CHEEK),
+            faceBounds = bounds,
         )
     }
 
-    /** Returns interleaved (u, v) pairs scaled about the ring centroid. */
-    internal fun ring(landmarks: List<NormalizedPoint>, indices: IntArray, scale: Float): FloatArray {
-        var centroidX = 0f
-        var centroidY = 0f
+    internal fun centroid(landmarks: List<NormalizedPoint>, indices: IntArray): Pair<Float, Float> {
+        var x = 0f
+        var y = 0f
         for (index in indices) {
-            centroidX += landmarks[index].x
-            centroidY += landmarks[index].y
+            x += landmarks[index].x
+            y += landmarks[index].y
         }
-        centroidX /= indices.size
-        centroidY /= indices.size
-
-        val out = FloatArray(indices.size * 2)
-        indices.forEachIndexed { i, index ->
-            val point = landmarks[index]
-            val x = centroidX + (point.x - centroidX) * scale
-            val y = centroidY + (point.y - centroidY) * scale
-            out[i * 2] = x
-            out[i * 2 + 1] = 1f - y
-        }
-        return out
+        return (x / indices.size) to (y / indices.size)
     }
 }

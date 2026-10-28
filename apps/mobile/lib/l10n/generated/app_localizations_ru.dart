@@ -157,18 +157,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get beautyPanelTitle => 'Бьюти';
-
-  @override
-  String get beautySkinSmoothing => 'Сглаживание';
-
-  @override
-  String get beautyTexturePreservation => 'Текстура';
-
-  @override
-  String get beautySkinBrightening => 'Сияние';
-
-  @override
   String get beautyReset => 'Сброс';
 
   @override
@@ -356,4 +344,154 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get privacyDeletionBody => 'Удаление приложения стирает все локальные фото, пресеты и настройки.';
+
+  @override
+  String get tabLooks => 'Образы';
+
+  @override
+  String get tabFilters => 'Фильтры';
+
+  @override
+  String get tabSkin => 'Кожа';
+
+  @override
+  String get tabFace => 'Лицо';
+
+  @override
+  String get tabReshape => 'Форма';
+
+  @override
+  String get tabMakeup => 'Макияж';
+
+  @override
+  String get tabCamera => 'Камера';
+
+  @override
+  String get effectSkinSmoothing => 'Сглаживание';
+
+  @override
+  String get effectTexturePreservation => 'Текстура';
+
+  @override
+  String get effectSkinBrightening => 'Сияние';
+
+  @override
+  String get effectSkinTone => 'Ровный тон';
+
+  @override
+  String get effectBlemishReduction => 'Несовершенства';
+
+  @override
+  String get effectShineReduction => 'Матовость';
+
+  @override
+  String get effectGlow => 'Свечение';
+
+  @override
+  String get effectEyeBrightening => 'Яркие глаза';
+
+  @override
+  String get effectTeethWhitening => 'Зубы';
+
+  @override
+  String get effectDarkCircles => 'Круги под глазами';
+
+  @override
+  String get effectFaceSlim => 'Тонкое лицо';
+
+  @override
+  String get effectJawline => 'Линия челюсти';
+
+  @override
+  String get effectChin => 'Подбородок';
+
+  @override
+  String get effectEyeEnlarge => 'Большие глаза';
+
+  @override
+  String get effectNoseSlim => 'Нос';
+
+  @override
+  String get effectLips => 'Пухлые губы';
+
+  @override
+  String get effectForehead => 'Лоб';
+
+  @override
+  String get effectLipstick => 'Помада';
+
+  @override
+  String get effectBlush => 'Румяна';
+
+  @override
+  String get effectEyebrows => 'Брови';
+
+  @override
+  String get effectEyeshadow => 'Тени';
+
+  @override
+  String get effectEyeliner => 'Подводка';
+
+  @override
+  String get effectMakeupIntensity => 'Сила макияжа';
+
+  @override
+  String get effectFilterIntensity => 'Интенсивность';
+
+  @override
+  String get filterNone => 'Оригинал';
+
+  @override
+  String get filterNatural => 'Натуральный';
+
+  @override
+  String get filterSoft => 'Мягкий';
+
+  @override
+  String get filterGlow => 'Сияние';
+
+  @override
+  String get filterPortrait => 'Портрет';
+
+  @override
+  String get filterCinematic => 'Кино';
+
+  @override
+  String get filterWarm => 'Тёплый';
+
+  @override
+  String get filterCool => 'Холодный';
+
+  @override
+  String get filterVintage => 'Винтаж';
+
+  @override
+  String get filterBlackWhite => 'Ч/Б';
+
+  @override
+  String get filterCustom => 'Мой LUT';
+
+  @override
+  String get filterImport => 'Загрузить LUT';
+
+  @override
+  String get lutImported => 'LUT загружен';
+
+  @override
+  String get lutImportWrongSize => 'Изображение LUT должно быть 512×512 пикселей.';
+
+  @override
+  String get lutImportUnreadable => 'Не удалось прочитать изображение.';
+
+  @override
+  String get beautyPresetEverydayMakeup => 'На каждый день';
+
+  @override
+  String get beautyPresetEveningMakeup => 'Вечерний';
+
+  @override
+  String get requiresFaceTracking => 'Нужен трекинг лица — смотрите в камеру';
+
+  @override
+  String get makeupShade => 'Оттенок';
 }

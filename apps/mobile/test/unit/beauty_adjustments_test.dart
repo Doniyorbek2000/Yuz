@@ -50,7 +50,7 @@ void main() {
     final b = BeautyAdjustments({BeautyEffect.skinSmoothing: 20});
 
     test('commit records undo steps and undo restores them', () {
-      final state = const BeautyEditorState(current: BeautyAdjustments.defaults).commit(a).commit(b);
+      final state = BeautyEditorState(current: BeautyAdjustments.defaults).commit(a).commit(b);
       expect(state.current, b);
       expect(state.undo().current, a);
       expect(state.undo().undo().current, BeautyAdjustments.defaults);
@@ -78,7 +78,7 @@ void main() {
     });
 
     test('history is bounded', () {
-      var state = const BeautyEditorState(current: BeautyAdjustments.defaults);
+      var state = BeautyEditorState(current: BeautyAdjustments.defaults);
       for (var i = 1; i <= BeautyEditorState.maxHistory + 20; i++) {
         state = state.commit(BeautyAdjustments({BeautyEffect.skinSmoothing: i % 101}));
       }

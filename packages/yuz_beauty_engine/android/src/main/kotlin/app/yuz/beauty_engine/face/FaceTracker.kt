@@ -71,6 +71,12 @@ class FaceTracker(
         primaryTrackId = null
     }
 
+    companion object {
+        /** Landmarks consumed by masks and warps; only these are filtered. */
+        val STABILIZED_INDICES: IntArray =
+            (FaceMaskGeometry.REFERENCED_INDICES + FaceWarpBuilder.REFERENCED_INDICES).distinct().sorted().toIntArray()
+    }
+
     private fun matchTracks(detections: List<DetectedFace>): List<Pair<Track, DetectedFace>> {
         val unmatchedTracks = tracks.toMutableList()
         val result = ArrayList<Pair<Track, DetectedFace>>(detections.size)
@@ -101,7 +107,7 @@ class FaceTracker(
 
     private fun stabilize(track: Track, landmarks: List<NormalizedPoint>, timestampNanos: Long): List<NormalizedPoint> {
         val output = landmarks.toMutableList()
-        for (index in FaceMaskGeometry.REFERENCED_INDICES) {
+        for (index in STABILIZED_INDICES) {
             if (index >= landmarks.size) continue
             val point = landmarks[index]
             val x = track.filtersX.getOrPut(index) { OneEuroFilter() }.filter(point.x.toDouble(), timestampNanos)

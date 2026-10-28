@@ -43,12 +43,13 @@ import app.yuz.beauty_engine.generated.PerformanceSample
 import app.yuz.beauty_engine.generated.PhotoCaptureResult
 import app.yuz.beauty_engine.generated.PreviewDescriptor
 import app.yuz.beauty_engine.generated.PreviewQuality
+import app.yuz.beauty_engine.gl.GlLutTexture
 import app.yuz.beauty_engine.gl.ShaderLibrary
 import app.yuz.beauty_engine.perf.PerformanceTracker
 import app.yuz.beauty_engine.perf.ThermalMonitor
-import app.yuz.beauty_engine.render.BeautySettings
 import app.yuz.beauty_engine.render.GlThread
 import app.yuz.beauty_engine.render.PreviewPipeline
+import app.yuz.beauty_engine.render.toSettings
 import io.flutter.view.TextureRegistry
 import java.io.File
 import java.io.FileOutputStream
@@ -218,12 +219,14 @@ class BeautyEngineController(
     }
 
     override fun setBeautyParameters(parameters: BeautyParameters) {
-        val active = requireSession()
-        active.pipeline.settings = BeautySettings(
-            skinSmoothing = parameters.skinSmoothing.toFloat().coerceIn(0f, 1f),
-            texturePreservation = parameters.texturePreservation.toFloat().coerceIn(0f, 1f),
-            skinBrightening = parameters.skinBrightening.toFloat().coerceIn(0f, 1f),
-        )
+        requireSession().pipeline.settings = parameters.toSettings()
+    }
+
+    override fun setColorLut(rgba512: ByteArray?) {
+        if (rgba512 != null && rgba512.size != GlLutTexture.BYTES) {
+            throw engineError(EngineErrorCode.UNKNOWN, "LUT must be ${GlLutTexture.BYTES} bytes, got ${rgba512.size}")
+        }
+        requireSession().pipeline.setLut(rgba512)
     }
 
     override fun setFlashMode(mode: FlashMode) {

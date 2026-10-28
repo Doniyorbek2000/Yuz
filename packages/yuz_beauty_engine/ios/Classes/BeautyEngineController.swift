@@ -131,13 +131,23 @@ final class BeautyEngineController: NSObject, BeautyEngineHostApi,
   }
 
   func setBeautyParameters(parameters: BeautyParameters) throws {
-    let clamp: (Double) -> Float = { Float(min(max($0, 0), 1)) }
-    withState {
-      settings = BeautySettings(
-        skinSmoothing: clamp(parameters.skinSmoothing),
-        texturePreservation: clamp(parameters.texturePreservation),
-        skinBrightening: clamp(parameters.skinBrightening))
+    let mapped = BeautySettings(parameters)
+    withState { settings = mapped }
+  }
+
+  func setColorLut(rgba512: FlutterStandardTypedData?) throws {
+    if let rgba512, rgba512.data.count != MetalBeautyRenderer.lutBytes {
+      throw Self.error(.unknown, "LUT must be \(MetalBeautyRenderer.lutBytes) bytes, got \(rgba512.data.count)")
     }
+    let session = withState { () -> (CameraSession, MetalBeautyRenderer)? in
+      guard let camera = self.camera, let renderer = self.renderer else { return nil }
+      return (camera, renderer)
+    }
+    guard let session else { throw Self.error(.cameraUnavailable, "Engine is not initialized") }
+    let (camera, renderer) = session
+    let data = rgba512?.data
+    // Upload on the video queue so it never races a frame being encoded.
+    camera.videoQueue.async { renderer.setLut(data) }
   }
 
   func setFlashMode(mode: FlashMode) throws {
@@ -560,5 +570,28 @@ final class FirstFrameWaiter {
     continuation = nil
     lock.unlock()
     pending?.resume(with: value)
+  }
+}
+
+extension BeautySettings {
+  /// Maps the Pigeon message, clamping every control to 0...1 (mirrors BeautyParametersMapping.kt).
+  init(_ p: BeautyParameters) {
+    func unit(_ value: Double) -> Float { value.isNaN ? 0 : Float(min(max(value, 0), 1)) }
+    func color(_ value: Int64) -> UInt32 { UInt32(truncatingIfNeeded: value) }
+    self.init(
+      skinSmoothing: unit(p.skinSmoothing), texturePreservation: unit(p.texturePreservation),
+      skinBrightening: unit(p.skinBrightening), skinTone: unit(p.skinTone),
+      blemishReduction: unit(p.blemishReduction), shineReduction: unit(p.shineReduction), glow: unit(p.glow),
+      eyeBrightening: unit(p.eyeBrightening), teethWhitening: unit(p.teethWhitening),
+      darkCircles: unit(p.darkCircles),
+      reshape: ReshapeSettings(
+        faceSlim: unit(p.faceSlim), jawline: unit(p.jawline), chin: unit(p.chin), eyeEnlarge: unit(p.eyeEnlarge),
+        noseSlim: unit(p.noseSlim), lips: unit(p.lips), forehead: unit(p.forehead)),
+      lipstick: unit(p.lipstick), blush: unit(p.blush), eyebrows: unit(p.eyebrows), eyeshadow: unit(p.eyeshadow),
+      eyeliner: unit(p.eyeliner), makeupIntensity: unit(p.makeupIntensity),
+      colors: MakeupColors(
+        lipstick: color(p.lipstickColor), blush: color(p.blushColor), eyebrow: color(p.eyebrowColor),
+        eyeshadow: color(p.eyeshadowColor), eyeliner: color(p.eyelinerColor)),
+      filterIntensity: unit(p.filterIntensity))
   }
 }

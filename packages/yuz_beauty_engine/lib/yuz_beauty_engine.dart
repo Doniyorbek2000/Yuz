@@ -7,6 +7,8 @@ library;
 
 export 'src/beauty_camera_preview.dart';
 export 'src/beauty_engine.dart';
+export 'src/beauty_parameters_factory.dart';
+export 'src/color_lut.dart';
 export 'src/generated/beauty_engine_api.g.dart'
     show
         BeautyParameters,

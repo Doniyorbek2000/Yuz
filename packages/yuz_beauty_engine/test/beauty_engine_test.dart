@@ -30,6 +30,15 @@ class FakeHostApi implements BeautyEngineHostApi {
     if (gate != null) await gate.future;
   }
 
+  Uint8List? lut;
+  int lutCalls = 0;
+
+  @override
+  Future<void> setColorLut(Uint8List? rgba512) async {
+    lutCalls++;
+    lut = rgba512;
+  }
+
   @override
   Future<void> dispose() async => disposeCalls++;
 
@@ -37,11 +46,8 @@ class FakeHostApi implements BeautyEngineHostApi {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-BeautyParameters params(double smoothing) => BeautyParameters(
-  skinSmoothing: smoothing,
-  texturePreservation: 0.5,
-  skinBrightening: 0,
-);
+BeautyParameters params(double smoothing) =>
+    neutralBeautyParameters()..skinSmoothing = smoothing;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -141,5 +147,16 @@ void main() {
     await engine.close();
     expect(host.disposeCalls, 1);
     expect(await engine.errors.isEmpty, isTrue);
+  });
+
+  test('setColorLut forwards valid tables and rejects wrong sizes before the platform call', () async {
+    final host = FakeHostApi();
+    final engine = BeautyEngine(hostApi: host, registerEventHandlers: false);
+    await engine.setColorLut(Uint8List(ColorLut.byteLength));
+    await engine.setColorLut(null);
+    expect(host.lutCalls, 2);
+    expect(host.lut, isNull);
+    expect(() => engine.setColorLut(Uint8List(10)), throwsArgumentError);
+    expect(host.lutCalls, 2);
   });
 }

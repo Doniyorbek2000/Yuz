@@ -104,6 +104,13 @@ class PreviewPipeline(
         }
     }
 
+    /** Uploads (or clears) the colour LUT on the GL thread. */
+    fun setLut(rgba: ByteArray?) = glThread.post {
+        val core = egl ?: return@post
+        core.makeCurrent(windowSurface ?: offscreenSurface ?: return@post)
+        runCatching { renderer?.setLut(rgba) }.onFailure { Log.e(TAG, "LUT upload failed", it) }
+    }
+
     suspend fun capture(): CapturedFrame = glThread.run {
         val activeRenderer = checkNotNull(renderer) { "pipeline not started" }
         check(activeRenderer.width > 0) { "no camera frame rendered yet" }

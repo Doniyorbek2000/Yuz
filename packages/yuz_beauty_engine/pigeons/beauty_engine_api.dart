@@ -99,17 +99,79 @@ class PreviewDescriptor {
   bool faceTrackingAvailable;
 }
 
-/// All values are normalized to 0..1 (the UI maps 0..100 sliders).
+/// All values are normalized to 0..1 (the UI maps 0..100 sliders). Every
+/// effect is off at 0; texturePreservation only matters while smoothing.
 class BeautyParameters {
   BeautyParameters({
     required this.skinSmoothing,
     required this.texturePreservation,
     required this.skinBrightening,
+    required this.skinTone,
+    required this.blemishReduction,
+    required this.shineReduction,
+    required this.glow,
+    required this.eyeBrightening,
+    required this.teethWhitening,
+    required this.darkCircles,
+    required this.faceSlim,
+    required this.jawline,
+    required this.chin,
+    required this.eyeEnlarge,
+    required this.noseSlim,
+    required this.lips,
+    required this.forehead,
+    required this.lipstick,
+    required this.blush,
+    required this.eyebrows,
+    required this.eyeshadow,
+    required this.eyeliner,
+    required this.makeupIntensity,
+    required this.lipstickColor,
+    required this.blushColor,
+    required this.eyebrowColor,
+    required this.eyeshadowColor,
+    required this.eyelinerColor,
+    required this.filterIntensity,
   });
 
+  // Skin
   double skinSmoothing;
   double texturePreservation;
   double skinBrightening;
+  double skinTone;
+  double blemishReduction;
+  double shineReduction;
+  double glow;
+
+  // Face details
+  double eyeBrightening;
+  double teethWhitening;
+  double darkCircles;
+
+  // Reshape (requires face tracking)
+  double faceSlim;
+  double jawline;
+  double chin;
+  double eyeEnlarge;
+  double noseSlim;
+  double lips;
+  double forehead;
+
+  // Makeup (requires face tracking); colours are 0xAARRGGBB
+  double lipstick;
+  double blush;
+  double eyebrows;
+  double eyeshadow;
+  double eyeliner;
+  double makeupIntensity;
+  int lipstickColor;
+  int blushColor;
+  int eyebrowColor;
+  int eyeshadowColor;
+  int eyelinerColor;
+
+  /// Strength of the colour LUT set with setColorLut (0 = off).
+  double filterIntensity;
 }
 
 class CameraCapabilities {
@@ -197,6 +259,10 @@ abstract class BeautyEngineHostApi {
   CameraCapabilities getCapabilities();
 
   void setBeautyParameters(BeautyParameters parameters);
+
+  /// Sets a 512x512 RGBA lookup table (8x8 tiles of 64^3, first row = top),
+  /// i.e. exactly 1048576 bytes. null removes the filter.
+  void setColorLut(Uint8List? rgba512);
 
   void setFlashMode(FlashMode mode);
 

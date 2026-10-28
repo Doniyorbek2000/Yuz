@@ -358,13 +358,41 @@ struct PreviewDescriptor: Hashable, CustomStringConvertible {
   }
 }
 
-/// All values are normalized to 0..1 (the UI maps 0..100 sliders).
+/// All values are normalized to 0..1 (the UI maps 0..100 sliders). Every
+/// effect is off at 0; texturePreservation only matters while smoothing.
 ///
 /// Generated class from Pigeon that represents data sent in messages.
 struct BeautyParameters: Hashable, CustomStringConvertible {
   var skinSmoothing: Double
   var texturePreservation: Double
   var skinBrightening: Double
+  var skinTone: Double
+  var blemishReduction: Double
+  var shineReduction: Double
+  var glow: Double
+  var eyeBrightening: Double
+  var teethWhitening: Double
+  var darkCircles: Double
+  var faceSlim: Double
+  var jawline: Double
+  var chin: Double
+  var eyeEnlarge: Double
+  var noseSlim: Double
+  var lips: Double
+  var forehead: Double
+  var lipstick: Double
+  var blush: Double
+  var eyebrows: Double
+  var eyeshadow: Double
+  var eyeliner: Double
+  var makeupIntensity: Double
+  var lipstickColor: Int64
+  var blushColor: Int64
+  var eyebrowColor: Int64
+  var eyeshadowColor: Int64
+  var eyelinerColor: Int64
+  /// Strength of the colour LUT set with setColorLut (0 = off).
+  var filterIntensity: Double
 
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
@@ -372,11 +400,63 @@ struct BeautyParameters: Hashable, CustomStringConvertible {
     let skinSmoothing = pigeonVar_list[0] as! Double
     let texturePreservation = pigeonVar_list[1] as! Double
     let skinBrightening = pigeonVar_list[2] as! Double
+    let skinTone = pigeonVar_list[3] as! Double
+    let blemishReduction = pigeonVar_list[4] as! Double
+    let shineReduction = pigeonVar_list[5] as! Double
+    let glow = pigeonVar_list[6] as! Double
+    let eyeBrightening = pigeonVar_list[7] as! Double
+    let teethWhitening = pigeonVar_list[8] as! Double
+    let darkCircles = pigeonVar_list[9] as! Double
+    let faceSlim = pigeonVar_list[10] as! Double
+    let jawline = pigeonVar_list[11] as! Double
+    let chin = pigeonVar_list[12] as! Double
+    let eyeEnlarge = pigeonVar_list[13] as! Double
+    let noseSlim = pigeonVar_list[14] as! Double
+    let lips = pigeonVar_list[15] as! Double
+    let forehead = pigeonVar_list[16] as! Double
+    let lipstick = pigeonVar_list[17] as! Double
+    let blush = pigeonVar_list[18] as! Double
+    let eyebrows = pigeonVar_list[19] as! Double
+    let eyeshadow = pigeonVar_list[20] as! Double
+    let eyeliner = pigeonVar_list[21] as! Double
+    let makeupIntensity = pigeonVar_list[22] as! Double
+    let lipstickColor = pigeonVar_list[23] as! Int64
+    let blushColor = pigeonVar_list[24] as! Int64
+    let eyebrowColor = pigeonVar_list[25] as! Int64
+    let eyeshadowColor = pigeonVar_list[26] as! Int64
+    let eyelinerColor = pigeonVar_list[27] as! Int64
+    let filterIntensity = pigeonVar_list[28] as! Double
 
     return BeautyParameters(
       skinSmoothing: skinSmoothing,
       texturePreservation: texturePreservation,
-      skinBrightening: skinBrightening
+      skinBrightening: skinBrightening,
+      skinTone: skinTone,
+      blemishReduction: blemishReduction,
+      shineReduction: shineReduction,
+      glow: glow,
+      eyeBrightening: eyeBrightening,
+      teethWhitening: teethWhitening,
+      darkCircles: darkCircles,
+      faceSlim: faceSlim,
+      jawline: jawline,
+      chin: chin,
+      eyeEnlarge: eyeEnlarge,
+      noseSlim: noseSlim,
+      lips: lips,
+      forehead: forehead,
+      lipstick: lipstick,
+      blush: blush,
+      eyebrows: eyebrows,
+      eyeshadow: eyeshadow,
+      eyeliner: eyeliner,
+      makeupIntensity: makeupIntensity,
+      lipstickColor: lipstickColor,
+      blushColor: blushColor,
+      eyebrowColor: eyebrowColor,
+      eyeshadowColor: eyeshadowColor,
+      eyelinerColor: eyelinerColor,
+      filterIntensity: filterIntensity
     )
   }
   func toList() -> [Any?] {
@@ -384,13 +464,39 @@ struct BeautyParameters: Hashable, CustomStringConvertible {
       skinSmoothing,
       texturePreservation,
       skinBrightening,
+      skinTone,
+      blemishReduction,
+      shineReduction,
+      glow,
+      eyeBrightening,
+      teethWhitening,
+      darkCircles,
+      faceSlim,
+      jawline,
+      chin,
+      eyeEnlarge,
+      noseSlim,
+      lips,
+      forehead,
+      lipstick,
+      blush,
+      eyebrows,
+      eyeshadow,
+      eyeliner,
+      makeupIntensity,
+      lipstickColor,
+      blushColor,
+      eyebrowColor,
+      eyeshadowColor,
+      eyelinerColor,
+      filterIntensity,
     ]
   }
   static func == (lhs: BeautyParameters, rhs: BeautyParameters) -> Bool {
     if Swift.type(of: lhs) != Swift.type(of: rhs) {
       return false
     }
-    return BeautyEngineApiPigeonInternal.deepEquals(lhs.skinSmoothing, rhs.skinSmoothing) && BeautyEngineApiPigeonInternal.deepEquals(lhs.texturePreservation, rhs.texturePreservation) && BeautyEngineApiPigeonInternal.deepEquals(lhs.skinBrightening, rhs.skinBrightening)
+    return BeautyEngineApiPigeonInternal.deepEquals(lhs.skinSmoothing, rhs.skinSmoothing) && BeautyEngineApiPigeonInternal.deepEquals(lhs.texturePreservation, rhs.texturePreservation) && BeautyEngineApiPigeonInternal.deepEquals(lhs.skinBrightening, rhs.skinBrightening) && BeautyEngineApiPigeonInternal.deepEquals(lhs.skinTone, rhs.skinTone) && BeautyEngineApiPigeonInternal.deepEquals(lhs.blemishReduction, rhs.blemishReduction) && BeautyEngineApiPigeonInternal.deepEquals(lhs.shineReduction, rhs.shineReduction) && BeautyEngineApiPigeonInternal.deepEquals(lhs.glow, rhs.glow) && BeautyEngineApiPigeonInternal.deepEquals(lhs.eyeBrightening, rhs.eyeBrightening) && BeautyEngineApiPigeonInternal.deepEquals(lhs.teethWhitening, rhs.teethWhitening) && BeautyEngineApiPigeonInternal.deepEquals(lhs.darkCircles, rhs.darkCircles) && BeautyEngineApiPigeonInternal.deepEquals(lhs.faceSlim, rhs.faceSlim) && BeautyEngineApiPigeonInternal.deepEquals(lhs.jawline, rhs.jawline) && BeautyEngineApiPigeonInternal.deepEquals(lhs.chin, rhs.chin) && BeautyEngineApiPigeonInternal.deepEquals(lhs.eyeEnlarge, rhs.eyeEnlarge) && BeautyEngineApiPigeonInternal.deepEquals(lhs.noseSlim, rhs.noseSlim) && BeautyEngineApiPigeonInternal.deepEquals(lhs.lips, rhs.lips) && BeautyEngineApiPigeonInternal.deepEquals(lhs.forehead, rhs.forehead) && BeautyEngineApiPigeonInternal.deepEquals(lhs.lipstick, rhs.lipstick) && BeautyEngineApiPigeonInternal.deepEquals(lhs.blush, rhs.blush) && BeautyEngineApiPigeonInternal.deepEquals(lhs.eyebrows, rhs.eyebrows) && BeautyEngineApiPigeonInternal.deepEquals(lhs.eyeshadow, rhs.eyeshadow) && BeautyEngineApiPigeonInternal.deepEquals(lhs.eyeliner, rhs.eyeliner) && BeautyEngineApiPigeonInternal.deepEquals(lhs.makeupIntensity, rhs.makeupIntensity) && BeautyEngineApiPigeonInternal.deepEquals(lhs.lipstickColor, rhs.lipstickColor) && BeautyEngineApiPigeonInternal.deepEquals(lhs.blushColor, rhs.blushColor) && BeautyEngineApiPigeonInternal.deepEquals(lhs.eyebrowColor, rhs.eyebrowColor) && BeautyEngineApiPigeonInternal.deepEquals(lhs.eyeshadowColor, rhs.eyeshadowColor) && BeautyEngineApiPigeonInternal.deepEquals(lhs.eyelinerColor, rhs.eyelinerColor) && BeautyEngineApiPigeonInternal.deepEquals(lhs.filterIntensity, rhs.filterIntensity)
   }
 
   func hash(into hasher: inout Hasher) {
@@ -398,10 +504,36 @@ struct BeautyParameters: Hashable, CustomStringConvertible {
     BeautyEngineApiPigeonInternal.deepHash(value: skinSmoothing, hasher: &hasher)
     BeautyEngineApiPigeonInternal.deepHash(value: texturePreservation, hasher: &hasher)
     BeautyEngineApiPigeonInternal.deepHash(value: skinBrightening, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: skinTone, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: blemishReduction, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: shineReduction, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: glow, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: eyeBrightening, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: teethWhitening, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: darkCircles, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: faceSlim, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: jawline, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: chin, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: eyeEnlarge, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: noseSlim, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: lips, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: forehead, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: lipstick, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: blush, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: eyebrows, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: eyeshadow, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: eyeliner, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: makeupIntensity, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: lipstickColor, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: blushColor, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: eyebrowColor, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: eyeshadowColor, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: eyelinerColor, hasher: &hasher)
+    BeautyEngineApiPigeonInternal.deepHash(value: filterIntensity, hasher: &hasher)
   }
 
   public var description: String {
-    return "BeautyParameters(skinSmoothing: \(String(describing: skinSmoothing)), texturePreservation: \(String(describing: texturePreservation)), skinBrightening: \(String(describing: skinBrightening)))"
+    return "BeautyParameters(skinSmoothing: \(String(describing: skinSmoothing)), texturePreservation: \(String(describing: texturePreservation)), skinBrightening: \(String(describing: skinBrightening)), skinTone: \(String(describing: skinTone)), blemishReduction: \(String(describing: blemishReduction)), shineReduction: \(String(describing: shineReduction)), glow: \(String(describing: glow)), eyeBrightening: \(String(describing: eyeBrightening)), teethWhitening: \(String(describing: teethWhitening)), darkCircles: \(String(describing: darkCircles)), faceSlim: \(String(describing: faceSlim)), jawline: \(String(describing: jawline)), chin: \(String(describing: chin)), eyeEnlarge: \(String(describing: eyeEnlarge)), noseSlim: \(String(describing: noseSlim)), lips: \(String(describing: lips)), forehead: \(String(describing: forehead)), lipstick: \(String(describing: lipstick)), blush: \(String(describing: blush)), eyebrows: \(String(describing: eyebrows)), eyeshadow: \(String(describing: eyeshadow)), eyeliner: \(String(describing: eyeliner)), makeupIntensity: \(String(describing: makeupIntensity)), lipstickColor: \(String(describing: lipstickColor)), blushColor: \(String(describing: blushColor)), eyebrowColor: \(String(describing: eyebrowColor)), eyeshadowColor: \(String(describing: eyeshadowColor)), eyelinerColor: \(String(describing: eyelinerColor)), filterIntensity: \(String(describing: filterIntensity)))"
   }
 }
 
@@ -796,6 +928,9 @@ protocol BeautyEngineHostApi {
   func switchLens(lens: CameraLens) async throws -> PreviewDescriptor
   func getCapabilities() throws -> CameraCapabilities
   func setBeautyParameters(parameters: BeautyParameters) throws
+  /// Sets a 512x512 RGBA lookup table (8x8 tiles of 64^3, first row = top),
+  /// i.e. exactly 1048576 bytes. null removes the filter.
+  func setColorLut(rgba512: FlutterStandardTypedData?) throws
   func setFlashMode(mode: FlashMode) throws
   func setZoomRatio(ratio: Double) throws
   func setExposureBias(ev: Double) throws
@@ -872,6 +1007,23 @@ class BeautyEngineHostApiSetup {
       }
     } else {
       setBeautyParametersChannel.setMessageHandler(nil)
+    }
+    /// Sets a 512x512 RGBA lookup table (8x8 tiles of 64^3, first row = top),
+    /// i.e. exactly 1048576 bytes. null removes the filter.
+    let setColorLutChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.setColorLut\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      setColorLutChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let rgba512Arg: FlutterStandardTypedData? = nilOrValue(args[0])
+        do {
+          try api.setColorLut(rgba512: rgba512Arg)
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      setColorLutChannel.setMessageHandler(nil)
     }
     let setFlashModeChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.setFlashMode\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {

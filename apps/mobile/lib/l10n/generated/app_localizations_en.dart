@@ -158,18 +158,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get beautyPanelTitle => 'Beauty';
-
-  @override
-  String get beautySkinSmoothing => 'Smooth';
-
-  @override
-  String get beautyTexturePreservation => 'Texture';
-
-  @override
-  String get beautySkinBrightening => 'Brighten';
-
-  @override
   String get beautyReset => 'Reset';
 
   @override
@@ -350,4 +338,154 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacyDeletionBody => 'Uninstalling the app removes all locally stored photos, presets and settings.';
+
+  @override
+  String get tabLooks => 'Looks';
+
+  @override
+  String get tabFilters => 'Filters';
+
+  @override
+  String get tabSkin => 'Skin';
+
+  @override
+  String get tabFace => 'Face';
+
+  @override
+  String get tabReshape => 'Reshape';
+
+  @override
+  String get tabMakeup => 'Makeup';
+
+  @override
+  String get tabCamera => 'Camera';
+
+  @override
+  String get effectSkinSmoothing => 'Smooth';
+
+  @override
+  String get effectTexturePreservation => 'Texture';
+
+  @override
+  String get effectSkinBrightening => 'Brighten';
+
+  @override
+  String get effectSkinTone => 'Even tone';
+
+  @override
+  String get effectBlemishReduction => 'Blemishes';
+
+  @override
+  String get effectShineReduction => 'Matte';
+
+  @override
+  String get effectGlow => 'Glow';
+
+  @override
+  String get effectEyeBrightening => 'Bright eyes';
+
+  @override
+  String get effectTeethWhitening => 'Teeth';
+
+  @override
+  String get effectDarkCircles => 'Dark circles';
+
+  @override
+  String get effectFaceSlim => 'Slim face';
+
+  @override
+  String get effectJawline => 'Jawline';
+
+  @override
+  String get effectChin => 'Chin';
+
+  @override
+  String get effectEyeEnlarge => 'Bigger eyes';
+
+  @override
+  String get effectNoseSlim => 'Nose';
+
+  @override
+  String get effectLips => 'Fuller lips';
+
+  @override
+  String get effectForehead => 'Forehead';
+
+  @override
+  String get effectLipstick => 'Lipstick';
+
+  @override
+  String get effectBlush => 'Blush';
+
+  @override
+  String get effectEyebrows => 'Brows';
+
+  @override
+  String get effectEyeshadow => 'Eyeshadow';
+
+  @override
+  String get effectEyeliner => 'Eyeliner';
+
+  @override
+  String get effectMakeupIntensity => 'Makeup';
+
+  @override
+  String get effectFilterIntensity => 'Intensity';
+
+  @override
+  String get filterNone => 'Original';
+
+  @override
+  String get filterNatural => 'Natural';
+
+  @override
+  String get filterSoft => 'Soft';
+
+  @override
+  String get filterGlow => 'Glow';
+
+  @override
+  String get filterPortrait => 'Portrait';
+
+  @override
+  String get filterCinematic => 'Cinematic';
+
+  @override
+  String get filterWarm => 'Warm';
+
+  @override
+  String get filterCool => 'Cool';
+
+  @override
+  String get filterVintage => 'Vintage';
+
+  @override
+  String get filterBlackWhite => 'B&W';
+
+  @override
+  String get filterCustom => 'My LUT';
+
+  @override
+  String get filterImport => 'Import LUT';
+
+  @override
+  String get lutImported => 'Custom LUT imported';
+
+  @override
+  String get lutImportWrongSize => 'A LUT image must be 512×512 pixels.';
+
+  @override
+  String get lutImportUnreadable => 'This image could not be read.';
+
+  @override
+  String get beautyPresetEverydayMakeup => 'Everyday';
+
+  @override
+  String get beautyPresetEveningMakeup => 'Evening';
+
+  @override
+  String get requiresFaceTracking => 'Needs face tracking — face the camera';
+
+  @override
+  String get makeupShade => 'Shade';
 }

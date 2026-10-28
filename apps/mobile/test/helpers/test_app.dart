@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +11,7 @@ import 'package:yuz_beauty_engine/yuz_beauty_engine.dart';
 import 'package:yuz_mobile/core/storage/preferences.dart';
 import 'package:yuz_mobile/core/theme/app_theme.dart';
 import 'package:yuz_mobile/features/camera/application/beauty_camera_controller.dart';
+import 'package:yuz_mobile/features/camera/data/filter_lut_repository.dart';
 import 'package:yuz_mobile/features/permissions/camera_permission_service.dart';
 import 'package:yuz_mobile/l10n/generated/app_localizations.dart';
 
@@ -54,6 +56,12 @@ class FakeEngineHost implements BeautyEngineHostApi {
 
   @override
   Future<void> setBeautyParameters(BeautyParameters parameters) async => this.parameters.add(parameters);
+
+  /// Every LUT upload (null = filter cleared).
+  final List<Uint8List?> luts = [];
+
+  @override
+  Future<void> setColorLut(Uint8List? rgba512) async => luts.add(rgba512);
 
   @override
   Future<void> setFlashMode(FlashMode mode) async => calls.add('flash:${mode.name}');
@@ -141,6 +149,12 @@ Future<ProviderContainer> createContainer({
       beautyEngineProvider.overrideWithValue(BeautyEngine(hostApi: engineHost, registerEventHandlers: false)),
       capturePathBuilderProvider.overrideWithValue(() async => '/tmp/yuz_test_capture.jpg'),
       cameraPermissionServiceProvider.overrideWithValue(FakePermissionService(permission)),
+      filterLutRepositoryProvider.overrideWithValue(
+        FilterLutRepository(
+          storageDirectory: () async => Directory.systemTemp.createTemp('yuz_lut_test'),
+          generator: (grade) async => Uint8List(ColorLut.byteLength),
+        ),
+      ),
     ],
   );
   addTearDown(container.dispose);

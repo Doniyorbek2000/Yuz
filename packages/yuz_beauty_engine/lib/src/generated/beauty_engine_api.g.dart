@@ -297,12 +297,39 @@ class PreviewDescriptor {
   }
 }
 
-/// All values are normalized to 0..1 (the UI maps 0..100 sliders).
+/// All values are normalized to 0..1 (the UI maps 0..100 sliders). Every
+/// effect is off at 0; texturePreservation only matters while smoothing.
 class BeautyParameters {
   BeautyParameters({
     required this.skinSmoothing,
     required this.texturePreservation,
     required this.skinBrightening,
+    required this.skinTone,
+    required this.blemishReduction,
+    required this.shineReduction,
+    required this.glow,
+    required this.eyeBrightening,
+    required this.teethWhitening,
+    required this.darkCircles,
+    required this.faceSlim,
+    required this.jawline,
+    required this.chin,
+    required this.eyeEnlarge,
+    required this.noseSlim,
+    required this.lips,
+    required this.forehead,
+    required this.lipstick,
+    required this.blush,
+    required this.eyebrows,
+    required this.eyeshadow,
+    required this.eyeliner,
+    required this.makeupIntensity,
+    required this.lipstickColor,
+    required this.blushColor,
+    required this.eyebrowColor,
+    required this.eyeshadowColor,
+    required this.eyelinerColor,
+    required this.filterIntensity,
   });
 
   double skinSmoothing;
@@ -311,11 +338,90 @@ class BeautyParameters {
 
   double skinBrightening;
 
+  double skinTone;
+
+  double blemishReduction;
+
+  double shineReduction;
+
+  double glow;
+
+  double eyeBrightening;
+
+  double teethWhitening;
+
+  double darkCircles;
+
+  double faceSlim;
+
+  double jawline;
+
+  double chin;
+
+  double eyeEnlarge;
+
+  double noseSlim;
+
+  double lips;
+
+  double forehead;
+
+  double lipstick;
+
+  double blush;
+
+  double eyebrows;
+
+  double eyeshadow;
+
+  double eyeliner;
+
+  double makeupIntensity;
+
+  int lipstickColor;
+
+  int blushColor;
+
+  int eyebrowColor;
+
+  int eyeshadowColor;
+
+  int eyelinerColor;
+
+  /// Strength of the colour LUT set with setColorLut (0 = off).
+  double filterIntensity;
+
   List<Object?> _toList() {
     return <Object?>[
       skinSmoothing,
       texturePreservation,
       skinBrightening,
+      skinTone,
+      blemishReduction,
+      shineReduction,
+      glow,
+      eyeBrightening,
+      teethWhitening,
+      darkCircles,
+      faceSlim,
+      jawline,
+      chin,
+      eyeEnlarge,
+      noseSlim,
+      lips,
+      forehead,
+      lipstick,
+      blush,
+      eyebrows,
+      eyeshadow,
+      eyeliner,
+      makeupIntensity,
+      lipstickColor,
+      blushColor,
+      eyebrowColor,
+      eyeshadowColor,
+      eyelinerColor,
+      filterIntensity,
     ];
   }
 
@@ -328,6 +434,32 @@ class BeautyParameters {
       skinSmoothing: result[0]! as double,
       texturePreservation: result[1]! as double,
       skinBrightening: result[2]! as double,
+      skinTone: result[3]! as double,
+      blemishReduction: result[4]! as double,
+      shineReduction: result[5]! as double,
+      glow: result[6]! as double,
+      eyeBrightening: result[7]! as double,
+      teethWhitening: result[8]! as double,
+      darkCircles: result[9]! as double,
+      faceSlim: result[10]! as double,
+      jawline: result[11]! as double,
+      chin: result[12]! as double,
+      eyeEnlarge: result[13]! as double,
+      noseSlim: result[14]! as double,
+      lips: result[15]! as double,
+      forehead: result[16]! as double,
+      lipstick: result[17]! as double,
+      blush: result[18]! as double,
+      eyebrows: result[19]! as double,
+      eyeshadow: result[20]! as double,
+      eyeliner: result[21]! as double,
+      makeupIntensity: result[22]! as double,
+      lipstickColor: result[23]! as int,
+      blushColor: result[24]! as int,
+      eyebrowColor: result[25]! as int,
+      eyeshadowColor: result[26]! as int,
+      eyelinerColor: result[27]! as int,
+      filterIntensity: result[28]! as double,
     );
   }
 
@@ -340,7 +472,7 @@ class BeautyParameters {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(skinSmoothing, other.skinSmoothing) && _deepEquals(texturePreservation, other.texturePreservation) && _deepEquals(skinBrightening, other.skinBrightening);
+    return _deepEquals(skinSmoothing, other.skinSmoothing) && _deepEquals(texturePreservation, other.texturePreservation) && _deepEquals(skinBrightening, other.skinBrightening) && _deepEquals(skinTone, other.skinTone) && _deepEquals(blemishReduction, other.blemishReduction) && _deepEquals(shineReduction, other.shineReduction) && _deepEquals(glow, other.glow) && _deepEquals(eyeBrightening, other.eyeBrightening) && _deepEquals(teethWhitening, other.teethWhitening) && _deepEquals(darkCircles, other.darkCircles) && _deepEquals(faceSlim, other.faceSlim) && _deepEquals(jawline, other.jawline) && _deepEquals(chin, other.chin) && _deepEquals(eyeEnlarge, other.eyeEnlarge) && _deepEquals(noseSlim, other.noseSlim) && _deepEquals(lips, other.lips) && _deepEquals(forehead, other.forehead) && _deepEquals(lipstick, other.lipstick) && _deepEquals(blush, other.blush) && _deepEquals(eyebrows, other.eyebrows) && _deepEquals(eyeshadow, other.eyeshadow) && _deepEquals(eyeliner, other.eyeliner) && _deepEquals(makeupIntensity, other.makeupIntensity) && _deepEquals(lipstickColor, other.lipstickColor) && _deepEquals(blushColor, other.blushColor) && _deepEquals(eyebrowColor, other.eyebrowColor) && _deepEquals(eyeshadowColor, other.eyeshadowColor) && _deepEquals(eyelinerColor, other.eyelinerColor) && _deepEquals(filterIntensity, other.filterIntensity);
   }
 
   @override
@@ -349,7 +481,7 @@ class BeautyParameters {
 
   @override
   String toString() {
-    return 'BeautyParameters(skinSmoothing: $skinSmoothing, texturePreservation: $texturePreservation, skinBrightening: $skinBrightening)';
+    return 'BeautyParameters(skinSmoothing: $skinSmoothing, texturePreservation: $texturePreservation, skinBrightening: $skinBrightening, skinTone: $skinTone, blemishReduction: $blemishReduction, shineReduction: $shineReduction, glow: $glow, eyeBrightening: $eyeBrightening, teethWhitening: $teethWhitening, darkCircles: $darkCircles, faceSlim: $faceSlim, jawline: $jawline, chin: $chin, eyeEnlarge: $eyeEnlarge, noseSlim: $noseSlim, lips: $lips, forehead: $forehead, lipstick: $lipstick, blush: $blush, eyebrows: $eyebrows, eyeshadow: $eyeshadow, eyeliner: $eyeliner, makeupIntensity: $makeupIntensity, lipstickColor: $lipstickColor, blushColor: $blushColor, eyebrowColor: $eyebrowColor, eyeshadowColor: $eyeshadowColor, eyelinerColor: $eyelinerColor, filterIntensity: $filterIntensity)';
   }
 }
 
@@ -841,6 +973,26 @@ class BeautyEngineHostApi {
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[parameters]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  /// Sets a 512x512 RGBA lookup table (8x8 tiles of 64^3, first row = top),
+  /// i.e. exactly 1048576 bytes. null removes the filter.
+  Future<void> setColorLut(Uint8List? rgba512) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.yuz_beauty_engine.BeautyEngineHostApi.setColorLut$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[rgba512]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(

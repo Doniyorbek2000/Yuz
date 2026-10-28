@@ -381,30 +381,6 @@ abstract class AppLocalizations {
   /// **'{feature} is planned for development phase {phase}. It is not part of this build.'**
   String featureUnavailableBody(String feature, int phase);
 
-  /// No description provided for @beautyPanelTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Beauty'**
-  String get beautyPanelTitle;
-
-  /// No description provided for @beautySkinSmoothing.
-  ///
-  /// In en, this message translates to:
-  /// **'Smooth'**
-  String get beautySkinSmoothing;
-
-  /// No description provided for @beautyTexturePreservation.
-  ///
-  /// In en, this message translates to:
-  /// **'Texture'**
-  String get beautyTexturePreservation;
-
-  /// No description provided for @beautySkinBrightening.
-  ///
-  /// In en, this message translates to:
-  /// **'Brighten'**
-  String get beautySkinBrightening;
-
   /// No description provided for @beautyReset.
   ///
   /// In en, this message translates to:
@@ -740,6 +716,306 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Uninstalling the app removes all locally stored photos, presets and settings.'**
   String get privacyDeletionBody;
+
+  /// No description provided for @tabLooks.
+  ///
+  /// In en, this message translates to:
+  /// **'Looks'**
+  String get tabLooks;
+
+  /// No description provided for @tabFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get tabFilters;
+
+  /// No description provided for @tabSkin.
+  ///
+  /// In en, this message translates to:
+  /// **'Skin'**
+  String get tabSkin;
+
+  /// No description provided for @tabFace.
+  ///
+  /// In en, this message translates to:
+  /// **'Face'**
+  String get tabFace;
+
+  /// No description provided for @tabReshape.
+  ///
+  /// In en, this message translates to:
+  /// **'Reshape'**
+  String get tabReshape;
+
+  /// No description provided for @tabMakeup.
+  ///
+  /// In en, this message translates to:
+  /// **'Makeup'**
+  String get tabMakeup;
+
+  /// No description provided for @tabCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get tabCamera;
+
+  /// No description provided for @effectSkinSmoothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Smooth'**
+  String get effectSkinSmoothing;
+
+  /// No description provided for @effectTexturePreservation.
+  ///
+  /// In en, this message translates to:
+  /// **'Texture'**
+  String get effectTexturePreservation;
+
+  /// No description provided for @effectSkinBrightening.
+  ///
+  /// In en, this message translates to:
+  /// **'Brighten'**
+  String get effectSkinBrightening;
+
+  /// No description provided for @effectSkinTone.
+  ///
+  /// In en, this message translates to:
+  /// **'Even tone'**
+  String get effectSkinTone;
+
+  /// No description provided for @effectBlemishReduction.
+  ///
+  /// In en, this message translates to:
+  /// **'Blemishes'**
+  String get effectBlemishReduction;
+
+  /// No description provided for @effectShineReduction.
+  ///
+  /// In en, this message translates to:
+  /// **'Matte'**
+  String get effectShineReduction;
+
+  /// No description provided for @effectGlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Glow'**
+  String get effectGlow;
+
+  /// No description provided for @effectEyeBrightening.
+  ///
+  /// In en, this message translates to:
+  /// **'Bright eyes'**
+  String get effectEyeBrightening;
+
+  /// No description provided for @effectTeethWhitening.
+  ///
+  /// In en, this message translates to:
+  /// **'Teeth'**
+  String get effectTeethWhitening;
+
+  /// No description provided for @effectDarkCircles.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark circles'**
+  String get effectDarkCircles;
+
+  /// No description provided for @effectFaceSlim.
+  ///
+  /// In en, this message translates to:
+  /// **'Slim face'**
+  String get effectFaceSlim;
+
+  /// No description provided for @effectJawline.
+  ///
+  /// In en, this message translates to:
+  /// **'Jawline'**
+  String get effectJawline;
+
+  /// No description provided for @effectChin.
+  ///
+  /// In en, this message translates to:
+  /// **'Chin'**
+  String get effectChin;
+
+  /// No description provided for @effectEyeEnlarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Bigger eyes'**
+  String get effectEyeEnlarge;
+
+  /// No description provided for @effectNoseSlim.
+  ///
+  /// In en, this message translates to:
+  /// **'Nose'**
+  String get effectNoseSlim;
+
+  /// No description provided for @effectLips.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuller lips'**
+  String get effectLips;
+
+  /// No description provided for @effectForehead.
+  ///
+  /// In en, this message translates to:
+  /// **'Forehead'**
+  String get effectForehead;
+
+  /// No description provided for @effectLipstick.
+  ///
+  /// In en, this message translates to:
+  /// **'Lipstick'**
+  String get effectLipstick;
+
+  /// No description provided for @effectBlush.
+  ///
+  /// In en, this message translates to:
+  /// **'Blush'**
+  String get effectBlush;
+
+  /// No description provided for @effectEyebrows.
+  ///
+  /// In en, this message translates to:
+  /// **'Brows'**
+  String get effectEyebrows;
+
+  /// No description provided for @effectEyeshadow.
+  ///
+  /// In en, this message translates to:
+  /// **'Eyeshadow'**
+  String get effectEyeshadow;
+
+  /// No description provided for @effectEyeliner.
+  ///
+  /// In en, this message translates to:
+  /// **'Eyeliner'**
+  String get effectEyeliner;
+
+  /// No description provided for @effectMakeupIntensity.
+  ///
+  /// In en, this message translates to:
+  /// **'Makeup'**
+  String get effectMakeupIntensity;
+
+  /// No description provided for @effectFilterIntensity.
+  ///
+  /// In en, this message translates to:
+  /// **'Intensity'**
+  String get effectFilterIntensity;
+
+  /// No description provided for @filterNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Original'**
+  String get filterNone;
+
+  /// No description provided for @filterNatural.
+  ///
+  /// In en, this message translates to:
+  /// **'Natural'**
+  String get filterNatural;
+
+  /// No description provided for @filterSoft.
+  ///
+  /// In en, this message translates to:
+  /// **'Soft'**
+  String get filterSoft;
+
+  /// No description provided for @filterGlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Glow'**
+  String get filterGlow;
+
+  /// No description provided for @filterPortrait.
+  ///
+  /// In en, this message translates to:
+  /// **'Portrait'**
+  String get filterPortrait;
+
+  /// No description provided for @filterCinematic.
+  ///
+  /// In en, this message translates to:
+  /// **'Cinematic'**
+  String get filterCinematic;
+
+  /// No description provided for @filterWarm.
+  ///
+  /// In en, this message translates to:
+  /// **'Warm'**
+  String get filterWarm;
+
+  /// No description provided for @filterCool.
+  ///
+  /// In en, this message translates to:
+  /// **'Cool'**
+  String get filterCool;
+
+  /// No description provided for @filterVintage.
+  ///
+  /// In en, this message translates to:
+  /// **'Vintage'**
+  String get filterVintage;
+
+  /// No description provided for @filterBlackWhite.
+  ///
+  /// In en, this message translates to:
+  /// **'B&W'**
+  String get filterBlackWhite;
+
+  /// No description provided for @filterCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'My LUT'**
+  String get filterCustom;
+
+  /// No description provided for @filterImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Import LUT'**
+  String get filterImport;
+
+  /// No description provided for @lutImported.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom LUT imported'**
+  String get lutImported;
+
+  /// No description provided for @lutImportWrongSize.
+  ///
+  /// In en, this message translates to:
+  /// **'A LUT image must be 512×512 pixels.'**
+  String get lutImportWrongSize;
+
+  /// No description provided for @lutImportUnreadable.
+  ///
+  /// In en, this message translates to:
+  /// **'This image could not be read.'**
+  String get lutImportUnreadable;
+
+  /// No description provided for @beautyPresetEverydayMakeup.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyday'**
+  String get beautyPresetEverydayMakeup;
+
+  /// No description provided for @beautyPresetEveningMakeup.
+  ///
+  /// In en, this message translates to:
+  /// **'Evening'**
+  String get beautyPresetEveningMakeup;
+
+  /// No description provided for @requiresFaceTracking.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs face tracking — face the camera'**
+  String get requiresFaceTracking;
+
+  /// No description provided for @makeupShade.
+  ///
+  /// In en, this message translates to:
+  /// **'Shade'**
+  String get makeupShade;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

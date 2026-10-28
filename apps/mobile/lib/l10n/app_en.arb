@@ -50,14 +50,14 @@
   "featureUnavailableBody": "{feature} is planned for development phase {phase}. It is not part of this build.",
   "@featureUnavailableBody": {
     "placeholders": {
-      "feature": { "type": "String" },
-      "phase": { "type": "int" }
+      "feature": {
+        "type": "String"
+      },
+      "phase": {
+        "type": "int"
+      }
     }
   },
-  "beautyPanelTitle": "Beauty",
-  "beautySkinSmoothing": "Smooth",
-  "beautyTexturePreservation": "Texture",
-  "beautySkinBrightening": "Brighten",
   "beautyReset": "Reset",
   "beautyUndo": "Undo",
   "beautySavePreset": "Save preset",
@@ -68,7 +68,11 @@
   "beautyPresetGlow": "Glow",
   "beautyPresetSaved": "Preset “{name}” saved",
   "@beautyPresetSaved": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "cameraSwitch": "Switch camera",
   "cameraCapture": "Take photo",
@@ -76,7 +80,11 @@
   "cameraTimerOff": "Timer off",
   "cameraTimerSeconds": "{seconds}s",
   "@cameraTimerSeconds": {
-    "placeholders": { "seconds": { "type": "int" } }
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
   },
   "cameraFlash": "Flash",
   "cameraFlashOff": "Flash off",
@@ -88,16 +96,26 @@
   "cameraNoFace": "No face detected",
   "cameraFacesDetected": "{count, plural, =1{1 face} other{{count} faces}}",
   "@cameraFacesDetected": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "cameraTrackingUnavailable": "Face tracking unavailable — skin tone detection only",
   "cameraStarting": "Starting camera…",
   "cameraMeasuredFps": "{fps} FPS · GPU {gpu} ms · face {detector} ms",
   "@cameraMeasuredFps": {
     "placeholders": {
-      "fps": { "type": "String" },
-      "gpu": { "type": "String" },
-      "detector": { "type": "String" }
+      "fps": {
+        "type": "String"
+      },
+      "gpu": {
+        "type": "String"
+      },
+      "detector": {
+        "type": "String"
+      }
     }
   },
   "cameraPhotoSaved": "Photo saved",
@@ -118,7 +136,11 @@
   "settingsAbout": "About",
   "settingsVersion": "Version {version}",
   "@settingsVersion": {
-    "placeholders": { "version": { "type": "String" } }
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
   },
   "settingsResetOnboarding": "Show onboarding again",
   "languageUzbek": "Oʻzbekcha",
@@ -132,5 +154,55 @@
   "privacyCloudTitle": "Cloud AI features",
   "privacyCloudBody": "Future cloud AI features will ask for your explicit consent before any photo is uploaded, and only for photos of yourself or people who agreed.",
   "privacyDeletionTitle": "Deleting your data",
-  "privacyDeletionBody": "Uninstalling the app removes all locally stored photos, presets and settings."
+  "privacyDeletionBody": "Uninstalling the app removes all locally stored photos, presets and settings.",
+  "tabLooks": "Looks",
+  "tabFilters": "Filters",
+  "tabSkin": "Skin",
+  "tabFace": "Face",
+  "tabReshape": "Reshape",
+  "tabMakeup": "Makeup",
+  "tabCamera": "Camera",
+  "effectSkinSmoothing": "Smooth",
+  "effectTexturePreservation": "Texture",
+  "effectSkinBrightening": "Brighten",
+  "effectSkinTone": "Even tone",
+  "effectBlemishReduction": "Blemishes",
+  "effectShineReduction": "Matte",
+  "effectGlow": "Glow",
+  "effectEyeBrightening": "Bright eyes",
+  "effectTeethWhitening": "Teeth",
+  "effectDarkCircles": "Dark circles",
+  "effectFaceSlim": "Slim face",
+  "effectJawline": "Jawline",
+  "effectChin": "Chin",
+  "effectEyeEnlarge": "Bigger eyes",
+  "effectNoseSlim": "Nose",
+  "effectLips": "Fuller lips",
+  "effectForehead": "Forehead",
+  "effectLipstick": "Lipstick",
+  "effectBlush": "Blush",
+  "effectEyebrows": "Brows",
+  "effectEyeshadow": "Eyeshadow",
+  "effectEyeliner": "Eyeliner",
+  "effectMakeupIntensity": "Makeup",
+  "effectFilterIntensity": "Intensity",
+  "filterNone": "Original",
+  "filterNatural": "Natural",
+  "filterSoft": "Soft",
+  "filterGlow": "Glow",
+  "filterPortrait": "Portrait",
+  "filterCinematic": "Cinematic",
+  "filterWarm": "Warm",
+  "filterCool": "Cool",
+  "filterVintage": "Vintage",
+  "filterBlackWhite": "B&W",
+  "filterCustom": "My LUT",
+  "filterImport": "Import LUT",
+  "lutImported": "Custom LUT imported",
+  "lutImportWrongSize": "A LUT image must be 512×512 pixels.",
+  "lutImportUnreadable": "This image could not be read.",
+  "beautyPresetEverydayMakeup": "Everyday",
+  "beautyPresetEveningMakeup": "Evening",
+  "requiresFaceTracking": "Needs face tracking — face the camera",
+  "makeupShade": "Shade"
 }
