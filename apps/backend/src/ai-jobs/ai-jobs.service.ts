@@ -63,6 +63,13 @@ export class AiJobsService {
     image: Buffer,
     params: Prisma.InputJsonObject,
   ): Promise<AiJobView> {
+    if (!this.env.AI_ENABLED_TYPES.includes(type)) {
+      throw new ApiError(
+        HttpStatus.SERVICE_UNAVAILABLE,
+        'ai_type_unavailable',
+        `${type} is not available yet`,
+      );
+    }
     const consent = await this.consents.activeCloudAi(userId);
     if (!consent) throw consentRequired();
     if (image.length > this.env.MAX_UPLOAD_MB * 1024 * 1024) {
@@ -101,6 +108,15 @@ export class AiJobsService {
       return toView(await this.finishFailed(job, 'queue_unavailable'));
     }
     return toView(job);
+  }
+
+  /** Cost and availability of every job type (shown before the user confirms). */
+  pricing(): Record<AiJobType, { cost: number; enabled: boolean }> {
+    const entries = (Object.keys(AI_JOB_COSTS) as AiJobType[]).map(
+      (type) =>
+        [type, { cost: AI_JOB_COSTS[type], enabled: this.env.AI_ENABLED_TYPES.includes(type) }] as const,
+    );
+    return Object.fromEntries(entries) as Record<AiJobType, { cost: number; enabled: boolean }>;
   }
 
   async list(userId: string, take = 30, before?: string): Promise<AiJobView[]> {

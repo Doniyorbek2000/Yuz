@@ -152,5 +152,13 @@ Legend for **Final decision**:
 | com.google.mediapipe:tasks-vision | Apache-2.0 | Android |
 | MediaPipeTasksVision (CocoaPods) | Apache-2.0 | iOS |
 | face_landmarker.task model | Apache-2.0 (model card – re-verify before release) | both |
+| NestJS 11, BullMQ 6, ioredis, argon2, helmet, zod, pg, class-validator | MIT | backend (server) |
+| Prisma 7 client + adapter-pg, RxJS, reflect-metadata | Apache-2.0 | backend (server) |
+| mediapipe (Python) 1.1.1, opencv-contrib-python | Apache-2.0 | AI worker (server) |
+| selfie_segmenter.tflite model (float16 v1) | Apache-2.0 (model card – re-verify before release); SHA-256 pinned | AI worker (server) |
+| bullmq (Python), redis-py | MIT | AI worker (server) |
+| httpx, numpy | BSD-3-Clause | AI worker (server) |
+| pillow | MIT-CMU | AI worker (server) |
+| certifi | MPL-2.0 (unmodified, file-level copyleft only) | AI worker (server) |
 
 Full notice texts: `LICENSES/THIRD_PARTY_NOTICES.md`.

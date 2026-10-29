@@ -34,3 +34,9 @@ Playwright (Apache-2.0), JUnit 5 (EPL-2.0).
 
 Reference repositories studied but **not** shipped are listed in OPEN_SOURCE_AUDIT.md. The algorithmic idea of
 high-pass "beautify" from android-GPUImage-plus (MIT, © Wang Yang) informed our own shader; no code was copied.
+
+AI worker (`services/ai-worker`, server-side, Python): MediaPipe 1.1.1 (Apache-2.0), MediaPipe Selfie Segmenter model
+float16 v1 (Apache-2.0 model card), bullmq for Python (MIT), redis-py (MIT), httpx / httpcore (BSD-3-Clause),
+NumPy (BSD-3-Clause and bundled permissive notices), Pillow (MIT-CMU), OpenCV contrib (Apache-2.0, pulled in by
+MediaPipe), matplotlib (PSF-based matplotlib licence, pulled in by MediaPipe), certifi (MPL-2.0, unmodified).
+Remaining transitive dependencies (see `services/ai-worker/requirements.lock`) are MIT/BSD/Apache-2.0/PSF.

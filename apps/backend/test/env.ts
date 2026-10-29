@@ -10,3 +10,4 @@ process.env.WORKER_TOKEN ??= randomBytes(32).toString('hex');
 process.env.STORAGE_DIR ??= `/tmp/yuz-api-test-storage-${process.pid}`;
 process.env.WELCOME_CREDITS ??= '3';
 process.env.AUTH_RATE_LIMIT_PER_MINUTE ??= '1000';
+process.env.AI_ENABLED_TYPES ??= 'PHOTOSHOOT,HAIRSTYLE,MAKEUP,BACKGROUND';

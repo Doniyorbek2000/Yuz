@@ -25,7 +25,7 @@ import { ApiError } from '../common/errors';
 import type { AiJobType, Prisma } from '../generated/prisma/client';
 import { StorageService } from '../storage/storage.service';
 import { AiJobsService, toView } from './ai-jobs.service';
-import { AI_JOB_COSTS, AI_JOB_TYPES } from './pricing';
+import { AI_JOB_TYPES } from './pricing';
 import { WorkerGuard } from './worker.guard';
 
 /** Hard cap for the multipart parser; the service enforces the configured limit. */
@@ -68,7 +68,7 @@ export class AiJobsController {
 
   @Get('pricing')
   pricing() {
-    return AI_JOB_COSTS;
+    return this.jobs.pricing();
   }
 
   @Post()

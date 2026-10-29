@@ -82,7 +82,7 @@ jobs:
           channel: stable
           cache: true
       - name: Fetch and verify face model
-        run: ./tools/fetch_models.sh
+        run: ./tools/fetch_models.sh face
       - name: Configure Gradle project
         working-directory: apps/mobile
         run: |
@@ -135,7 +135,7 @@ jobs:
           channel: stable
           cache: true
       - name: Fetch and verify face model
-        run: ./tools/fetch_models.sh
+        run: ./tools/fetch_models.sh face
       - name: Compile runtime Metal kernels
         run: ./tools/check_metal_shaders.sh
       - name: Build iOS (debug + release, unsigned)
@@ -189,6 +189,40 @@ jobs:
       - run: npm audit --omit=dev --audit-level=moderate
       - run: npm test
       - run: npm run build
+
+  ai-worker:
+    name: AI worker · lint · test · image
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      redis:
+        image: redis:7.4-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 3s --health-retries 20
+    defaults:
+      run:
+        working-directory: services/ai-worker
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: services/ai-worker/requirements.lock
+      - name: MediaPipe runtime libraries
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libegl1 libgles2
+      - run: pip install -r requirements.lock -e '.[dev]'
+      - run: ../../tools/fetch_models.sh segmenter
+      - run: ruff check .
+      - run: ruff format --check .
+      - run: pytest -q -rs
+        env:
+          TEST_REDIS_URL: redis://localhost:6379/14
+      - name: Docker image builds and starts its model
+        run: |
+          docker build -t yuz-ai-worker .
+          docker run --rm --entrypoint python yuz-ai-worker -c "from pathlib import Path; from yuz_worker.providers.background import MediaPipeSegmenter; import numpy as np; s = MediaPipeSegmenter(Path('/opt/yuz/models/selfie_segmenter.tflite')); print(s(np.zeros((64, 64, 3), np.uint8)).shape); s.close()"
 
   security:
     name: Secret scan · forbidden files

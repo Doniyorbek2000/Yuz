@@ -15,6 +15,7 @@ third_party/research/
 
 # Model weights are fetched and checksum-verified by tools/fetch_models.sh
 *.task
+*.tflite
 
 # Node
 node_modules/
@@ -27,3 +28,9 @@ node_modules/
 # Local Redis snapshots
 *.rdb
 
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+.venv/

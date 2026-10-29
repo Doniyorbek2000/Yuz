@@ -18,6 +18,20 @@ const schema = z.object({
   MAX_UPLOAD_MB: z.coerce.number().int().min(1).max(50).default(12),
   /** Version of the cloud AI consent text shown in the app. */
   CLOUD_AI_CONSENT_VERSION: z.string().min(1).default('2026-10'),
+  /**
+   * Job types a worker can process (comma-separated). Generative types need
+   * a paid provider and stay off until the owner approves one.
+   */
+  AI_ENABLED_TYPES: z
+    .string()
+    .default('BACKGROUND')
+    .transform((value) =>
+      value
+        .split(',')
+        .map((t) => t.trim().toUpperCase())
+        .filter(Boolean),
+    )
+    .pipe(z.array(z.enum(['PHOTOSHOOT', 'HAIRSTYLE', 'MAKEUP', 'BACKGROUND']))),
   /** Credential attempts (register/login/refresh) per client per minute. */
   AUTH_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().min(1).max(10_000).default(10),
   /** Days results are kept before automatic deletion. */

@@ -51,6 +51,7 @@ services:
       STORAGE_DIR: /data/storage
       CORS_ORIGINS: ${CORS_ORIGINS:-}
       CLOUD_AI_CONSENT_VERSION: ${CLOUD_AI_CONSENT_VERSION:-2026-10}
+      AI_ENABLED_TYPES: ${AI_ENABLED_TYPES:-BACKGROUND}
     volumes:
       - storage:/data/storage
     ports:
@@ -59,8 +60,23 @@ services:
       migrate: { condition: service_completed_successfully }
       redis: { condition: service_healthy }
 
+  worker:
+    build: { context: ../services/ai-worker }
+    environment:
+      API_URL: http://api:3000
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      WORKER_TOKEN: ${WORKER_TOKEN}
+      STORAGE_DIR: /data/storage
+      CONCURRENCY: ${WORKER_CONCURRENCY:-2}
+    volumes:
+      - storage:/data/storage
+    depends_on:
+      api: { condition: service_healthy }
+    # Running jobs finish (or are re-queued by BullMQ) before the container stops.
+    stop_grace_period: 2m
+
 volumes:
   postgres-data:
   redis-data:
-  # Shared with the AI worker (Phase 6).
+  # Uploads and results, shared by the API and the worker.
   storage:

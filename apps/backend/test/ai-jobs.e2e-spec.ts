@@ -35,6 +35,22 @@ describe('consent and AI jobs', () => {
       .field('params', '{"style":"soft"}')
       .attach('image', image, 'face.png');
 
+  it('publishes prices and refuses types that no worker serves', async () => {
+    const user = await consentingUser();
+    const pricing = await h.http.get('/v1/ai-jobs/pricing').set(user.auth).expect(200);
+    expect(pricing.body.BACKGROUND).toEqual({ cost: 1, enabled: true });
+    const enabled = h.env.AI_ENABLED_TYPES;
+    h.env.AI_ENABLED_TYPES = ['BACKGROUND'];
+    try {
+      const refused = await upload(user.auth, 'PHOTOSHOOT').expect(503);
+      expect(refused.body.code).toBe('ai_type_unavailable');
+      expect((await h.http.get('/v1/ai-jobs/pricing').set(user.auth)).body.PHOTOSHOOT.enabled).toBe(false);
+    } finally {
+      h.env.AI_ENABLED_TYPES = enabled;
+    }
+    expect((await h.http.get('/v1/credits').set(user.auth)).body.balance).toBe(3);
+  });
+
   it('requires the current cloud AI consent', async () => {
     const user = await registerUser(h.http);
     const denied = await upload(user.auth).expect(403);
