@@ -3,5 +3,5 @@ dist/
 coverage/
 src/generated/
 .env
-storage/
+/storage/
 *.tsbuildinfo
