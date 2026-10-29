@@ -201,7 +201,7 @@ jobs:
       - name: Forbidden files are not tracked
         run: |
           set -euo pipefail
-          forbidden="$(git ls-files | grep -E '(^|/)\.env($|\.)|\.jks$|\.keystore$|\.p12$|key\.properties$|\.mobileprovision$' | grep -v '\.env\.example$' || true)"
+          forbidden="$(git ls-files | grep -E '(^|/)\.env($|\.)|\.jks$|\.keystore$|\.p12$|key\.properties$|\.mobileprovision$|\.rdb$' | grep -v '\.env\.example$' || true)"
           if [[ -n "${forbidden}" ]]; then
             echo "Forbidden files tracked:"; echo "${forbidden}"; exit 1
           fi
