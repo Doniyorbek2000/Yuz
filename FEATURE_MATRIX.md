@@ -6,7 +6,7 @@ Statuses: **IMPLEMENTED** (code complete, verified where noted) · **TESTED** (a
 "Verified" always names *how*. Native code that has only been compiled in CI and never run on a device is at most
 PARTIAL.
 
-Last update: 2026-10-28 (Phase 4 video recording and editor).
+Last update: 2026-10-29 (Phase 6 AI worker + app AI/account screens, Phase 7 admin panel).
 
 ## Native beauty engine (`packages/yuz_beauty_engine`)
 
@@ -75,16 +75,25 @@ pixel-tested; nothing is device-tested yet.
 | Video result (looped playback, save to gallery, open in editor) | TESTED (widget, fake player) |
 | Video editor: clips (add, reorder, remove), trim, speed, look (studio + one-frame look preview, beauty on/off), text and stickers (drag, pinch, rotate, colour, time window), music (loop, fade, volumes), export with progress and cancel; non-destructive project storage | PARTIAL — TESTED with fake engine (domain, repository, controller, widget at 320 px); native export not run on a device |
 | Templates (7 collage layouts, per-slot pan/zoom, background, spacing, corners, caption, 1920 px PNG to gallery) | TESTED (unit + widget) |
-| AI Photoshoot/Hairstyle/Makeup/Background, Premium, Credits, Profile, Help, Account deletion | NOT STARTED — shown as "Planned" and routed to an honest "not available" screen |
+| Account: sign in / register, profile, display name, data export (system save dialog), password-confirmed account deletion, sign out; tokens in Keychain / Android Keystore with single-flight refresh | TESTED (API client unit tests against a contract fake; widget flows) — not run against a deployed API on a device |
+| Cloud AI consent (versioned, explicit screen, revocable from Account; gates every upload) | TESTED (widget) |
+| AI Background (blur / colour / transparent cut-out; pick or take photo; cost and balance shown; queued cancel; result saved to gallery or opened as a project; server copy deleted after download) | PARTIAL — TESTED end to end in Flutter against the API contract fake, worker TESTED against the real model and queue; app ⇄ deployed API not run on a device |
+| Credits & Premium screen (balance, prices, history, products) | PARTIAL — purchases shown as unavailable: store purchase flow BLOCKED on store credentials |
+| AI Photoshoot / Hairstyle / Makeup | BLOCKED — need a generative model service (paid API or GPU); shown as "Blocked", never charge |
+| Help (FAQ) | TESTED (widget) |
+| "Server not configured" state for builds without `YUZ_API_URL` | TESTED (widget) |
 | Localization uz / ru / en | TESTED |
 
 ## Platform / infrastructure
 
 | Item | Status |
 |---|---|
-| Backend API (NestJS 11, Prisma 7/PostgreSQL 16, BullMQ 6/Redis 7): auth with refresh rotation + reuse detection, profile, data export, account deletion, versioned cloud-AI consent, credit ledger, AI job lifecycle + worker API, retention purge, purchase verification flow, health | TESTED — 25 e2e tests against real Postgres + Redis (local and CI); not deployed |
+| Backend API (NestJS 11, Prisma 7/PostgreSQL 16, BullMQ 6/Redis 7): auth with refresh rotation + reuse detection, profile, data export, account deletion, versioned cloud-AI consent, credit ledger, AI job lifecycle + worker API, retention purge, purchase verification flow, per-type enablement (`AI_ENABLED_TYPES`), admin API (stats, users, audited idempotent credit adjustments, jobs, audit log), role CLI, health | TESTED — 31 e2e tests against real Postgres + Redis (local and CI); not deployed |
+| AI worker (Python 3.13, BullMQ consumer): MediaPipe selfie segmentation background replacement, atomic results, refunds on failure, graceful shutdown; Docker image with checksum-verified model | TESTED — 25 pytest tests incl. the real model and a real Redis queue round trip (local and CI); image built in CI; not deployed |
+| Admin panel (Next.js 16): login restricted to ADMIN, httpOnly session with proxy refresh, overview, users, credit adjustments, AI jobs, audit log | TESTED — 11 unit tests; driven end to end in Chromium against the real API (login refusal, adjustment + audit, refresh, mobile width, sign-out); not deployed |
 | Store purchase verification (App Store Server API / Google Play Developer API) | BLOCKED — needs store credentials from the account owner; the API answers 503 until configured |
-| AI worker, admin panel | NOT STARTED (Phase 6–7) |
-| CI workflow (Flutter, shaders, Android unit/APK/AAB, iOS no-codesign, secrets) | IMPLEMENTED — see PROGRESS.md for run results |
+| Generative AI providers (photoshoot, hairstyle, makeup) | BLOCKED — paid API or GPU cost needs the owner's approval |
+| Production deployment (domain, TLS, hosting) | BLOCKED — needs the owner's approval and accounts |
+| CI workflow (Flutter, shaders, Android unit/APK/AAB, iOS no-codesign, backend e2e, AI worker + image, admin build + image, secrets) | IMPLEMENTED — see PROGRESS.md for run results |
 | Android release signing | BLOCKED — needs upload keystore (secrets) |
 | iOS signing / TestFlight | BLOCKED — needs Apple Developer team, certificates, profiles |

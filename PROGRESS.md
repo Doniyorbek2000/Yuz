@@ -137,6 +137,36 @@ Verification (2026-10-28): 25 e2e tests against real Postgres + Redis, stable ov
 NestJS 12 is ESM-only (Jest on Node 22 cannot load it → NestJS 11 LTS line), multer and js-yaml advisories (patched
 via overrides), registration and welcome credits made atomic.
 
+## Phase 6 — AI worker and app AI/account features ✅ code / ⏳ deploy + device
+
+- `services/ai-worker`: Python 3.13 BullMQ consumer. Claims jobs through the internal API, runs the MediaPipe selfie
+  segmenter (blur / solid colour / transparent cut-out), writes the result atomically to the shared volume, reports
+  complete/fail (refunded). EXIF rotation, size limits, no-person detection, graceful SIGTERM. Docker image with the
+  model downloaded and SHA-256 verified; compose `worker` service.
+- API: `AI_ENABLED_TYPES` (default BACKGROUND) — unserved types answer 503 before charging; pricing shows `enabled`.
+- App: typed API client (single-flight refresh, stable error codes, HTTPS-only release URL via `YUZ_API_URL`),
+  tokens in Keychain/Keystore (excluded from Android backups), account screens, consent screen, AI Background,
+  Credits & Premium (purchases honestly unavailable), Help. Generative AI tiles marked BLOCKED.
+
+Verification (2026-10-29): worker 25/25 pytest (real model + real Redis), ruff clean; backend 26/26 then 31/31 e2e;
+app 164/164 tests, analyze clean; CI all jobs green including iOS and Android builds with the new plugins and the
+worker image. Found and fixed: MediaPipe segmenter crashing at interpreter exit (explicit close), session provider
+written after dispose, error snackbar delayed behind a closing one, camera permission text that claimed photos are
+never uploaded.
+
+## Phase 7 — Admin panel ✅ code / ⏳ deploy
+
+- API: `/v1/admin/*` (ADMIN role checked from the database per request): stats, user search and detail, idempotent
+  audited credit adjustments, AI jobs, audit log; `dist/cli/set-role.js` grants/revokes admin (no HTTP endpoint).
+- `apps/admin`: Next.js 16 App Router; login limited to admins; tokens only in httpOnly SameSite=Strict cookies,
+  12 h sessions, proxy-side refresh with per-process coalescing; overview, users, user detail with credit form, AI
+  jobs, audit log; security headers; standalone Docker image; compose service on loopback.
+
+Verification (2026-10-29): API 31/31 e2e; admin typecheck, ESLint, 11/11 node tests, production build; Chromium run
+against the real API (non-admin refused, wrong password, adjustment + ledger + audit, overdraw refused, forced token
+refresh, 375 px without horizontal scroll, sign-out). Found and fixed: React 19 form reset clearing the email after a
+failed login and the credit form values after an error; a remount key that hid the success message.
+
 ## Next — continue here
 
 1. Run `apps/mobile/integration_test/camera_flow_test.dart` on one Android and one iOS device; record measured FPS,
@@ -144,6 +174,7 @@ via overrides), registration and welcome credits made atomic.
 2. Metal pixel tests on the macOS runner (same fixtures as tools/shader-tests).
 3. Device pass of the photo flow: EXIF orientations 1–8, a 48 MP photo (downscale path), HEIC, export time, gallery
    permission prompts on Android 9/10/14 and iOS.
-4. Phase 6: AI worker (Python, BullMQ consumer of the worker API) and the app's AI screens with the consent flow.
+4. Owner decisions: generative AI provider (paid API or GPU), store credentials (purchases), hosting/domain/TLS,
+   Apple/Google sign-in, email provider (verification and password reset). Each is BLOCKED until approved.
 5. Device pass of recording and export (A/V sync, rotation of portrait/landscape sources, HEVC sources, export
    speed with face effects); then full-sensor still capture, templates, backend (Phase 5).

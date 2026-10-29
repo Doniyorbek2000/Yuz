@@ -16,9 +16,10 @@
 
 ## Functional limitations
 
-- Camera capture saves the processed preview frame (≤1080p). Imported photos are processed at full resolution
-  (`processImage`), capped at the GPU texture limit (≤8192 px, ≤24 MP); larger photos are downscaled, never upscaled.
-- Flash is torch-assisted; the front camera has no screen-flash yet.
+- Photos are processed at full resolution, capped at the GPU texture limit (≤8192 px, ≤24 MP); larger photos are
+  downscaled, never upscaled.
+- The back camera uses the hardware flash; the front camera uses a screen flash (white screen + brightness boost),
+  whose real-world effect has not been measured on devices.
 - Masks are built from the un-warped landmarks; with strong reshape (e.g. eye enlarge 100) makeup and eye masks can
   sit up to a few pixels off the warped feature.
 - Up to 16 reshape warps per frame in total: with "all faces" policy and several faces, warps beyond 16 are dropped.
@@ -55,6 +56,21 @@
   verification or password reset mail yet (needs an email provider).
 - Rate limits are per API instance (in memory); several instances need a shared (Redis) throttler store.
 - Dev-only tooling (jest) has a low-severity transitive advisory (deepmerge); production dependencies audit clean.
+
+## Cloud AI, accounts and admin
+
+- Only background replacement is served (MediaPipe selfie segmenter on CPU). The segmenter is trained for people;
+  pets and objects come out as background, and a photo without a person fails with `no_person_detected` (refunded).
+  Fine hair edges are feathered, not matted.
+- HEIC uploads are accepted by the API but the worker cannot decode them (no HEIF codec in Pillow); the app always
+  sends JPEG/PNG from the picker, other clients would get `unreadable_image` (refunded).
+- Photo upload size: the app re-encodes to ≤2560 px JPEG q92; the API limit is `MAX_UPLOAD_MB` (12 MB default).
+- The app polls job status every 2 s (no push); results wait at most 5 minutes in the UI, the job itself keeps
+  running server-side.
+- iOS permission texts are English only (no localized InfoPlist.strings yet).
+- Admin panel UI is English only; token refresh coalescing is per process (run one instance or sticky sessions).
+- Purchases: the store screen lists products but cannot buy; the in-app purchase flow (StoreKit / Play Billing)
+  and server verification are BLOCKED on store credentials and the owner's approval.
 
 ## Third-party / legal
 

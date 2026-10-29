@@ -190,6 +190,31 @@ jobs:
       - run: npm test
       - run: npm run build
 
+  admin:
+    name: Admin panel · typecheck · lint · test · build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/admin
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22.22.0'
+          cache: npm
+          cache-dependency-path: apps/admin/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: npm audit --omit=dev --audit-level=moderate
+      - run: npm run build
+      - name: Docker image builds
+        run: docker build -t yuz-admin .
+
   ai-worker:
     name: AI worker · lint · test · image
     runs-on: ubuntu-latest

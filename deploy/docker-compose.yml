@@ -75,6 +75,16 @@ services:
     # Running jobs finish (or are re-queued by BullMQ) before the container stops.
     stop_grace_period: 2m
 
+  admin:
+    build: { context: ../apps/admin }
+    environment:
+      API_URL: http://api:3000
+    ports:
+      # Operators only: keep it on loopback and reach it through a VPN or SSH tunnel.
+      - '127.0.0.1:3001:3001'
+    depends_on:
+      api: { condition: service_healthy }
+
 volumes:
   postgres-data:
   redis-data:
