@@ -331,14 +331,14 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get privacyCloudBody =>
-      'Kelgusidagi bulutli AI funksiyalar har qanday rasm yuklanishidan oldin aniq roziligingizni soʻraydi — faqat oʻzingiz yoki rozilik bergan odamlar rasmlari uchun.';
+      'Bulutli AI funksiyalari biror rasm yuklanishidan oldin aniq roziligingizni soʻraydi. Faqat siz tanlagan rasm shifrlangan aloqa orqali yuboriladi; u ishlovdan soʻng serverdan oʻchiriladi va hech qachon reklama yoki modellarni oʻqitish uchun ishlatilmaydi. Rozilikni Hisob boʻlimida bekor qilishingiz mumkin.';
 
   @override
   String get privacyDeletionTitle => 'Maʼlumotlarni oʻchirish';
 
   @override
   String get privacyDeletionBody =>
-      'Ilovani oʻchirish lokal saqlangan barcha suratlar, presetlar va sozlamalarni oʻchiradi.';
+      'Ilovani oʻchirish qurilmada saqlangan barcha rasmlar, presetlar va sozlamalarni oʻchiradi. Hisobingiz va serverda saqlangan barcha narsalarni Hisob boʻlimida oʻchirish mumkin.';
 
   @override
   String get tabLooks => 'Obrazlar';
@@ -829,4 +829,377 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get templatesCaptionHint => 'Izoh (ixtiyoriy)';
+
+  @override
+  String get statusBlocked => 'Bloklangan';
+
+  @override
+  String featureBlockedBody(String feature) {
+    return '$feature uchun generativ AI model xizmati (pullik API yoki GPU serverlar) kerak. Bu xizmat tasdiqlangach yoqiladi. Ungacha hech narsa hisobdan yechilmaydi.';
+  }
+
+  @override
+  String get errorNetwork => 'Server bilan aloqa yoʻq. Internetni tekshirib, qayta urinib koʻring.';
+
+  @override
+  String get errorTimeout => 'Server juda uzoq javob bermadi. Qayta urinib koʻring.';
+
+  @override
+  String get errorSessionExpired => 'Seans tugadi. Qaytadan kiring.';
+
+  @override
+  String get errorInvalidCredentials => 'Email yoki parol notoʻgʻri.';
+
+  @override
+  String get errorEmailTaken => 'Bu email bilan hisob allaqachon mavjud.';
+
+  @override
+  String get errorRateLimited => 'Urinishlar juda koʻp. Bir daqiqa kutib, qayta urinib koʻring.';
+
+  @override
+  String get errorInvalidPassword => 'Parol notoʻgʻri.';
+
+  @override
+  String get errorInsufficientCredits => 'Buning uchun kreditlar yetarli emas.';
+
+  @override
+  String get errorConsentRequired => 'Avval bulutli AI ishloviga ruxsat bering.';
+
+  @override
+  String get errorAiUnavailable => 'Bu AI funksiyasi hozir serverda mavjud emas. Kredit yechilmadi.';
+
+  @override
+  String get errorUnsupportedImage => 'Bu rasm formati qoʻllab-quvvatlanmaydi. JPEG yoki PNG ishlating.';
+
+  @override
+  String get errorImageTooLarge => 'Rasm juda katta.';
+
+  @override
+  String get errorNoPerson =>
+      'Rasmda odam topilmadi. Odam aniq koʻrinadigan rasmni tanlang. Kreditlaringiz qaytarildi.';
+
+  @override
+  String get errorProcessingTimeout => 'Ishlov odatdagidan uzoq davom etmoqda. Keyinroq qayta urinib koʻring.';
+
+  @override
+  String get errorJobCancelled => 'Vazifa bekor qilindi. Kreditlaringiz qaytarildi.';
+
+  @override
+  String get errorProcessingFailed => 'Ishlov muvaffaqiyatsiz tugadi. Kreditlaringiz qaytarildi.';
+
+  @override
+  String get errorFile => 'Rasmni bu qurilmada oʻqib yoki saqlab boʻlmadi.';
+
+  @override
+  String get errorServer => 'Serverda muammo yuz berdi. Keyinroq qayta urinib koʻring.';
+
+  @override
+  String get accountTitle => 'Hisob';
+
+  @override
+  String get accountUnconfiguredTitle => 'Bu versiyada hisoblar mavjud emas';
+
+  @override
+  String get accountUnconfiguredBody =>
+      'Bu versiya Yuz serveriga ulanmagan. Kamera, tahrirlash va qurilmadagi barcha effektlar hisobsiz ishlaydi.';
+
+  @override
+  String get accountSignedOutBody => 'Bulutli AI funksiyalaridan foydalanish va kreditlaringizni saqlash uchun kiring.';
+
+  @override
+  String get accountSignIn => 'Kirish';
+
+  @override
+  String get accountCreate => 'Hisob yaratish';
+
+  @override
+  String get accountLoadFailed => 'Hisobni yuklab boʻlmadi.';
+
+  @override
+  String accountCredits(int count) {
+    String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: '$count kredit');
+    return '$_temp0';
+  }
+
+  @override
+  String accountPremiumActive(String date) {
+    return 'Premium $date gacha';
+  }
+
+  @override
+  String get accountPremiumInactive => 'Premium faol emas';
+
+  @override
+  String get accountStore => 'Kreditlar va Premium';
+
+  @override
+  String get accountCloudAi => 'Bulutli AI ishlovi';
+
+  @override
+  String get accountCloudAiOn =>
+      'Ruxsat berilgan. AI funksiyalariga yuborgan rasmlaringiz Yuz serverlarida qayta ishlanadi.';
+
+  @override
+  String get accountCloudAiOff => 'Ruxsat berilmagan. Hech narsa yuklanmaydi.';
+
+  @override
+  String get accountRevokeTitle => 'Bulutli AI ishlovini toʻxtatasizmi?';
+
+  @override
+  String get accountRevokeBody =>
+      'Navbatdagi vazifalar bekor qilinadi, kreditlar qaytariladi va yuklangan rasmlar oʻchiriladi.';
+
+  @override
+  String get accountRevokeConfirm => 'Toʻxtatish';
+
+  @override
+  String get accountDisplayName => 'Koʻrinadigan ism';
+
+  @override
+  String get accountExport => 'Maʼlumotlarimni yuklab olish';
+
+  @override
+  String get accountExportDone => 'Maʼlumotlaringiz saqlandi.';
+
+  @override
+  String get accountSignOut => 'Chiqish';
+
+  @override
+  String get accountDelete => 'Hisobni oʻchirish';
+
+  @override
+  String get accountDeleteBody =>
+      'Bu hisobingiz, kreditlaringiz, AI vazifalari va yuklangan rasmlarni butunlay oʻchiradi. Telefondagi loyihalar qoladi. Tasdiqlash uchun parolingizni kiriting.';
+
+  @override
+  String get accountDeleteConfirm => 'Butunlay oʻchirish';
+
+  @override
+  String get accountDeleted => 'Hisobingiz oʻchirildi.';
+
+  @override
+  String get authEmail => 'Email';
+
+  @override
+  String get authPassword => 'Parol';
+
+  @override
+  String get authPasswordHint => 'Kamida 10 ta belgi';
+
+  @override
+  String get authName => 'Ism (ixtiyoriy)';
+
+  @override
+  String get authEmailInvalid => 'Toʻgʻri email kiriting';
+
+  @override
+  String get authPasswordShort => 'Kamida 10 ta belgi kiriting';
+
+  @override
+  String get authPasswordRequired => 'Parolingizni kiriting';
+
+  @override
+  String get authShowPassword => 'Parolni koʻrsatish';
+
+  @override
+  String get authHidePassword => 'Parolni yashirish';
+
+  @override
+  String get authSwitchToRegister => 'Hisobingiz yoʻqmi? Yarating';
+
+  @override
+  String get authSwitchToSignIn => 'Hisobingiz bormi? Kiring';
+
+  @override
+  String get authSecurityNote =>
+      'Parolingiz faqat shifrlangan aloqa orqali yuboriladi va matn sifatida emas, tuzlangan xesh koʻrinishida saqlanadi.';
+
+  @override
+  String get consentIntro =>
+      'Fonni almashtirish kabi AI funksiyalari Yuz serverlarida ishlaydi. Biror narsa yuklanishidan oldin aynan nima boʻlishini bilib oling:';
+
+  @override
+  String get consentPointUpload => 'Faqat AI funksiyasi uchun tanlagan rasmingiz shifrlangan aloqa orqali yuklanadi.';
+
+  @override
+  String get consentPointDelete =>
+      'Yuklangan rasm ishlov tugashi bilan serverdan oʻchiriladi. Natija telefoningizga yetib kelgach oʻchiriladi; qolgan narsalar avtomatik tozalanadi.';
+
+  @override
+  String get consentPointUse =>
+      'Rasmlar faqat natijangizni tayyorlash uchun ishlatiladi — hech qachon reklama yoki modellarni oʻqitish uchun emas.';
+
+  @override
+  String get consentPointPeople => 'Faqat oʻzingizning yoki rozi boʻlgan odamlarning rasmlarini yuklang.';
+
+  @override
+  String get consentPointLocal =>
+      'Goʻzallik kamerasi, retush va filtrlar bu ruxsatsiz ham telefoningizda toʻliq ishlayveradi.';
+
+  @override
+  String get consentPointRevoke => 'Bu ruxsatni istalgan vaqtda Hisob boʻlimida bekor qilishingiz mumkin.';
+
+  @override
+  String get consentAccept => 'Bulutli AI ga ruxsat berish';
+
+  @override
+  String get consentDecline => 'Hozir emas';
+
+  @override
+  String consentVersion(String version) {
+    return 'Rozilik versiyasi $version';
+  }
+
+  @override
+  String get storeBalance => 'Balans';
+
+  @override
+  String get storeBlockedTitle => 'Xaridlar hali yoqilmagan';
+
+  @override
+  String get storeBlockedBody =>
+      'Kredit va Premium sotib olish uchun App Store va Google Play mahsulotlari hamda ularni serverda tekshirish sozlanishi kerak. Ungacha hech qanday toʻlov olinmaydi.';
+
+  @override
+  String storePremium(int days) {
+    return 'Premium · $days kun';
+  }
+
+  @override
+  String get storeUnavailable => 'Mavjud emas';
+
+  @override
+  String get storePrices => 'AI narxlari';
+
+  @override
+  String get storeHistory => 'Tarix';
+
+  @override
+  String get storeHistoryEmpty => 'Hali kredit harakatlari yoʻq.';
+
+  @override
+  String get creditKindWelcome => 'Xush kelibsiz bonusi';
+
+  @override
+  String get creditKindPurchase => 'Xarid';
+
+  @override
+  String get creditKindSpend => 'AI ishlovi';
+
+  @override
+  String get creditKindRefund => 'Qaytarish';
+
+  @override
+  String get creditKindAdjustment => 'Tuzatish';
+
+  @override
+  String get aiBgIntro =>
+      'Odamlar ortidagi fonni xiralashtiring, rangini almashtiring yoki olib tashlang. Yuz serverlarida qayta ishlanadi.';
+
+  @override
+  String get aiPickGallery => 'Rasm tanlash';
+
+  @override
+  String get aiPickCamera => 'Rasmga olish';
+
+  @override
+  String get aiPickHint => 'Odam bor rasmni tanlang';
+
+  @override
+  String get aiModeBlur => 'Xiralashtirish';
+
+  @override
+  String get aiModeColor => 'Rang';
+
+  @override
+  String get aiModeRemove => 'Olib tashlash';
+
+  @override
+  String aiStart(int count) {
+    String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: 'Ishlov berish · $count kredit');
+    return '$_temp0';
+  }
+
+  @override
+  String aiBalance(int count) {
+    return 'Balans: $count';
+  }
+
+  @override
+  String get aiStageUploading => 'Yuklanmoqda…';
+
+  @override
+  String get aiStageQueued => 'Navbatda kutmoqda…';
+
+  @override
+  String get aiStageRunning => 'Qayta ishlanmoqda…';
+
+  @override
+  String get aiStageDownloading => 'Natija yuklab olinmoqda…';
+
+  @override
+  String get aiViewOriginal => 'Asl';
+
+  @override
+  String get aiViewResult => 'Natija';
+
+  @override
+  String get aiOpenEditor => 'Yuzda tahrirlash';
+
+  @override
+  String get aiSignInRequired => 'AI fondan foydalanish uchun hisobingizga kiring.';
+
+  @override
+  String get aiConsentRequired => 'Davom etish uchun bulutli AI ishloviga ruxsat bering.';
+
+  @override
+  String get aiReviewConsent => 'Koʻrib chiqish va ruxsat berish';
+
+  @override
+  String get aiPrivacyNote => 'Faqat shu rasm yuklanadi. Ishlovdan soʻng serverdan oʻchiriladi.';
+
+  @override
+  String get helpIntro => 'Koʻp beriladigan savollarga javoblar.';
+
+  @override
+  String get helpUploadQ => 'Rasmlarim yuklanadimi?';
+
+  @override
+  String get helpUploadA =>
+      'Yoʻq. Goʻzallik kamerasi, retush, filtrlar, stikerlar, shablonlar va video muharriri toʻliq telefoningizda ishlaydi. Rasm telefondan faqat bulutli AI funksiyasidan foydalanganingizda va bunga ruxsat berganingizdan keyin chiqadi.';
+
+  @override
+  String get helpCreditsQ => 'Kreditlar nima?';
+
+  @override
+  String get helpCreditsA =>
+      'Bulutli AI funksiyalari server hisoblash vaqtidan foydalanadi va kredit talab qiladi. Yangi hisoblarga bepul xush kelibsiz kreditlari beriladi. Ishlov muvaffaqiyatsiz boʻlsa, kreditlar avtomatik qaytariladi.';
+
+  @override
+  String get helpBlockedQ => 'Nega baʼzi AI funksiyalari mavjud emas?';
+
+  @override
+  String get helpBlockedA =>
+      'AI fotosessiya, soch turmagi va makiyaj uchun hali yoqilmagan generativ model xizmati kerak. Ular bloklangan deb belgilangan va hech qachon kredit yechmaydi.';
+
+  @override
+  String get helpDeleteQ => 'Maʼlumotlarimni qanday oʻchiraman?';
+
+  @override
+  String get helpDeleteA =>
+      'Loyihalar telefoningizda saqlanadi; ularni Loyihalar boʻlimida oʻchiring. Hisobingiz va serverdagi barcha narsalarni Hisob → Hisobni oʻchirish orqali oʻchirish mumkin. Avval “Maʼlumotlarimni yuklab olish” orqali nusxa oling.';
+
+  @override
+  String get helpCameraQ => 'Kamera qora ekran koʻrsatmoqda';
+
+  @override
+  String get helpCameraA =>
+      'Tizim sozlamalarida kameraga ruxsat berilganini tekshiring va kameradan foydalanayotgan boshqa ilovalarni yoping.';
+
+  @override
+  String get helpSavedQ => 'Saqlangan rasm va videolarim qayerda?';
+
+  @override
+  String get helpSavedA =>
+      'Telefoningiz galereyasidagi “Yuz” albomida. Eksport qilinmagan loyihalar ilova ichida qoladi.';
 }

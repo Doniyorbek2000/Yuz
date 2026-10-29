@@ -331,13 +331,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacyCloudBody =>
-      'Future cloud AI features will ask for your explicit consent before any photo is uploaded, and only for photos of yourself or people who agreed.';
+      'Cloud AI features ask for your explicit consent before any photo is uploaded. Only the photo you choose is sent, over an encrypted connection; it is deleted from the server after processing and never used for advertising or model training. You can withdraw consent in Account.';
 
   @override
   String get privacyDeletionTitle => 'Deleting your data';
 
   @override
-  String get privacyDeletionBody => 'Uninstalling the app removes all locally stored photos, presets and settings.';
+  String get privacyDeletionBody =>
+      'Uninstalling the app removes all locally stored photos, presets and settings. Your account and everything stored on the server can be deleted in Account.';
 
   @override
   String get tabLooks => 'Looks';
@@ -827,4 +828,380 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get templatesCaptionHint => 'Caption (optional)';
+
+  @override
+  String get statusBlocked => 'Blocked';
+
+  @override
+  String featureBlockedBody(String feature) {
+    return '$feature needs a generative AI model service (a paid API or GPU servers). It will be switched on once that service is approved. Nothing is charged until then.';
+  }
+
+  @override
+  String get errorNetwork => 'No connection to the server. Check your internet and try again.';
+
+  @override
+  String get errorTimeout => 'The server took too long to answer. Try again.';
+
+  @override
+  String get errorSessionExpired => 'Your session has ended. Sign in again.';
+
+  @override
+  String get errorInvalidCredentials => 'Email or password is incorrect.';
+
+  @override
+  String get errorEmailTaken => 'An account with this email already exists.';
+
+  @override
+  String get errorRateLimited => 'Too many attempts. Wait a minute and try again.';
+
+  @override
+  String get errorInvalidPassword => 'The password is incorrect.';
+
+  @override
+  String get errorInsufficientCredits => 'Not enough credits for this.';
+
+  @override
+  String get errorConsentRequired => 'Allow cloud AI processing first.';
+
+  @override
+  String get errorAiUnavailable => 'This AI feature is not available on the server right now. No credits were charged.';
+
+  @override
+  String get errorUnsupportedImage => 'This photo format is not supported. Use JPEG or PNG.';
+
+  @override
+  String get errorImageTooLarge => 'The photo is too large.';
+
+  @override
+  String get errorNoPerson =>
+      'No person was found in the photo. Choose one where a person is clearly visible. Your credits were refunded.';
+
+  @override
+  String get errorProcessingTimeout => 'Processing is taking longer than usual. Try again later.';
+
+  @override
+  String get errorJobCancelled => 'The job was cancelled. Your credits were refunded.';
+
+  @override
+  String get errorProcessingFailed => 'Processing failed. Your credits were refunded.';
+
+  @override
+  String get errorFile => 'The photo could not be read or saved on this device.';
+
+  @override
+  String get errorServer => 'The server had a problem. Try again later.';
+
+  @override
+  String get accountTitle => 'Account';
+
+  @override
+  String get accountUnconfiguredTitle => 'Accounts are not available in this build';
+
+  @override
+  String get accountUnconfiguredBody =>
+      'This build is not connected to a Yuz server. The camera, editing and every on-device effect work without an account.';
+
+  @override
+  String get accountSignedOutBody => 'Sign in to use cloud AI features and keep your credits.';
+
+  @override
+  String get accountSignIn => 'Sign in';
+
+  @override
+  String get accountCreate => 'Create account';
+
+  @override
+  String get accountLoadFailed => 'Could not load your account.';
+
+  @override
+  String accountCredits(int count) {
+    String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: '$count credits', one: '1 credit');
+    return '$_temp0';
+  }
+
+  @override
+  String accountPremiumActive(String date) {
+    return 'Premium until $date';
+  }
+
+  @override
+  String get accountPremiumInactive => 'Premium is not active';
+
+  @override
+  String get accountStore => 'Credits & Premium';
+
+  @override
+  String get accountCloudAi => 'Cloud AI processing';
+
+  @override
+  String get accountCloudAiOn => 'Allowed. Photos you send to AI features are processed on Yuz servers.';
+
+  @override
+  String get accountCloudAiOff => 'Not allowed. Nothing is uploaded.';
+
+  @override
+  String get accountRevokeTitle => 'Stop cloud AI processing?';
+
+  @override
+  String get accountRevokeBody => 'Queued jobs are cancelled and refunded, and their uploaded photos are deleted.';
+
+  @override
+  String get accountRevokeConfirm => 'Stop';
+
+  @override
+  String get accountDisplayName => 'Display name';
+
+  @override
+  String get accountExport => 'Download my data';
+
+  @override
+  String get accountExportDone => 'Your data was saved.';
+
+  @override
+  String get accountSignOut => 'Sign out';
+
+  @override
+  String get accountDelete => 'Delete account';
+
+  @override
+  String get accountDeleteBody =>
+      'This permanently deletes your account, credits, AI jobs and uploaded photos. Projects stored on this phone stay. Enter your password to confirm.';
+
+  @override
+  String get accountDeleteConfirm => 'Delete permanently';
+
+  @override
+  String get accountDeleted => 'Your account was deleted.';
+
+  @override
+  String get authEmail => 'Email';
+
+  @override
+  String get authPassword => 'Password';
+
+  @override
+  String get authPasswordHint => 'At least 10 characters';
+
+  @override
+  String get authName => 'Name (optional)';
+
+  @override
+  String get authEmailInvalid => 'Enter a valid email';
+
+  @override
+  String get authPasswordShort => 'Use at least 10 characters';
+
+  @override
+  String get authPasswordRequired => 'Enter your password';
+
+  @override
+  String get authShowPassword => 'Show password';
+
+  @override
+  String get authHidePassword => 'Hide password';
+
+  @override
+  String get authSwitchToRegister => 'No account yet? Create one';
+
+  @override
+  String get authSwitchToSignIn => 'Already have an account? Sign in';
+
+  @override
+  String get authSecurityNote =>
+      'Your password travels only over an encrypted connection and is stored as a salted hash, never as text.';
+
+  @override
+  String get consentIntro =>
+      'AI features such as background replacement run on Yuz servers. Before anything is uploaded, this is exactly what happens:';
+
+  @override
+  String get consentPointUpload =>
+      'Only the photo you choose for an AI feature is uploaded, over an encrypted connection.';
+
+  @override
+  String get consentPointDelete =>
+      'The uploaded photo is deleted from the server as soon as processing ends. The result is removed once it reaches your phone; anything left over is purged automatically.';
+
+  @override
+  String get consentPointUse =>
+      'Photos are used only to make your result — never for advertising and never to train models.';
+
+  @override
+  String get consentPointPeople => 'Only upload photos of yourself or of people who agreed.';
+
+  @override
+  String get consentPointLocal =>
+      'The beauty camera, retouch and filters keep working fully on your phone without this permission.';
+
+  @override
+  String get consentPointRevoke => 'You can withdraw this permission at any time in Account.';
+
+  @override
+  String get consentAccept => 'Allow cloud AI';
+
+  @override
+  String get consentDecline => 'Not now';
+
+  @override
+  String consentVersion(String version) {
+    return 'Consent version $version';
+  }
+
+  @override
+  String get storeBalance => 'Balance';
+
+  @override
+  String get storeBlockedTitle => 'Purchases are not enabled yet';
+
+  @override
+  String get storeBlockedBody =>
+      'Buying credits and Premium needs App Store and Google Play products and their server-side verification to be set up. Until then nothing can be charged.';
+
+  @override
+  String storePremium(int days) {
+    return 'Premium · $days days';
+  }
+
+  @override
+  String get storeUnavailable => 'Unavailable';
+
+  @override
+  String get storePrices => 'AI prices';
+
+  @override
+  String get storeHistory => 'History';
+
+  @override
+  String get storeHistoryEmpty => 'No credit activity yet.';
+
+  @override
+  String get creditKindWelcome => 'Welcome bonus';
+
+  @override
+  String get creditKindPurchase => 'Purchase';
+
+  @override
+  String get creditKindSpend => 'AI processing';
+
+  @override
+  String get creditKindRefund => 'Refund';
+
+  @override
+  String get creditKindAdjustment => 'Adjustment';
+
+  @override
+  String get aiBgIntro => 'Blur, recolour or remove the background behind people. Processed on Yuz servers.';
+
+  @override
+  String get aiPickGallery => 'Choose photo';
+
+  @override
+  String get aiPickCamera => 'Take photo';
+
+  @override
+  String get aiPickHint => 'Choose a photo with a person';
+
+  @override
+  String get aiModeBlur => 'Blur';
+
+  @override
+  String get aiModeColor => 'Colour';
+
+  @override
+  String get aiModeRemove => 'Remove';
+
+  @override
+  String aiStart(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Process · $count credits',
+      one: 'Process · 1 credit',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String aiBalance(int count) {
+    return 'Balance: $count';
+  }
+
+  @override
+  String get aiStageUploading => 'Uploading…';
+
+  @override
+  String get aiStageQueued => 'Waiting in queue…';
+
+  @override
+  String get aiStageRunning => 'Processing…';
+
+  @override
+  String get aiStageDownloading => 'Downloading the result…';
+
+  @override
+  String get aiViewOriginal => 'Original';
+
+  @override
+  String get aiViewResult => 'Result';
+
+  @override
+  String get aiOpenEditor => 'Edit in Yuz';
+
+  @override
+  String get aiSignInRequired => 'Sign in to use AI background.';
+
+  @override
+  String get aiConsentRequired => 'Allow cloud AI processing to continue.';
+
+  @override
+  String get aiReviewConsent => 'Review and allow';
+
+  @override
+  String get aiPrivacyNote => 'Only this photo is uploaded. It is deleted from the server after processing.';
+
+  @override
+  String get helpIntro => 'Answers to common questions.';
+
+  @override
+  String get helpUploadQ => 'Are my photos uploaded?';
+
+  @override
+  String get helpUploadA =>
+      'No. The beauty camera, retouch, filters, stickers, templates and the video editor run entirely on your phone. A photo leaves the phone only when you use a cloud AI feature, after you have allowed it.';
+
+  @override
+  String get helpCreditsQ => 'What are credits?';
+
+  @override
+  String get helpCreditsA =>
+      'Cloud AI features use server computing time and cost credits. New accounts get free welcome credits. When processing fails, the credits are refunded automatically.';
+
+  @override
+  String get helpBlockedQ => 'Why are some AI features unavailable?';
+
+  @override
+  String get helpBlockedA =>
+      'AI photoshoot, hairstyle and makeup need a generative model service that is not switched on yet. They are marked as blocked and never charge credits.';
+
+  @override
+  String get helpDeleteQ => 'How do I delete my data?';
+
+  @override
+  String get helpDeleteA =>
+      'Projects are stored on your phone; delete them in Projects. Your account and everything on the server can be deleted in Account → Delete account. Download a copy first with “Download my data”.';
+
+  @override
+  String get helpCameraQ => 'The camera shows a black screen';
+
+  @override
+  String get helpCameraA =>
+      'Check that camera access is allowed in the system settings, and close other apps that use the camera.';
+
+  @override
+  String get helpSavedQ => 'Where are my saved photos and videos?';
+
+  @override
+  String get helpSavedA =>
+      'In your phone\'s gallery, in the “Yuz” album. Projects you have not exported stay inside the app.';
 }

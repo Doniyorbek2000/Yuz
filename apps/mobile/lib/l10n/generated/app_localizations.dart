@@ -702,7 +702,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacyCloudBody.
   ///
   /// In en, this message translates to:
-  /// **'Future cloud AI features will ask for your explicit consent before any photo is uploaded, and only for photos of yourself or people who agreed.'**
+  /// **'Cloud AI features ask for your explicit consent before any photo is uploaded. Only the photo you choose is sent, over an encrypted connection; it is deleted from the server after processing and never used for advertising or model training. You can withdraw consent in Account.'**
   String get privacyCloudBody;
 
   /// No description provided for @privacyDeletionTitle.
@@ -714,7 +714,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacyDeletionBody.
   ///
   /// In en, this message translates to:
-  /// **'Uninstalling the app removes all locally stored photos, presets and settings.'**
+  /// **'Uninstalling the app removes all locally stored photos, presets and settings. Your account and everything stored on the server can be deleted in Account.'**
   String get privacyDeletionBody;
 
   /// No description provided for @tabLooks.
@@ -1688,6 +1688,684 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Caption (optional)'**
   String get templatesCaptionHint;
+
+  /// No description provided for @statusBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked'**
+  String get statusBlocked;
+
+  /// No description provided for @featureBlockedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{feature} needs a generative AI model service (a paid API or GPU servers). It will be switched on once that service is approved. Nothing is charged until then.'**
+  String featureBlockedBody(String feature);
+
+  /// No description provided for @errorNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection to the server. Check your internet and try again.'**
+  String get errorNetwork;
+
+  /// No description provided for @errorTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'The server took too long to answer. Try again.'**
+  String get errorTimeout;
+
+  /// No description provided for @errorSessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session has ended. Sign in again.'**
+  String get errorSessionExpired;
+
+  /// No description provided for @errorInvalidCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Email or password is incorrect.'**
+  String get errorInvalidCredentials;
+
+  /// No description provided for @errorEmailTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'An account with this email already exists.'**
+  String get errorEmailTaken;
+
+  /// No description provided for @errorRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Wait a minute and try again.'**
+  String get errorRateLimited;
+
+  /// No description provided for @errorInvalidPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'The password is incorrect.'**
+  String get errorInvalidPassword;
+
+  /// No description provided for @errorInsufficientCredits.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough credits for this.'**
+  String get errorInsufficientCredits;
+
+  /// No description provided for @errorConsentRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow cloud AI processing first.'**
+  String get errorConsentRequired;
+
+  /// No description provided for @errorAiUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This AI feature is not available on the server right now. No credits were charged.'**
+  String get errorAiUnavailable;
+
+  /// No description provided for @errorUnsupportedImage.
+  ///
+  /// In en, this message translates to:
+  /// **'This photo format is not supported. Use JPEG or PNG.'**
+  String get errorUnsupportedImage;
+
+  /// No description provided for @errorImageTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'The photo is too large.'**
+  String get errorImageTooLarge;
+
+  /// No description provided for @errorNoPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'No person was found in the photo. Choose one where a person is clearly visible. Your credits were refunded.'**
+  String get errorNoPerson;
+
+  /// No description provided for @errorProcessingTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing is taking longer than usual. Try again later.'**
+  String get errorProcessingTimeout;
+
+  /// No description provided for @errorJobCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'The job was cancelled. Your credits were refunded.'**
+  String get errorJobCancelled;
+
+  /// No description provided for @errorProcessingFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing failed. Your credits were refunded.'**
+  String get errorProcessingFailed;
+
+  /// No description provided for @errorFile.
+  ///
+  /// In en, this message translates to:
+  /// **'The photo could not be read or saved on this device.'**
+  String get errorFile;
+
+  /// No description provided for @errorServer.
+  ///
+  /// In en, this message translates to:
+  /// **'The server had a problem. Try again later.'**
+  String get errorServer;
+
+  /// No description provided for @accountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get accountTitle;
+
+  /// No description provided for @accountUnconfiguredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts are not available in this build'**
+  String get accountUnconfiguredTitle;
+
+  /// No description provided for @accountUnconfiguredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This build is not connected to a Yuz server. The camera, editing and every on-device effect work without an account.'**
+  String get accountUnconfiguredBody;
+
+  /// No description provided for @accountSignedOutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to use cloud AI features and keep your credits.'**
+  String get accountSignedOutBody;
+
+  /// No description provided for @accountSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get accountSignIn;
+
+  /// No description provided for @accountCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get accountCreate;
+
+  /// No description provided for @accountLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load your account.'**
+  String get accountLoadFailed;
+
+  /// No description provided for @accountCredits.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 credit} other{{count} credits}}'**
+  String accountCredits(int count);
+
+  /// No description provided for @accountPremiumActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium until {date}'**
+  String accountPremiumActive(String date);
+
+  /// No description provided for @accountPremiumInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium is not active'**
+  String get accountPremiumInactive;
+
+  /// No description provided for @accountStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Credits & Premium'**
+  String get accountStore;
+
+  /// No description provided for @accountCloudAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud AI processing'**
+  String get accountCloudAi;
+
+  /// No description provided for @accountCloudAiOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed. Photos you send to AI features are processed on Yuz servers.'**
+  String get accountCloudAiOn;
+
+  /// No description provided for @accountCloudAiOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Not allowed. Nothing is uploaded.'**
+  String get accountCloudAiOff;
+
+  /// No description provided for @accountRevokeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop cloud AI processing?'**
+  String get accountRevokeTitle;
+
+  /// No description provided for @accountRevokeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Queued jobs are cancelled and refunded, and their uploaded photos are deleted.'**
+  String get accountRevokeBody;
+
+  /// No description provided for @accountRevokeConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get accountRevokeConfirm;
+
+  /// No description provided for @accountDisplayName.
+  ///
+  /// In en, this message translates to:
+  /// **'Display name'**
+  String get accountDisplayName;
+
+  /// No description provided for @accountExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Download my data'**
+  String get accountExport;
+
+  /// No description provided for @accountExportDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data was saved.'**
+  String get accountExportDone;
+
+  /// No description provided for @accountSignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get accountSignOut;
+
+  /// No description provided for @accountDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get accountDelete;
+
+  /// No description provided for @accountDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently deletes your account, credits, AI jobs and uploaded photos. Projects stored on this phone stay. Enter your password to confirm.'**
+  String get accountDeleteBody;
+
+  /// No description provided for @accountDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete permanently'**
+  String get accountDeleteConfirm;
+
+  /// No description provided for @accountDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account was deleted.'**
+  String get accountDeleted;
+
+  /// No description provided for @authEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get authEmail;
+
+  /// No description provided for @authPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get authPassword;
+
+  /// No description provided for @authPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 10 characters'**
+  String get authPasswordHint;
+
+  /// No description provided for @authName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (optional)'**
+  String get authName;
+
+  /// No description provided for @authEmailInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email'**
+  String get authEmailInvalid;
+
+  /// No description provided for @authPasswordShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least 10 characters'**
+  String get authPasswordShort;
+
+  /// No description provided for @authPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your password'**
+  String get authPasswordRequired;
+
+  /// No description provided for @authShowPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get authShowPassword;
+
+  /// No description provided for @authHidePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get authHidePassword;
+
+  /// No description provided for @authSwitchToRegister.
+  ///
+  /// In en, this message translates to:
+  /// **'No account yet? Create one'**
+  String get authSwitchToRegister;
+
+  /// No description provided for @authSwitchToSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? Sign in'**
+  String get authSwitchToSignIn;
+
+  /// No description provided for @authSecurityNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your password travels only over an encrypted connection and is stored as a salted hash, never as text.'**
+  String get authSecurityNote;
+
+  /// No description provided for @consentIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'AI features such as background replacement run on Yuz servers. Before anything is uploaded, this is exactly what happens:'**
+  String get consentIntro;
+
+  /// No description provided for @consentPointUpload.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the photo you choose for an AI feature is uploaded, over an encrypted connection.'**
+  String get consentPointUpload;
+
+  /// No description provided for @consentPointDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'The uploaded photo is deleted from the server as soon as processing ends. The result is removed once it reaches your phone; anything left over is purged automatically.'**
+  String get consentPointDelete;
+
+  /// No description provided for @consentPointUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos are used only to make your result — never for advertising and never to train models.'**
+  String get consentPointUse;
+
+  /// No description provided for @consentPointPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'Only upload photos of yourself or of people who agreed.'**
+  String get consentPointPeople;
+
+  /// No description provided for @consentPointLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'The beauty camera, retouch and filters keep working fully on your phone without this permission.'**
+  String get consentPointLocal;
+
+  /// No description provided for @consentPointRevoke.
+  ///
+  /// In en, this message translates to:
+  /// **'You can withdraw this permission at any time in Account.'**
+  String get consentPointRevoke;
+
+  /// No description provided for @consentAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow cloud AI'**
+  String get consentAccept;
+
+  /// No description provided for @consentDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get consentDecline;
+
+  /// No description provided for @consentVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Consent version {version}'**
+  String consentVersion(String version);
+
+  /// No description provided for @storeBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get storeBalance;
+
+  /// No description provided for @storeBlockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases are not enabled yet'**
+  String get storeBlockedTitle;
+
+  /// No description provided for @storeBlockedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Buying credits and Premium needs App Store and Google Play products and their server-side verification to be set up. Until then nothing can be charged.'**
+  String get storeBlockedBody;
+
+  /// No description provided for @storePremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium · {days} days'**
+  String storePremium(int days);
+
+  /// No description provided for @storeUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Unavailable'**
+  String get storeUnavailable;
+
+  /// No description provided for @storePrices.
+  ///
+  /// In en, this message translates to:
+  /// **'AI prices'**
+  String get storePrices;
+
+  /// No description provided for @storeHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get storeHistory;
+
+  /// No description provided for @storeHistoryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No credit activity yet.'**
+  String get storeHistoryEmpty;
+
+  /// No description provided for @creditKindWelcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome bonus'**
+  String get creditKindWelcome;
+
+  /// No description provided for @creditKindPurchase.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase'**
+  String get creditKindPurchase;
+
+  /// No description provided for @creditKindSpend.
+  ///
+  /// In en, this message translates to:
+  /// **'AI processing'**
+  String get creditKindSpend;
+
+  /// No description provided for @creditKindRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund'**
+  String get creditKindRefund;
+
+  /// No description provided for @creditKindAdjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjustment'**
+  String get creditKindAdjustment;
+
+  /// No description provided for @aiBgIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Blur, recolour or remove the background behind people. Processed on Yuz servers.'**
+  String get aiBgIntro;
+
+  /// No description provided for @aiPickGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose photo'**
+  String get aiPickGallery;
+
+  /// No description provided for @aiPickCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Take photo'**
+  String get aiPickCamera;
+
+  /// No description provided for @aiPickHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a photo with a person'**
+  String get aiPickHint;
+
+  /// No description provided for @aiModeBlur.
+  ///
+  /// In en, this message translates to:
+  /// **'Blur'**
+  String get aiModeBlur;
+
+  /// No description provided for @aiModeColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour'**
+  String get aiModeColor;
+
+  /// No description provided for @aiModeRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get aiModeRemove;
+
+  /// No description provided for @aiStart.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Process · 1 credit} other{Process · {count} credits}}'**
+  String aiStart(int count);
+
+  /// No description provided for @aiBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance: {count}'**
+  String aiBalance(int count);
+
+  /// No description provided for @aiStageUploading.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading…'**
+  String get aiStageUploading;
+
+  /// No description provided for @aiStageQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting in queue…'**
+  String get aiStageQueued;
+
+  /// No description provided for @aiStageRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing…'**
+  String get aiStageRunning;
+
+  /// No description provided for @aiStageDownloading.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading the result…'**
+  String get aiStageDownloading;
+
+  /// No description provided for @aiViewOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'Original'**
+  String get aiViewOriginal;
+
+  /// No description provided for @aiViewResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Result'**
+  String get aiViewResult;
+
+  /// No description provided for @aiOpenEditor.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit in Yuz'**
+  String get aiOpenEditor;
+
+  /// No description provided for @aiSignInRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to use AI background.'**
+  String get aiSignInRequired;
+
+  /// No description provided for @aiConsentRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow cloud AI processing to continue.'**
+  String get aiConsentRequired;
+
+  /// No description provided for @aiReviewConsent.
+  ///
+  /// In en, this message translates to:
+  /// **'Review and allow'**
+  String get aiReviewConsent;
+
+  /// No description provided for @aiPrivacyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Only this photo is uploaded. It is deleted from the server after processing.'**
+  String get aiPrivacyNote;
+
+  /// No description provided for @helpIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Answers to common questions.'**
+  String get helpIntro;
+
+  /// No description provided for @helpUploadQ.
+  ///
+  /// In en, this message translates to:
+  /// **'Are my photos uploaded?'**
+  String get helpUploadQ;
+
+  /// No description provided for @helpUploadA.
+  ///
+  /// In en, this message translates to:
+  /// **'No. The beauty camera, retouch, filters, stickers, templates and the video editor run entirely on your phone. A photo leaves the phone only when you use a cloud AI feature, after you have allowed it.'**
+  String get helpUploadA;
+
+  /// No description provided for @helpCreditsQ.
+  ///
+  /// In en, this message translates to:
+  /// **'What are credits?'**
+  String get helpCreditsQ;
+
+  /// No description provided for @helpCreditsA.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud AI features use server computing time and cost credits. New accounts get free welcome credits. When processing fails, the credits are refunded automatically.'**
+  String get helpCreditsA;
+
+  /// No description provided for @helpBlockedQ.
+  ///
+  /// In en, this message translates to:
+  /// **'Why are some AI features unavailable?'**
+  String get helpBlockedQ;
+
+  /// No description provided for @helpBlockedA.
+  ///
+  /// In en, this message translates to:
+  /// **'AI photoshoot, hairstyle and makeup need a generative model service that is not switched on yet. They are marked as blocked and never charge credits.'**
+  String get helpBlockedA;
+
+  /// No description provided for @helpDeleteQ.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I delete my data?'**
+  String get helpDeleteQ;
+
+  /// No description provided for @helpDeleteA.
+  ///
+  /// In en, this message translates to:
+  /// **'Projects are stored on your phone; delete them in Projects. Your account and everything on the server can be deleted in Account → Delete account. Download a copy first with “Download my data”.'**
+  String get helpDeleteA;
+
+  /// No description provided for @helpCameraQ.
+  ///
+  /// In en, this message translates to:
+  /// **'The camera shows a black screen'**
+  String get helpCameraQ;
+
+  /// No description provided for @helpCameraA.
+  ///
+  /// In en, this message translates to:
+  /// **'Check that camera access is allowed in the system settings, and close other apps that use the camera.'**
+  String get helpCameraA;
+
+  /// No description provided for @helpSavedQ.
+  ///
+  /// In en, this message translates to:
+  /// **'Where are my saved photos and videos?'**
+  String get helpSavedQ;
+
+  /// No description provided for @helpSavedA.
+  ///
+  /// In en, this message translates to:
+  /// **'In your phone\'s gallery, in the “Yuz” album. Projects you have not exported stay inside the app.'**
+  String get helpSavedA;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

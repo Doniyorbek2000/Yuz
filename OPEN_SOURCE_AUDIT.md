@@ -147,6 +147,8 @@ Legend for **Final decision**:
 | gal 2.3.x | BSD-3-Clause | app |
 | video_player 2.14.x | BSD-3-Clause | app |
 | file_picker 13.3.x | MIT | app |
+| http 1.6.x | BSD-3-Clause | app |
+| flutter_secure_storage 11.2.x | BSD-3-Clause | app |
 | pigeon (dev only, generated code is ours) | BSD-3-Clause | build tool |
 | androidx.camera (CameraX) | Apache-2.0 | Android |
 | com.google.mediapipe:tasks-vision | Apache-2.0 | Android |

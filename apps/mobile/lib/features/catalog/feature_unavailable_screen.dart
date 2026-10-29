@@ -30,7 +30,9 @@ class FeatureUnavailableScreen extends StatelessWidget {
               Text(l10n.featureUnavailableTitle, style: textTheme.titleLarge),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                l10n.featureUnavailableBody(feature.label(l10n), feature.phase),
+                feature.status == FeatureStatus.blocked
+                    ? l10n.featureBlockedBody(feature.label(l10n))
+                    : l10n.featureUnavailableBody(feature.label(l10n), feature.phase),
                 textAlign: TextAlign.center,
                 style: textTheme.bodyMedium,
               ),

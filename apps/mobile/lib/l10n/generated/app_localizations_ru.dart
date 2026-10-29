@@ -337,13 +337,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get privacyCloudBody =>
-      'Будущие облачные AI-функции запросят явное согласие перед загрузкой любого фото — и только для ваших фото или людей, давших согласие.';
+      'Облачные AI-функции запрашивают явное согласие перед загрузкой любого фото. Отправляется только выбранное фото по зашифрованному соединению; после обработки оно удаляется с сервера и никогда не используется для рекламы или обучения моделей. Согласие можно отозвать в разделе «Аккаунт».';
 
   @override
   String get privacyDeletionTitle => 'Удаление данных';
 
   @override
-  String get privacyDeletionBody => 'Удаление приложения стирает все локальные фото, пресеты и настройки.';
+  String get privacyDeletionBody =>
+      'Удаление приложения стирает все локальные фото, пресеты и настройки. Аккаунт и всё, что хранится на сервере, можно удалить в разделе «Аккаунт».';
 
   @override
   String get tabLooks => 'Образы';
@@ -832,4 +833,384 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get templatesCaptionHint => 'Подпись (необязательно)';
+
+  @override
+  String get statusBlocked => 'Заблокировано';
+
+  @override
+  String featureBlockedBody(String feature) {
+    return '$feature требует сервиса генеративной AI-модели (платный API или GPU-серверы). Функция будет включена после утверждения сервиса. До этого ничего не списывается.';
+  }
+
+  @override
+  String get errorNetwork => 'Нет связи с сервером. Проверьте интернет и повторите попытку.';
+
+  @override
+  String get errorTimeout => 'Сервер слишком долго не отвечал. Повторите попытку.';
+
+  @override
+  String get errorSessionExpired => 'Сеанс завершён. Войдите снова.';
+
+  @override
+  String get errorInvalidCredentials => 'Неверный email или пароль.';
+
+  @override
+  String get errorEmailTaken => 'Аккаунт с этим email уже существует.';
+
+  @override
+  String get errorRateLimited => 'Слишком много попыток. Подождите минуту и повторите.';
+
+  @override
+  String get errorInvalidPassword => 'Неверный пароль.';
+
+  @override
+  String get errorInsufficientCredits => 'Недостаточно кредитов.';
+
+  @override
+  String get errorConsentRequired => 'Сначала разрешите облачную AI-обработку.';
+
+  @override
+  String get errorAiUnavailable => 'Эта AI-функция сейчас недоступна на сервере. Кредиты не списаны.';
+
+  @override
+  String get errorUnsupportedImage => 'Этот формат фото не поддерживается. Используйте JPEG или PNG.';
+
+  @override
+  String get errorImageTooLarge => 'Фото слишком большое.';
+
+  @override
+  String get errorNoPerson => 'На фото не найден человек. Выберите фото, где человек хорошо виден. Кредиты возвращены.';
+
+  @override
+  String get errorProcessingTimeout => 'Обработка занимает больше времени, чем обычно. Повторите позже.';
+
+  @override
+  String get errorJobCancelled => 'Задание отменено. Кредиты возвращены.';
+
+  @override
+  String get errorProcessingFailed => 'Обработка не удалась. Кредиты возвращены.';
+
+  @override
+  String get errorFile => 'Не удалось прочитать или сохранить фото на устройстве.';
+
+  @override
+  String get errorServer => 'На сервере произошла ошибка. Повторите позже.';
+
+  @override
+  String get accountTitle => 'Аккаунт';
+
+  @override
+  String get accountUnconfiguredTitle => 'В этой сборке аккаунты недоступны';
+
+  @override
+  String get accountUnconfiguredBody =>
+      'Эта сборка не подключена к серверу Yuz. Камера, редактирование и все эффекты на устройстве работают без аккаунта.';
+
+  @override
+  String get accountSignedOutBody => 'Войдите, чтобы пользоваться облачными AI-функциями и сохранять кредиты.';
+
+  @override
+  String get accountSignIn => 'Войти';
+
+  @override
+  String get accountCreate => 'Создать аккаунт';
+
+  @override
+  String get accountLoadFailed => 'Не удалось загрузить аккаунт.';
+
+  @override
+  String accountCredits(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count кредитов',
+      few: '$count кредита',
+      one: '$count кредит',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String accountPremiumActive(String date) {
+    return 'Premium до $date';
+  }
+
+  @override
+  String get accountPremiumInactive => 'Premium не активен';
+
+  @override
+  String get accountStore => 'Кредиты и Premium';
+
+  @override
+  String get accountCloudAi => 'Облачная AI-обработка';
+
+  @override
+  String get accountCloudAiOn => 'Разрешено. Фото, отправленные в AI-функции, обрабатываются на серверах Yuz.';
+
+  @override
+  String get accountCloudAiOff => 'Не разрешено. Ничего не загружается.';
+
+  @override
+  String get accountRevokeTitle => 'Отключить облачную AI-обработку?';
+
+  @override
+  String get accountRevokeBody => 'Задания в очереди будут отменены с возвратом кредитов, загруженные фото удалены.';
+
+  @override
+  String get accountRevokeConfirm => 'Отключить';
+
+  @override
+  String get accountDisplayName => 'Отображаемое имя';
+
+  @override
+  String get accountExport => 'Скачать мои данные';
+
+  @override
+  String get accountExportDone => 'Ваши данные сохранены.';
+
+  @override
+  String get accountSignOut => 'Выйти';
+
+  @override
+  String get accountDelete => 'Удалить аккаунт';
+
+  @override
+  String get accountDeleteBody =>
+      'Аккаунт, кредиты, AI-задания и загруженные фото будут удалены навсегда. Проекты на телефоне останутся. Введите пароль для подтверждения.';
+
+  @override
+  String get accountDeleteConfirm => 'Удалить навсегда';
+
+  @override
+  String get accountDeleted => 'Ваш аккаунт удалён.';
+
+  @override
+  String get authEmail => 'Email';
+
+  @override
+  String get authPassword => 'Пароль';
+
+  @override
+  String get authPasswordHint => 'Не менее 10 символов';
+
+  @override
+  String get authName => 'Имя (необязательно)';
+
+  @override
+  String get authEmailInvalid => 'Введите корректный email';
+
+  @override
+  String get authPasswordShort => 'Используйте не менее 10 символов';
+
+  @override
+  String get authPasswordRequired => 'Введите пароль';
+
+  @override
+  String get authShowPassword => 'Показать пароль';
+
+  @override
+  String get authHidePassword => 'Скрыть пароль';
+
+  @override
+  String get authSwitchToRegister => 'Нет аккаунта? Создайте';
+
+  @override
+  String get authSwitchToSignIn => 'Уже есть аккаунт? Войдите';
+
+  @override
+  String get authSecurityNote =>
+      'Пароль передаётся только по зашифрованному соединению и хранится как хеш с солью, а не текстом.';
+
+  @override
+  String get consentIntro =>
+      'AI-функции, например замена фона, работают на серверах Yuz. Прежде чем что-то загрузить, узнайте, что именно происходит:';
+
+  @override
+  String get consentPointUpload => 'Загружается только фото, выбранное для AI-функции, по зашифрованному соединению.';
+
+  @override
+  String get consentPointDelete =>
+      'Загруженное фото удаляется с сервера сразу после обработки. Результат удаляется, как только попадёт на телефон; остатки очищаются автоматически.';
+
+  @override
+  String get consentPointUse =>
+      'Фото используются только для вашего результата — никогда для рекламы и обучения моделей.';
+
+  @override
+  String get consentPointPeople => 'Загружайте только свои фото или фото людей, которые согласились.';
+
+  @override
+  String get consentPointLocal =>
+      'Бьюти-камера, ретушь и фильтры полностью работают на телефоне и без этого разрешения.';
+
+  @override
+  String get consentPointRevoke => 'Разрешение можно отозвать в любой момент в разделе «Аккаунт».';
+
+  @override
+  String get consentAccept => 'Разрешить облачную AI';
+
+  @override
+  String get consentDecline => 'Не сейчас';
+
+  @override
+  String consentVersion(String version) {
+    return 'Версия согласия $version';
+  }
+
+  @override
+  String get storeBalance => 'Баланс';
+
+  @override
+  String get storeBlockedTitle => 'Покупки пока не включены';
+
+  @override
+  String get storeBlockedBody =>
+      'Для покупки кредитов и Premium нужно настроить продукты App Store и Google Play и их проверку на сервере. До этого никаких списаний не будет.';
+
+  @override
+  String storePremium(int days) {
+    return 'Premium · $days дн.';
+  }
+
+  @override
+  String get storeUnavailable => 'Недоступно';
+
+  @override
+  String get storePrices => 'Цены AI';
+
+  @override
+  String get storeHistory => 'История';
+
+  @override
+  String get storeHistoryEmpty => 'Операций с кредитами пока нет.';
+
+  @override
+  String get creditKindWelcome => 'Приветственный бонус';
+
+  @override
+  String get creditKindPurchase => 'Покупка';
+
+  @override
+  String get creditKindSpend => 'AI-обработка';
+
+  @override
+  String get creditKindRefund => 'Возврат';
+
+  @override
+  String get creditKindAdjustment => 'Корректировка';
+
+  @override
+  String get aiBgIntro => 'Размойте, перекрасьте или удалите фон за людьми. Обработка на серверах Yuz.';
+
+  @override
+  String get aiPickGallery => 'Выбрать фото';
+
+  @override
+  String get aiPickCamera => 'Сделать фото';
+
+  @override
+  String get aiPickHint => 'Выберите фото с человеком';
+
+  @override
+  String get aiModeBlur => 'Размытие';
+
+  @override
+  String get aiModeColor => 'Цвет';
+
+  @override
+  String get aiModeRemove => 'Удалить';
+
+  @override
+  String aiStart(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Обработать · $count кредитов',
+      few: 'Обработать · $count кредита',
+      one: 'Обработать · $count кредит',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String aiBalance(int count) {
+    return 'Баланс: $count';
+  }
+
+  @override
+  String get aiStageUploading => 'Загрузка…';
+
+  @override
+  String get aiStageQueued => 'Ожидание в очереди…';
+
+  @override
+  String get aiStageRunning => 'Обработка…';
+
+  @override
+  String get aiStageDownloading => 'Загрузка результата…';
+
+  @override
+  String get aiViewOriginal => 'Оригинал';
+
+  @override
+  String get aiViewResult => 'Результат';
+
+  @override
+  String get aiOpenEditor => 'Редактировать в Yuz';
+
+  @override
+  String get aiSignInRequired => 'Войдите, чтобы пользоваться AI-фоном.';
+
+  @override
+  String get aiConsentRequired => 'Разрешите облачную AI-обработку, чтобы продолжить.';
+
+  @override
+  String get aiReviewConsent => 'Ознакомиться и разрешить';
+
+  @override
+  String get aiPrivacyNote => 'Загружается только это фото. После обработки оно удаляется с сервера.';
+
+  @override
+  String get helpIntro => 'Ответы на частые вопросы.';
+
+  @override
+  String get helpUploadQ => 'Мои фото загружаются?';
+
+  @override
+  String get helpUploadA =>
+      'Нет. Бьюти-камера, ретушь, фильтры, стикеры, шаблоны и видеоредактор полностью работают на телефоне. Фото покидает телефон, только когда вы используете облачную AI-функцию и разрешили это.';
+
+  @override
+  String get helpCreditsQ => 'Что такое кредиты?';
+
+  @override
+  String get helpCreditsA =>
+      'Облачные AI-функции используют вычисления на сервере и стоят кредитов. Новые аккаунты получают бесплатные приветственные кредиты. Если обработка не удалась, кредиты возвращаются автоматически.';
+
+  @override
+  String get helpBlockedQ => 'Почему некоторые AI-функции недоступны?';
+
+  @override
+  String get helpBlockedA =>
+      'AI-фотосессии, причёскам и макияжу нужен сервис генеративной модели, который ещё не включён. Они помечены как заблокированные и никогда не списывают кредиты.';
+
+  @override
+  String get helpDeleteQ => 'Как удалить мои данные?';
+
+  @override
+  String get helpDeleteA =>
+      'Проекты хранятся на телефоне — удаляйте их в разделе «Проекты». Аккаунт и всё на сервере удаляются в «Аккаунт → Удалить аккаунт». Сначала можно скачать копию через «Скачать мои данные».';
+
+  @override
+  String get helpCameraQ => 'Камера показывает чёрный экран';
+
+  @override
+  String get helpCameraA =>
+      'Проверьте, что доступ к камере разрешён в настройках системы, и закройте другие приложения, использующие камеру.';
+
+  @override
+  String get helpSavedQ => 'Где мои сохранённые фото и видео?';
+
+  @override
+  String get helpSavedA => 'В галерее телефона, в альбоме «Yuz». Неэкспортированные проекты остаются в приложении.';
 }

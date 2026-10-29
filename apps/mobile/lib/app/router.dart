@@ -2,10 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/account/presentation/account_screen.dart';
+import '../features/account/presentation/auth_screen.dart';
+import '../features/account/presentation/cloud_consent_screen.dart';
+import '../features/account/presentation/store_screen.dart';
+import '../features/ai/presentation/ai_background_screen.dart';
 import '../features/camera/presentation/beauty_camera_screen.dart';
 import '../features/camera/presentation/capture_result_screen.dart';
 import '../features/catalog/feature_catalog.dart';
 import '../features/catalog/feature_unavailable_screen.dart';
+import '../features/help/help_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/permissions/permissions_screen.dart';
@@ -71,6 +77,20 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
       builder: (_, state) => VideoEditorScreen(projectId: state.pathParameters['id']!),
     ),
     GoRoute(path: '/templates', builder: (_, _) => const TemplateEditorScreen()),
+    GoRoute(path: '/ai/background', builder: (_, _) => const AiBackgroundScreen()),
+    GoRoute(
+      path: '/account',
+      builder: (_, _) => const AccountScreen(),
+      routes: [
+        GoRoute(
+          path: 'auth',
+          builder: (_, state) => AuthScreen(register: state.uri.queryParameters['mode'] == 'register'),
+        ),
+        GoRoute(path: 'consent', builder: (_, _) => const CloudConsentScreen()),
+        GoRoute(path: 'store', builder: (_, _) => const StoreScreen()),
+      ],
+    ),
+    GoRoute(path: '/help', builder: (_, _) => const HelpScreen()),
     GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
     GoRoute(path: '/privacy', builder: (_, _) => const PrivacyScreen()),
     GoRoute(

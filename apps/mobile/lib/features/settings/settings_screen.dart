@@ -45,6 +45,18 @@ class SettingsScreen extends ConsumerWidget {
             subtitle: Text(l10n.settingsPerformanceOverlaySubtitle),
           ),
           ListTile(
+            leading: const Icon(Icons.person_outline),
+            title: Text(l10n.accountTitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/account'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.help_outline),
+            title: Text(l10n.featureHelp),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/help'),
+          ),
+          ListTile(
             leading: const Icon(Icons.privacy_tip_outlined),
             title: Text(l10n.settingsPrivacy),
             trailing: const Icon(Icons.chevron_right),

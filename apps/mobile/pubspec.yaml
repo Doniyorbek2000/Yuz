@@ -29,6 +29,8 @@ dependencies:
     path: ../../packages/yuz_beauty_engine
   video_player: ^2.14.1
   file_picker: ^13.3.0
+  flutter_secure_storage: ^11.2.0
+  http: ^1.6.0
 
 dev_dependencies:
   fake_async: ^1.3.3

@@ -43,17 +43,17 @@ void main() {
     expect(find.text('Preview'), findsWidgets);
 
     await tester.scrollUntilVisible(find.text('Help'), 300);
-    expect(find.text('Planned'), findsWidgets);
+    expect(find.text('Blocked'), findsWidgets);
     expect(find.text('Ready'), findsWidgets);
   });
 
-  testWidgets('a planned feature opens the honest unavailable screen', (tester) async {
+  testWidgets('a blocked feature opens the honest unavailable screen', (tester) async {
     await pumpRoute(tester, '/home');
     await tester.scrollUntilVisible(find.text('AI photoshoot'), 200);
     await tester.tap(find.text('AI photoshoot'));
     await tester.pumpAndSettle();
     expect(find.text('Not available yet'), findsOneWidget);
-    expect(find.textContaining('phase 6'), findsOneWidget);
+    expect(find.textContaining('generative AI model service'), findsOneWidget);
   });
 
   testWidgets('home does not overflow on a small phone', (tester) async {

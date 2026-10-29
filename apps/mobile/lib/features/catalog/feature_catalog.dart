@@ -4,7 +4,14 @@ import '../../l10n/generated/app_localizations.dart';
 
 /// Delivery status shown in the UI. Mirrors FEATURE_MATRIX.md; a feature is
 /// only routed to a working screen when it is [implemented] or [partial].
-enum FeatureStatus { implemented, partial, notStarted }
+enum FeatureStatus {
+  implemented,
+  partial,
+  notStarted,
+
+  /// Waits on an external decision (e.g. a paid model service); never routed.
+  blocked,
+}
 
 enum FeatureSection { camera, editing, ai, account }
 
@@ -14,15 +21,15 @@ enum AppFeature {
   videoEditor(FeatureSection.editing, FeatureStatus.partial, 4, Icons.movie_filter_outlined, '/projects?tab=videos'),
   templates(FeatureSection.editing, FeatureStatus.partial, 3, Icons.dashboard_customize_outlined, '/templates'),
   projects(FeatureSection.editing, FeatureStatus.partial, 3, Icons.folder_open_outlined, '/projects'),
-  aiPhotoshoot(FeatureSection.ai, FeatureStatus.notStarted, 6, Icons.auto_awesome_outlined, null),
-  aiHairstyle(FeatureSection.ai, FeatureStatus.notStarted, 6, Icons.content_cut_outlined, null),
-  aiMakeup(FeatureSection.ai, FeatureStatus.notStarted, 3, Icons.brush_outlined, null),
-  aiBackground(FeatureSection.ai, FeatureStatus.notStarted, 6, Icons.wallpaper_outlined, null),
-  premium(FeatureSection.account, FeatureStatus.notStarted, 7, Icons.workspace_premium_outlined, null),
-  credits(FeatureSection.account, FeatureStatus.notStarted, 7, Icons.toll_outlined, null),
-  profile(FeatureSection.account, FeatureStatus.notStarted, 5, Icons.person_outline, null),
+  aiPhotoshoot(FeatureSection.ai, FeatureStatus.blocked, 6, Icons.auto_awesome_outlined, null),
+  aiHairstyle(FeatureSection.ai, FeatureStatus.blocked, 6, Icons.content_cut_outlined, null),
+  aiMakeup(FeatureSection.ai, FeatureStatus.blocked, 6, Icons.brush_outlined, null),
+  aiBackground(FeatureSection.ai, FeatureStatus.partial, 6, Icons.wallpaper_outlined, '/ai/background'),
+  premium(FeatureSection.account, FeatureStatus.partial, 7, Icons.workspace_premium_outlined, '/account/store'),
+  credits(FeatureSection.account, FeatureStatus.partial, 7, Icons.toll_outlined, '/account/store'),
+  profile(FeatureSection.account, FeatureStatus.partial, 5, Icons.person_outline, '/account'),
   settings(FeatureSection.account, FeatureStatus.implemented, 1, Icons.tune_outlined, '/settings'),
-  help(FeatureSection.account, FeatureStatus.notStarted, 8, Icons.help_outline, null);
+  help(FeatureSection.account, FeatureStatus.implemented, 8, Icons.help_outline, '/help');
 
   const AppFeature(this.section, this.status, this.phase, this.icon, this.route);
 
@@ -36,7 +43,7 @@ enum AppFeature {
   /// Route of the working screen; null while the feature is not started.
   final String? route;
 
-  bool get isAvailable => route != null && status != FeatureStatus.notStarted;
+  bool get isAvailable => route != null && status != FeatureStatus.notStarted && status != FeatureStatus.blocked;
 
   String label(AppLocalizations l10n) => switch (this) {
     AppFeature.beautyCamera => l10n.featureBeautyCamera,
@@ -73,5 +80,6 @@ extension FeatureStatusLabel on FeatureStatus {
     FeatureStatus.implemented => l10n.statusImplemented,
     FeatureStatus.partial => l10n.statusPartial,
     FeatureStatus.notStarted => l10n.statusNotStarted,
+    FeatureStatus.blocked => l10n.statusBlocked,
   };
 }

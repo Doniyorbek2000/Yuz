@@ -15,6 +15,7 @@ class StatusBadge extends StatelessWidget {
       FeatureStatus.implemented => AppColors.success,
       FeatureStatus.partial => AppColors.warning,
       FeatureStatus.notStarted => AppColors.textMuted,
+      FeatureStatus.blocked => AppColors.danger,
     };
     return DecoratedBox(
       decoration: BoxDecoration(

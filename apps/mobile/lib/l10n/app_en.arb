@@ -152,9 +152,9 @@
   "privacyStorageTitle": "What is stored",
   "privacyStorageBody": "Photos you take are saved in the app's private storage. Your settings and beauty presets are stored locally.",
   "privacyCloudTitle": "Cloud AI features",
-  "privacyCloudBody": "Future cloud AI features will ask for your explicit consent before any photo is uploaded, and only for photos of yourself or people who agreed.",
+  "privacyCloudBody": "Cloud AI features ask for your explicit consent before any photo is uploaded. Only the photo you choose is sent, over an encrypted connection; it is deleted from the server after processing and never used for advertising or model training. You can withdraw consent in Account.",
   "privacyDeletionTitle": "Deleting your data",
-  "privacyDeletionBody": "Uninstalling the app removes all locally stored photos, presets and settings.",
+  "privacyDeletionBody": "Uninstalling the app removes all locally stored photos, presets and settings. Your account and everything stored on the server can be deleted in Account.",
   "tabLooks": "Looks",
   "tabFilters": "Filters",
   "tabSkin": "Skin",
@@ -323,5 +323,167 @@
   "templatesBackground": "Background",
   "templatesSpacing": "Spacing",
   "templatesCorners": "Corners",
-  "templatesCaptionHint": "Caption (optional)"
+  "templatesCaptionHint": "Caption (optional)",
+  "statusBlocked": "Blocked",
+  "featureBlockedBody": "{feature} needs a generative AI model service (a paid API or GPU servers). It will be switched on once that service is approved. Nothing is charged until then.",
+  "@featureBlockedBody": {
+    "placeholders": {
+      "feature": {
+        "type": "String"
+      }
+    }
+  },
+  "errorNetwork": "No connection to the server. Check your internet and try again.",
+  "errorTimeout": "The server took too long to answer. Try again.",
+  "errorSessionExpired": "Your session has ended. Sign in again.",
+  "errorInvalidCredentials": "Email or password is incorrect.",
+  "errorEmailTaken": "An account with this email already exists.",
+  "errorRateLimited": "Too many attempts. Wait a minute and try again.",
+  "errorInvalidPassword": "The password is incorrect.",
+  "errorInsufficientCredits": "Not enough credits for this.",
+  "errorConsentRequired": "Allow cloud AI processing first.",
+  "errorAiUnavailable": "This AI feature is not available on the server right now. No credits were charged.",
+  "errorUnsupportedImage": "This photo format is not supported. Use JPEG or PNG.",
+  "errorImageTooLarge": "The photo is too large.",
+  "errorNoPerson": "No person was found in the photo. Choose one where a person is clearly visible. Your credits were refunded.",
+  "errorProcessingTimeout": "Processing is taking longer than usual. Try again later.",
+  "errorJobCancelled": "The job was cancelled. Your credits were refunded.",
+  "errorProcessingFailed": "Processing failed. Your credits were refunded.",
+  "errorFile": "The photo could not be read or saved on this device.",
+  "errorServer": "The server had a problem. Try again later.",
+  "accountTitle": "Account",
+  "accountUnconfiguredTitle": "Accounts are not available in this build",
+  "accountUnconfiguredBody": "This build is not connected to a Yuz server. The camera, editing and every on-device effect work without an account.",
+  "accountSignedOutBody": "Sign in to use cloud AI features and keep your credits.",
+  "accountSignIn": "Sign in",
+  "accountCreate": "Create account",
+  "accountLoadFailed": "Could not load your account.",
+  "accountCredits": "{count, plural, =1{1 credit} other{{count} credits}}",
+  "@accountCredits": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "accountPremiumActive": "Premium until {date}",
+  "@accountPremiumActive": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "accountPremiumInactive": "Premium is not active",
+  "accountStore": "Credits & Premium",
+  "accountCloudAi": "Cloud AI processing",
+  "accountCloudAiOn": "Allowed. Photos you send to AI features are processed on Yuz servers.",
+  "accountCloudAiOff": "Not allowed. Nothing is uploaded.",
+  "accountRevokeTitle": "Stop cloud AI processing?",
+  "accountRevokeBody": "Queued jobs are cancelled and refunded, and their uploaded photos are deleted.",
+  "accountRevokeConfirm": "Stop",
+  "accountDisplayName": "Display name",
+  "accountExport": "Download my data",
+  "accountExportDone": "Your data was saved.",
+  "accountSignOut": "Sign out",
+  "accountDelete": "Delete account",
+  "accountDeleteBody": "This permanently deletes your account, credits, AI jobs and uploaded photos. Projects stored on this phone stay. Enter your password to confirm.",
+  "accountDeleteConfirm": "Delete permanently",
+  "accountDeleted": "Your account was deleted.",
+  "authEmail": "Email",
+  "authPassword": "Password",
+  "authPasswordHint": "At least 10 characters",
+  "authName": "Name (optional)",
+  "authEmailInvalid": "Enter a valid email",
+  "authPasswordShort": "Use at least 10 characters",
+  "authPasswordRequired": "Enter your password",
+  "authShowPassword": "Show password",
+  "authHidePassword": "Hide password",
+  "authSwitchToRegister": "No account yet? Create one",
+  "authSwitchToSignIn": "Already have an account? Sign in",
+  "authSecurityNote": "Your password travels only over an encrypted connection and is stored as a salted hash, never as text.",
+  "consentIntro": "AI features such as background replacement run on Yuz servers. Before anything is uploaded, this is exactly what happens:",
+  "consentPointUpload": "Only the photo you choose for an AI feature is uploaded, over an encrypted connection.",
+  "consentPointDelete": "The uploaded photo is deleted from the server as soon as processing ends. The result is removed once it reaches your phone; anything left over is purged automatically.",
+  "consentPointUse": "Photos are used only to make your result — never for advertising and never to train models.",
+  "consentPointPeople": "Only upload photos of yourself or of people who agreed.",
+  "consentPointLocal": "The beauty camera, retouch and filters keep working fully on your phone without this permission.",
+  "consentPointRevoke": "You can withdraw this permission at any time in Account.",
+  "consentAccept": "Allow cloud AI",
+  "consentDecline": "Not now",
+  "consentVersion": "Consent version {version}",
+  "@consentVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "storeBalance": "Balance",
+  "storeBlockedTitle": "Purchases are not enabled yet",
+  "storeBlockedBody": "Buying credits and Premium needs App Store and Google Play products and their server-side verification to be set up. Until then nothing can be charged.",
+  "storePremium": "Premium · {days} days",
+  "@storePremium": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "storeUnavailable": "Unavailable",
+  "storePrices": "AI prices",
+  "storeHistory": "History",
+  "storeHistoryEmpty": "No credit activity yet.",
+  "creditKindWelcome": "Welcome bonus",
+  "creditKindPurchase": "Purchase",
+  "creditKindSpend": "AI processing",
+  "creditKindRefund": "Refund",
+  "creditKindAdjustment": "Adjustment",
+  "aiBgIntro": "Blur, recolour or remove the background behind people. Processed on Yuz servers.",
+  "aiPickGallery": "Choose photo",
+  "aiPickCamera": "Take photo",
+  "aiPickHint": "Choose a photo with a person",
+  "aiModeBlur": "Blur",
+  "aiModeColor": "Colour",
+  "aiModeRemove": "Remove",
+  "aiStart": "{count, plural, =1{Process · 1 credit} other{Process · {count} credits}}",
+  "@aiStart": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "aiBalance": "Balance: {count}",
+  "@aiBalance": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "aiStageUploading": "Uploading…",
+  "aiStageQueued": "Waiting in queue…",
+  "aiStageRunning": "Processing…",
+  "aiStageDownloading": "Downloading the result…",
+  "aiViewOriginal": "Original",
+  "aiViewResult": "Result",
+  "aiOpenEditor": "Edit in Yuz",
+  "aiSignInRequired": "Sign in to use AI background.",
+  "aiConsentRequired": "Allow cloud AI processing to continue.",
+  "aiReviewConsent": "Review and allow",
+  "aiPrivacyNote": "Only this photo is uploaded. It is deleted from the server after processing.",
+  "helpIntro": "Answers to common questions.",
+  "helpUploadQ": "Are my photos uploaded?",
+  "helpUploadA": "No. The beauty camera, retouch, filters, stickers, templates and the video editor run entirely on your phone. A photo leaves the phone only when you use a cloud AI feature, after you have allowed it.",
+  "helpCreditsQ": "What are credits?",
+  "helpCreditsA": "Cloud AI features use server computing time and cost credits. New accounts get free welcome credits. When processing fails, the credits are refunded automatically.",
+  "helpBlockedQ": "Why are some AI features unavailable?",
+  "helpBlockedA": "AI photoshoot, hairstyle and makeup need a generative model service that is not switched on yet. They are marked as blocked and never charge credits.",
+  "helpDeleteQ": "How do I delete my data?",
+  "helpDeleteA": "Projects are stored on your phone; delete them in Projects. Your account and everything on the server can be deleted in Account → Delete account. Download a copy first with “Download my data”.",
+  "helpCameraQ": "The camera shows a black screen",
+  "helpCameraA": "Check that camera access is allowed in the system settings, and close other apps that use the camera.",
+  "helpSavedQ": "Where are my saved photos and videos?",
+  "helpSavedA": "In your phone's gallery, in the “Yuz” album. Projects you have not exported stay inside the app."
 }
