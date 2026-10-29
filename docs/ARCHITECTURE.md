@@ -55,7 +55,32 @@ Brightening is a masked gamma lift.
 The camera controller is `autoDispose`: leaving the screen releases camera, GPU and detector; a session that
 finishes opening after the screen left is released again (tested).
 
-## Planned (not implemented)
+## Server side
 
-Backend (NestJS modular monolith, Prisma/PostgreSQL, BullMQ/Redis, S3-compatible storage), Python AI worker behind
-a provider interface, Next.js admin — Phases 5–7.
+```
+app ──HTTPS──▶ API (NestJS) ──▶ PostgreSQL (users, consents, credit ledger, jobs, purchases, audit log)
+                   │  │
+                   │  └─ enqueue {jobId} ──▶ Redis / BullMQ "yuz-ai-jobs"
+                   │                               │
+                   │        ◀── internal API ── AI worker (Python, providers) ── shared storage volume
+                   │                                        (uploads in, results out)
+admin (Next.js, server-side calls, httpOnly session) ──▶ API /v1/admin
+```
+
+- **API** (`apps/backend`): a modular monolith with the modules auth, users, consent, credits, ai-jobs,
+  purchases, admin, storage, queue and health. Every route needs an access token unless it is marked public, and
+  roles are checked against the database. Configuration is validated at startup (zod).
+- **Job lifecycle:** `QUEUED → RUNNING → SUCCEEDED | FAILED | CANCELLED`.
+  1. Creating a job spends credits, stores the upload and enqueues only the job id.
+  2. The worker claims the job with `/internal/ai-jobs/:id/start`. A job that was cancelled meanwhile answers
+     409 and is skipped.
+  3. The worker writes `result.{png|jpg}` atomically and reports `complete`, or reports `fail`, which refunds
+     the credits exactly once.
+- **Worker** (`services/ai-worker`): providers implement `process(image, params) -> (bytes, extension)` for
+  their job types. Only `BACKGROUND` is served, with the MediaPipe selfie segmenter on CPU. The API accepts only
+  the types listed in `AI_ENABLED_TYPES`, so a type without a provider is refused before it is charged.
+- **App** (`apps/mobile/lib/core/api`): a typed client with stable error codes. Riverpod providers hold the
+  session (`SessionController`), the account data and the AI background flow, which uploads, polls, downloads
+  and then deletes the server copy.
+- **Admin** (`apps/admin`): Next.js App Router server components and server actions. Requests pass through a
+  proxy that refreshes tokens, and no tokens reach the browser.
